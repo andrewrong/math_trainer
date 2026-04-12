@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>数学练习小助手</title>
+<title>Math Practice Helper</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;font-size:15px;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#d6eaf8;color:#1a1a1a;font-size:15px;}
 .app{max-width:680px;margin:0 auto;padding:1rem;}
 .hdr{text-align:center;margin-bottom:1rem;}
 .hdr-title{font-size:20px;font-weight:600;color:#1a1a1a;}
@@ -18,9 +18,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card{background:#fff;border:0.5px solid #e0e0da;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;}
 .card-title{font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:8px;}
 .lv-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;}
-.lbtn{padding:6px 13px;border:0.5px solid #ccc;border-radius:8px;font-size:12px;cursor:pointer;background:#f5f5f0;color:#666;}
+.lbtn{padding:6px 13px;border:0.5px solid #ccc;border-radius:8px;font-size:12px;cursor:pointer;background:#e8f4fc;color:#666;}
 .lbtn.on{background:#eaf3de;color:#3b6d11;border-color:#3b6d11;font-weight:600;}
-.quiz-box{background:#f5f5f0;border-radius:12px;padding:1.25rem;text-align:center;margin-bottom:1rem;}
+.quiz-box{background:#e8f4fc;border-radius:12px;padding:1.25rem;text-align:center;margin-bottom:1rem;}
 .progress-wrap{margin-bottom:12px;}
 .progress-info{display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:5px;}
 .progress-bar{height:6px;background:#fff;border-radius:3px;overflow:hidden;border:0.5px solid #e0e0da;}
@@ -30,7 +30,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ans-in:focus{outline:none;border-color:#378ADD;}
 .confirm-btn{display:block;margin:1rem auto 0;padding:9px 28px;border:0.5px solid #185fa5;border-radius:8px;font-size:14px;cursor:pointer;background:#e6f1fb;color:#185fa5;font-weight:600;}
 .confirm-btn:active{transform:scale(0.98);}
-.next-btn{padding:8px 18px;border:0.5px solid #ccc;border-radius:8px;font-size:12px;cursor:pointer;background:#f5f5f0;color:#666;margin-top:8px;display:inline-block;}
+.next-btn{padding:8px 18px;border:0.5px solid #ccc;border-radius:8px;font-size:12px;cursor:pointer;background:#e8f4fc;color:#666;margin-top:8px;display:inline-block;}
 .fb{font-size:16px;font-weight:600;min-height:24px;margin-top:10px;}
 .fb.ok{color:#1D9E75;}.fb.no{color:#E24B4A;}
 .tip{background:#faeeda;border:0.5px solid #BA7517;border-radius:8px;padding:9px 12px;font-size:12px;color:#633806;margin-top:8px;display:none;line-height:1.7;text-align:left;}
@@ -39,7 +39,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .result-label{font-size:13px;color:#888;}
 .result-msg{font-size:15px;color:#1a1a1a;margin:1rem 0;font-weight:600;}
 .result-stats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:1rem 0;}
-.rsc{background:#f5f5f0;border-radius:8px;padding:10px 18px;text-align:center;}
+.rsc{background:#e8f4fc;border-radius:8px;padding:10px 18px;text-align:center;}
 .rsn{font-size:20px;font-weight:600;color:#1a1a1a;}
 .rsl{font-size:11px;color:#888;margin-top:2px;}
 .result-wrong{text-align:left;margin-top:1rem;}
@@ -48,19 +48,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .again-btn{padding:10px 28px;border:0.5px solid #3b6d11;border-radius:8px;font-size:14px;cursor:pointer;background:#eaf3de;color:#3b6d11;font-weight:600;margin:4px;}
 .retry-wrong-btn{padding:10px 24px;border:0.5px solid #E24B4A;border-radius:8px;font-size:14px;cursor:pointer;background:#fcebeb;color:#A32D2D;font-weight:600;margin:4px;}
 .method-mini{font-size:13px;color:#666;line-height:1.9;margin-bottom:8px;}
-.eg{background:#f5f5f0;border-radius:8px;padding:7px 12px;font-size:12px;color:#666;margin-top:6px;line-height:1.8;}
+.eg{background:#e8f4fc;border-radius:8px;padding:7px 12px;font-size:12px;color:#666;margin-top:6px;line-height:1.8;}
 .steps{display:flex;flex-direction:column;gap:7px;margin-top:6px;}
 .step{display:flex;align-items:flex-start;gap:9px;}
 .snum{min-width:21px;height:21px;border-radius:50%;background:#e6f1fb;color:#185fa5;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
 .stext{font-size:13px;color:#666;line-height:1.7;}
 .stext b{color:#1a1a1a;}
 .teach-wrap{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;margin:10px 0;}
-.svgbg{background:#f5f5f0;border-radius:8px;padding:14px 18px;display:inline-block;flex-shrink:0;}
+.svgbg{background:#e8f4fc;border-radius:8px;padding:14px 18px;display:inline-block;flex-shrink:0;}
 .warn{background:#faeeda;border:0.5px solid #BA7517;border-radius:8px;padding:9px 12px;font-size:12px;color:#633806;margin:10px 0;line-height:1.7;}
 .notice{background:#e6f1fb;border:0.5px solid #185fa5;border-radius:8px;padding:9px 12px;font-size:12px;color:#185fa5;margin-bottom:10px;line-height:1.7;}
 .divider{border:none;border-top:0.5px solid #e0e0da;margin:14px 0;}
 .sub-tabs{display:flex;gap:6px;margin-bottom:12px;}
-.stab{padding:6px 14px;border:0.5px solid #ccc;border-radius:8px;font-size:12px;cursor:pointer;background:#f5f5f0;color:#666;}
+.stab{padding:6px 14px;border:0.5px solid #ccc;border-radius:8px;font-size:12px;cursor:pointer;background:#e8f4fc;color:#666;}
 .stab.on{background:#eaf3de;color:#3b6d11;border-color:#3b6d11;font-weight:600;}
 .spanel{display:none;}.spanel.on{display:block;}
 .big-q{font-size:34px;font-weight:600;color:#1a1a1a;margin:0.5rem 0 1rem;letter-spacing:2px;}
@@ -68,10 +68,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .flash-q{font-size:44px;font-weight:600;color:#1a1a1a;margin:1.25rem 0 1rem;text-align:center;}
 .flash-ans{font-size:32px;font-weight:600;min-height:44px;text-align:center;color:#1a1a1a;}
 .flash-btn{padding:10px 24px;border:0.5px solid #185fa5;border-radius:8px;font-size:13px;cursor:pointer;background:#e6f1fb;color:#185fa5;font-weight:600;margin:4px;}
-.flash-skip{padding:10px 18px;border:0.5px solid #ccc;border-radius:8px;font-size:13px;cursor:pointer;background:#f5f5f0;color:#666;margin:4px;}
+.flash-skip{padding:10px 18px;border:0.5px solid #ccc;border-radius:8px;font-size:13px;cursor:pointer;background:#e8f4fc;color:#666;margin:4px;}
 .flash-pick{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:1rem;justify-content:center;}
 .tbl-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:3px;margin-top:8px;}
-.tcell{background:#f5f5f0;border-radius:4px;padding:5px 2px;text-align:center;font-size:11px;color:#888;border:0.5px solid #e0e0da;}
+.tcell{background:#e8f4fc;border-radius:4px;padding:5px 2px;text-align:center;font-size:11px;color:#888;border:0.5px solid #e0e0da;}
 .tcell.hdr{font-weight:600;color:#1a1a1a;background:#e8e8e2;}
 .tcell.done-c{background:#eaf3de;color:#3b6d11;border-color:#3b6d11;}
 .tcell.weak-c{background:#fcebeb;color:#A32D2D;border-color:#E24B4A;}
@@ -80,18 +80,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .empty{text-align:center;color:#888;font-size:13px;padding:2rem 0;}
 .start-btn{width:100%;padding:12px;border:0.5px solid #185fa5;border-radius:8px;font-size:14px;cursor:pointer;background:#e6f1fb;color:#185fa5;font-weight:600;}
 .start-btn:active{transform:scale(0.98);}
-/* 成绩历史 */
+/* Score History */
 .hist-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;}
-.hsc{background:#f5f5f0;border-radius:8px;padding:10px;text-align:center;}
+.hsc{background:#e8f4fc;border-radius:8px;padding:10px;text-align:center;}
 .hsn{font-size:20px;font-weight:600;color:#1a1a1a;}
 .hsl{font-size:11px;color:#888;margin-top:2px;}
-.streak-row{display:flex;align-items:center;gap:8px;margin-bottom:1rem;background:#f5f5f0;border-radius:8px;padding:10px 14px;}
+.streak-row{display:flex;align-items:center;gap:8px;margin-bottom:1rem;background:#e8f4fc;border-radius:8px;padding:10px 14px;}
 .streak-num{font-size:28px;font-weight:600;color:#EF9F27;}
 .streak-label{font-size:13px;color:#888;}
-.chart-wrap{background:#f5f5f0;border-radius:8px;padding:12px;margin-bottom:1rem;}
+.chart-wrap{background:#e8f4fc;border-radius:8px;padding:12px;margin-bottom:1rem;}
 .chart-title{font-size:12px;color:#888;margin-bottom:8px;}
 .hist-list{display:flex;flex-direction:column;gap:6px;}
-.hist-item{background:#f5f5f0;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;}
+.hist-item{background:#e8f4fc;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;}
 .hist-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
 .hist-info{flex:1;}
 .hist-type{font-size:12px;color:#888;}
@@ -99,130 +99,139 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .hist-date{font-size:11px;color:#aaa;margin-top:1px;}
 .hist-score-bar{height:4px;border-radius:2px;margin-top:4px;background:#e0e0da;}
 .hist-score-fill{height:100%;border-radius:2px;}
-.clear-btn{width:100%;margin-top:12px;padding:9px;border:0.5px solid #ccc;border-radius:8px;font-size:12px;cursor:pointer;background:#f5f5f0;color:#888;}
+.clear-btn{width:100%;margin-top:12px;padding:9px;border:0.5px solid #ccc;border-radius:8px;font-size:12px;cursor:pointer;background:#e8f4fc;color:#888;}
+/* Fireworks */
+#fw-canvas{position:fixed;top:0;left:0;pointer-events:none;display:none;z-index:9999;}
+/* Challenge */
+.ch-timer-wrap{height:8px;background:#fff;border-radius:4px;border:0.5px solid #e0e0da;margin-bottom:14px;overflow:hidden;}
+#ch-timer-fill{height:100%;width:100%;background:#1D9E75;border-radius:4px;transition:width 0.1s linear;}
+.ch-weak-stats{font-size:12px;color:#E24B4A;background:#fcebeb;border:0.5px solid #E24B4A;border-radius:8px;padding:8px 12px;margin-bottom:10px;display:none;}
 </style>
 </head>
 <body>
+<canvas id="fw-canvas"></canvas>
 <div class="app">
 <div class="hdr">
-  <div class="hdr-title">数学练习小助手</div>
-  <div class="hdr-sub">每轮 30 题 · 成绩自动保存到本地</div>
+  <div class="hdr-title">Math Practice Helper</div>
+  <div class="hdr-sub">30 Questions per Round · Scores Saved Locally</div>
 </div>
 <div class="tabs">
-  <div class="tab on" onclick="go('add',this)">加减法</div>
-  <div class="tab" onclick="go('mul',this)">口诀乘除</div>
-  <div class="tab" onclick="go('vertical',this)">竖式计算</div>
-  <div class="tab" onclick="go('flash',this)">口诀闪卡</div>
-  <div class="tab" onclick="go('table',this)">口诀表</div>
-  <div class="tab" onclick="go('wrongs',this)">错题本</div>
-  <div class="tab" onclick="go('history',this)">成绩历史</div>
+  <div class="tab on" onclick="go('add',this)">Add & Sub</div>
+  <div class="tab" onclick="go('mul',this)">Times Tables</div>
+  <div class="tab" onclick="go('vertical',this)">Long Form</div>
+  <div class="tab" onclick="go('challenge',this)">Speed Quiz</div>
+  <div class="tab" onclick="go('flash',this)">Flash Cards</div>
+  <div class="tab" onclick="go('table',this)">Table Chart</div>
+  <div class="tab" onclick="go('wrongs',this)">Mistakes</div>
+  <div class="tab" onclick="go('history',this)">History</div>
 </div>
 
-<!-- 加减法 -->
+<!-- Addition & Subtraction -->
 <div class="sec on" id="sec-add">
   <div class="card">
-    <div class="method-mini">加法用<b>凑10法</b>，减法用<b>破10法</b>。</div>
-    <div class="eg">例：8+7 → 拆7为2+5 → 10+5 = <b>15</b></div>
-    <div class="eg">例：14−6 → 10+4，10−6=4，4+4 = <b>8</b></div>
+    <div class="method-mini">Addition: use <b>Make 10</b> method. Subtraction: use <b>Break 10</b> method.</div>
+    <div class="eg">Example: 8+7 → Split 7 into 2+5 → 10+5 = <b>15</b></div>
+    <div class="eg">Example: 14−6 → 10+4, 10−6=4, 4+4 = <b>8</b></div>
   </div>
   <div class="lv-row">
-    <div class="lbtn on" onclick="setLv('add','easy',this)">10以内</div>
-    <div class="lbtn" onclick="setLv('add','mid',this)">10-20加法</div>
-    <div class="lbtn" onclick="setLv('add','hard',this)">20以内减法</div>
-    <div class="lbtn" onclick="setLv('add','wrong',this)">练错题</div>
+    <div class="lbtn on" onclick="setLv('add','easy',this)">Within 10</div>
+    <div class="lbtn" onclick="setLv('add','mid',this)">10-20 Add</div>
+    <div class="lbtn" onclick="setLv('add','hard',this)">Within 20 Sub</div>
+    <div class="lbtn" onclick="setLv('add','wrong',this)">Practice Mistakes</div>
   </div>
-  <div id="add-start-wrap"><button class="start-btn" onclick="startBatch('add')">开始本轮 30 题 →</button></div>
+  <div id="add-start-wrap"><button class="start-btn" onclick="startBatch('add')">Start 30 Questions →</button></div>
   <div id="add-quiz" style="display:none;">
     <div class="quiz-box">
       <div class="progress-wrap">
-        <div class="progress-info"><span id="add-prog-txt">第 1 题 / 共 30 题</span><span id="add-prog-cor" style="color:#1D9E75;">答对 0</span></div>
+        <div class="progress-info"><span id="add-prog-txt">Question 1 / 30</span><span id="add-prog-cor" style="color:#1D9E75;">0 Correct</span></div>
         <div class="progress-bar"><div class="progress-fill" id="add-prog-fill" style="width:0%"></div></div>
       </div>
       <div class="q-disp" id="add-q">—</div>
       <input class="ans-in" type="number" id="add-ans" placeholder="?" onkeydown="if(event.key==='Enter')chk('add')">
       <div class="tip" id="add-tip"></div>
       <div class="fb" id="add-fb"></div>
-      <button class="confirm-btn" onclick="chk('add')">确认答案 ✓</button>
-      <button class="next-btn" onclick="nxt('add')">跳过 →</button>
+      <button class="confirm-btn" onclick="chk('add')">Check Answer ✓</button>
+      <button class="next-btn" onclick="nxt('add')">Skip →</button>
     </div>
   </div>
   <div id="add-result" style="display:none;"></div>
 </div>
 
-<!-- 口诀乘除 -->
+<!-- Times Tables -->
 <div class="sec" id="sec-mul">
-  <div class="card"><div class="notice">乘法口诀要记住，直接说！除法反推：24÷6 → "6×?=24" → 4</div></div>
+  <div class="card"><div class="notice">Memorize multiplication facts - say them aloud! Division: work backwards - 24÷6 → "6×?=24" → 4</div></div>
   <div class="lv-row">
-    <div class="lbtn on" onclick="setLv('mul','m25',this)">乘法×2-5</div>
-    <div class="lbtn" onclick="setLv('mul','m69',this)">乘法×6-9</div>
-    <div class="lbtn" onclick="setLv('mul','div',this)">除法÷</div>
-    <div class="lbtn" onclick="setLv('mul','mix',this)">乘除混合</div>
-    <div class="lbtn" onclick="setLv('mul','wrong',this)">练错题</div>
+    <div class="lbtn on" onclick="setLv('mul','m25',this)">×2-5</div>
+    <div class="lbtn" onclick="setLv('mul','m69',this)">×6-9</div>
+    <div class="lbtn" onclick="setLv('mul','div',this)">Division ÷</div>
+    <div class="lbtn" onclick="setLv('mul','mix',this)">Mixed ×÷</div>
+    <div class="lbtn" onclick="setLv('mul','wrong',this)">Practice Mistakes</div>
   </div>
-  <div id="mul-start-wrap"><button class="start-btn" onclick="startBatch('mul')">开始本轮 30 题 →</button></div>
+  <div id="mul-start-wrap"><button class="start-btn" onclick="startBatch('mul')">Start 30 Questions →</button></div>
   <div id="mul-quiz" style="display:none;">
     <div class="quiz-box">
       <div class="progress-wrap">
-        <div class="progress-info"><span id="mul-prog-txt">第 1 题 / 共 30 题</span><span id="mul-prog-cor" style="color:#1D9E75;">答对 0</span></div>
+        <div class="progress-info"><span id="mul-prog-txt">Question 1 / 30</span><span id="mul-prog-cor" style="color:#1D9E75;">0 Correct</span></div>
         <div class="progress-bar"><div class="progress-fill" id="mul-prog-fill" style="width:0%"></div></div>
       </div>
       <div class="q-disp" id="mul-q">—</div>
       <input class="ans-in" type="number" id="mul-ans" placeholder="?" onkeydown="if(event.key==='Enter')chk('mul')">
       <div class="tip" id="mul-tip"></div>
       <div class="fb" id="mul-fb"></div>
-      <button class="confirm-btn" onclick="chk('mul')">确认答案 ✓</button>
-      <button class="next-btn" onclick="nxt('mul')">跳过 →</button>
+      <button class="confirm-btn" onclick="chk('mul')">Check Answer ✓</button>
+      <button class="next-btn" onclick="nxt('mul')">Skip →</button>
     </div>
   </div>
   <div id="mul-result" style="display:none;"></div>
 </div>
 
-<!-- 竖式计算 -->
+<!-- Long Form Calculation -->
 <div class="sec" id="sec-vertical">
   <div class="sub-tabs">
-    <div class="stab on" onclick="showSub('teach',this)">教学讲解</div>
-    <div class="stab" onclick="showSub('practice',this)">练习题目</div>
+    <div class="stab on" onclick="showSub('teach',this)">Learn How</div>
+    <div class="stab" onclick="showSub('practice',this)">Practice</div>
   </div>
   <div class="spanel on" id="sub-teach">
     <div class="lv-row">
-      <div class="lbtn on" onclick="setTeachLv('tm1',this)">两位×一位</div>
-      <div class="lbtn" onclick="setTeachLv('tm2',this)">两位×两位</div>
-      <div class="lbtn" onclick="setTeachLv('td1',this)">两位÷一位</div>
-      <div class="lbtn" onclick="setTeachLv('td2',this)">三位÷两位</div>
+      <div class="lbtn on" onclick="setTeachLv('tm1',this)">2-Digit × 1-Digit</div>
+      <div class="lbtn" onclick="setTeachLv('tm2',this)">2-Digit × 2-Digit</div>
+      <div class="lbtn" onclick="setTeachLv('td1',this)">2-Digit ÷ 1-Digit</div>
+      <div class="lbtn" onclick="setTeachLv('td2',this)">3-Digit ÷ 2-Digit</div>
     </div>
     <div id="teach-content"></div>
   </div>
   <div class="spanel" id="sub-practice">
     <div class="lv-row">
-      <div class="lbtn on" onclick="setLv('v','vm1',this)">两位×一位</div>
-      <div class="lbtn" onclick="setLv('v','vm2',this)">两位×两位</div>
-      <div class="lbtn" onclick="setLv('v','vd1',this)">两位÷一位</div>
-      <div class="lbtn" onclick="setLv('v','vd2',this)">三位÷两位</div>
-      <div class="lbtn" onclick="setLv('v','vwrong',this)">练错题</div>
+      <div class="lbtn on" onclick="setLv('v','vm1',this)">2-Digit × 1-Digit</div>
+      <div class="lbtn" onclick="setLv('v','vm2',this)">2-Digit × 2-Digit</div>
+      <div class="lbtn" onclick="setLv('v','vd1',this)">2-Digit ÷ 1-Digit</div>
+      <div class="lbtn" onclick="setLv('v','vd2',this)">3-Digit ÷ 2-Digit</div>
+      <div class="lbtn" onclick="setLv('v','vmix',this)">Mixed ×÷ Advanced</div>
+      <div class="lbtn" onclick="setLv('v','vwrong',this)">Practice Mistakes</div>
     </div>
-    <div id="v-start-wrap"><button class="start-btn" onclick="startBatch('v')">开始本轮 30 题 →</button></div>
+    <div id="v-start-wrap"><button class="start-btn" onclick="startBatch('v')">Start 30 Questions →</button></div>
     <div id="v-quiz" style="display:none;">
       <div class="quiz-box">
         <div class="progress-wrap">
-          <div class="progress-info"><span id="v-prog-txt">第 1 题 / 共 30 题</span><span id="v-prog-cor" style="color:#1D9E75;">答对 0</span></div>
+          <div class="progress-info"><span id="v-prog-txt">Question 1 / 30</span><span id="v-prog-cor" style="color:#1D9E75;">0 Correct</span></div>
           <div class="progress-bar"><div class="progress-fill" id="v-prog-fill" style="width:0%"></div></div>
         </div>
-        <div class="paper-note">在纸上用竖式算，填最终答案</div>
+        <div class="paper-note">Work it out on paper, enter final answer</div>
         <div class="big-q" id="v-q">—</div>
         <input class="ans-in" type="number" id="v-ans" placeholder="?" onkeydown="if(event.key==='Enter')chk('v')" style="font-size:28px;width:120px;">
         <div class="tip" id="v-tip"></div>
         <div class="fb" id="v-fb"></div>
-        <button class="confirm-btn" onclick="chk('v')">确认答案 ✓</button>
-        <button class="next-btn" onclick="nxt('v')">跳过 →</button>
+        <button class="confirm-btn" onclick="chk('v')">Check Answer ✓</button>
+        <button class="next-btn" onclick="nxt('v')">Skip →</button>
       </div>
     </div>
     <div id="v-result" style="display:none;"></div>
   </div>
 </div>
 
-<!-- 口诀闪卡 -->
+<!-- Flash Cards -->
 <div class="sec" id="sec-flash">
-  <div class="card" style="margin-bottom:.75rem;"><div class="method-mini">先在心里说答案，再点显示对一对。</div></div>
+  <div class="card" style="margin-bottom:.75rem;"><div class="method-mini">Think of the answer in your head, then tap to show and check.</div></div>
   <div class="flash-pick">
     <button class="lbtn on" onclick="startFlash(2,this)">×2</button>
     <button class="lbtn" onclick="startFlash(3,this)">×3</button>
@@ -232,63 +241,92 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="lbtn" onclick="startFlash(7,this)">×7</button>
     <button class="lbtn" onclick="startFlash(8,this)">×8</button>
     <button class="lbtn" onclick="startFlash(9,this)">×9</button>
-    <button class="lbtn" onclick="startFlash('weak',this)">练弱点</button>
+    <button class="lbtn" onclick="startFlash('weak',this)">Weak Spots</button>
   </div>
   <div class="card" style="text-align:center;">
-    <div style="font-size:12px;color:#888;margin-bottom:4px;" id="flash-prog">选一组口诀开始</div>
+    <div style="font-size:12px;color:#888;margin-bottom:4px;" id="flash-prog">Pick a times table to start</div>
     <div class="flash-q" id="flash-q">—</div>
     <div class="flash-ans" id="flash-ans"></div>
     <div id="flash-before" style="margin-top:8px;">
-      <button class="flash-btn" onclick="revealFlash()">显示答案</button>
-      <button class="flash-skip" onclick="flashGrade('no')">不会，跳过</button>
+      <button class="flash-btn" onclick="revealFlash()">Show Answer</button>
+      <button class="flash-skip" onclick="flashGrade('no')">Don't Know, Skip</button>
     </div>
     <div id="flash-after" style="display:none;margin-top:8px;">
-      <button class="flash-btn" onclick="flashGrade('yes')">我会了！</button>
-      <button class="flash-skip" onclick="flashGrade('no')">记错了</button>
+      <button class="flash-btn" onclick="flashGrade('yes')">I Got It!</button>
+      <button class="flash-skip" onclick="flashGrade('no')">Missed It</button>
     </div>
     <div style="font-size:12px;color:#888;margin-top:12px;" id="flash-note"></div>
   </div>
 </div>
 
-<!-- 口诀表 -->
+<!-- Table Chart -->
 <div class="sec" id="sec-table">
   <div class="card">
-    <div class="method-mini" style="margin-bottom:8px;">绿色=答对过，红色=答错过，灰色=还没练过。</div>
+    <div class="method-mini" style="margin-bottom:8px;">Green = Got it right, Red = Got it wrong, Gray = Not practiced yet.</div>
     <div class="tbl-grid" id="mul-table"></div>
   </div>
 </div>
 
-<!-- 错题本 -->
+<!-- Mistakes Notebook -->
 <div class="sec" id="sec-wrongs">
-  <div id="wrong-area"><div class="empty">还没有错题，继续加油！</div></div>
-  <button class="global-retry-btn" id="retry-btn" style="display:none" onclick="retryAll()">练习全部错题 →</button>
+  <div id="wrong-area"><div class="empty">No mistakes yet - keep it up!</div></div>
+  <button class="global-retry-btn" id="retry-btn" style="display:none" onclick="retryAll()">Practice All Mistakes →</button>
 </div>
 
-<!-- 成绩历史 -->
+<!-- Speed Challenge -->
+<div class="sec" id="sec-challenge">
+  <div class="card" style="margin-bottom:.75rem;">
+    <div class="method-mini">Race through all times tables (2×2 to 9×9, 64 questions). Any wrong answer or answer taking over 5 seconds is saved as a weak spot — practice those next time to focus on what needs work!</div>
+  </div>
+  <div id="ch-weak-stats" class="ch-weak-stats"></div>
+  <div id="ch-start-wrap">
+    <button class="start-btn" onclick="startChallenge(false)">Start Full Challenge (64 Questions) →</button>
+    <div id="ch-weak-btn-wrap" style="margin-top:8px;display:none;">
+      <button class="start-btn" style="border-color:#E24B4A;background:#fcebeb;color:#A32D2D;" onclick="startChallenge(true)">Practice Weak Spots (<span id="ch-weak-count">0</span> Questions) →</button>
+    </div>
+  </div>
+  <div id="ch-quiz" style="display:none;">
+    <div class="quiz-box">
+      <div class="progress-wrap">
+        <div class="progress-info"><span id="ch-prog-txt">Question 1 / 64</span><span id="ch-prog-cor" style="color:#1D9E75;">0 Correct</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="ch-prog-fill" style="width:0%"></div></div>
+      </div>
+      <div class="ch-timer-wrap"><div id="ch-timer-fill"></div></div>
+      <div class="q-disp" id="ch-q">—</div>
+      <input class="ans-in" type="number" id="ch-ans" placeholder="?" onkeydown="if(event.key==='Enter')chkChallenge()">
+      <div class="fb" id="ch-fb"></div>
+      <div class="tip" id="ch-tip" style="display:none;text-align:left;line-height:1.9;"></div>
+      <button class="confirm-btn" onclick="chkChallenge()">Check Answer ✓</button>
+    </div>
+  </div>
+  <div id="ch-result" style="display:none;"></div>
+</div>
+
+<!-- Score History -->
 <div class="sec" id="sec-history">
   <div class="streak-row">
     <div class="streak-num" id="streak-num">0</div>
-    <div class="streak-label">天<br><span style="font-size:11px;">连续练习天数</span></div>
+    <div class="streak-label">Days<br><span style="font-size:11px;">Practice Streak</span></div>
     <div style="flex:1;"></div>
-    <div style="text-align:right;font-size:12px;color:#888;">总共完成<br><b id="total-sessions" style="color:#1a1a1a;font-size:16px;">0</b> 轮</div>
+    <div style="text-align:right;font-size:12px;color:#888;">Total Rounds<br><b id="total-sessions" style="color:#1a1a1a;font-size:16px;">0</b></div>
   </div>
   <div class="hist-summary">
-    <div class="hsc"><div class="hsn" id="hist-avg">—</div><div class="hsl">平均正确率</div></div>
-    <div class="hsc"><div class="hsn" id="hist-best">—</div><div class="hsl">最高正确率</div></div>
-    <div class="hsc"><div class="hsn" id="hist-recent">—</div><div class="hsl">最近7天平均</div></div>
+    <div class="hsc"><div class="hsn" id="hist-avg">—</div><div class="hsl">Average Score</div></div>
+    <div class="hsc"><div class="hsn" id="hist-best">—</div><div class="hsl">Best Score</div></div>
+    <div class="hsc"><div class="hsn" id="hist-recent">—</div><div class="hsl">Last 7 Days Avg</div></div>
   </div>
   <div class="lv-row">
-    <div class="lbtn on" onclick="filterHist('all',this)">全部</div>
-    <div class="lbtn" onclick="filterHist('add',this)">加减法</div>
-    <div class="lbtn" onclick="filterHist('mul',this)">口诀乘除</div>
-    <div class="lbtn" onclick="filterHist('v',this)">竖式计算</div>
+    <div class="lbtn on" onclick="filterHist('all',this)">All</div>
+    <div class="lbtn" onclick="filterHist('add',this)">Add & Sub</div>
+    <div class="lbtn" onclick="filterHist('mul',this)">Times Tables</div>
+    <div class="lbtn" onclick="filterHist('v',this)">Long Form</div>
   </div>
   <div class="chart-wrap">
-    <div class="chart-title">最近20次正确率趋势</div>
+    <div class="chart-title">Last 20 Scores Trend</div>
     <canvas id="hist-chart" height="80"></canvas>
   </div>
   <div class="hist-list" id="hist-list"></div>
-  <button class="clear-btn" onclick="clearHistory()">清空成绩历史</button>
+  <button class="clear-btn" onclick="clearHistory()">Clear History</button>
 </div>
 </div>
 
@@ -303,6 +341,7 @@ const MASTER_KEY='mathtrainer-mastered';
 
 let wrongMap={}, masteredMap={};
 let lv={add:'easy',mul:'m25',v:'vm1'};
+let autoTimer={add:null,mul:null,v:null};
 let batch={
   add:{queue:[],idx:0,correct:0,wrongInBatch:[],startTime:0},
   mul:{queue:[],idx:0,correct:0,wrongInBatch:[],startTime:0},
@@ -312,9 +351,9 @@ let done={add:false,mul:false,v:false};
 let histFilter='all';
 
 const TYPE_LABELS={
-  'add:easy':'加减法·10以内','add:mid':'加减法·10-20加法','add:hard':'加减法·20以内减',
-  'mul:m25':'口诀·×2-5','mul:m69':'口诀·×6-9','mul:div':'口诀·除法','mul:mix':'口诀·混合',
-  'v:vm1':'竖式·两位×一位','v:vm2':'竖式·两位×两位','v:vd1':'竖式·两位÷一位','v:vd2':'竖式·三位÷两位'
+  'add:easy':'Add/Sub·Within 10','add:mid':'Add/Sub·10-20 Add','add:hard':'Add/Sub·Within 20 Sub',
+  'mul:m25':'Tables·×2-5','mul:m69':'Tables·×6-9','mul:div':'Tables·Division','mul:mix':'Tables·Mixed',
+  'v:vm1':'Long·2D×1D','v:vm2':'Long·2D×2D','v:vd1':'Long·2D÷1D','v:vd2':'Long·3D÷2D','v:vmix':'Long·Mixed ×÷ Adv'
 };
 
 /* ===== localStorage ===== */
@@ -342,7 +381,7 @@ function loadMastered(){
   try{const d=localStorage.getItem(MASTER_KEY);if(d)masteredMap=JSON.parse(d);}catch(e){}
 }
 function clearHistory(){
-  if(!confirm('确定要清空所有成绩记录吗？'))return;
+  if(!confirm('Clear all score history?'))return;
   localStorage.removeItem(STORAGE_KEY);
   renderHistory();
 }
@@ -355,6 +394,7 @@ function go(id,btn){
   if(id==='table')renderTable();
   if(id==='wrongs')renderWrongs();
   if(id==='history')renderHistory();
+  if(id==='challenge')initChallenge();
 }
 function showSub(id,btn){
   document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on'));
@@ -369,7 +409,7 @@ function setLv(area,v,btn){
   document.getElementById(area+'-result').innerHTML='';
 }
 
-/* ===== 题目生成 ===== */
+/* ===== Question Generation ===== */
 function makeQ(area){
   const v=lv[area];
   if(area==='add'){
@@ -392,6 +432,7 @@ function makeQ(area){
     if(v==='vm2'){const a=ri(11,29),b=ri(11,29);return{a,op:'×',b,ans:a*b,key:`v:${a}×${b}`};}
     if(v==='vd1'){let d,q,dv;do{d=ri(2,9);q=ri(11,25);dv=d*q;}while(dv<10||dv>99);return{a:dv,op:'÷',b:d,ans:q,key:`v:${dv}÷${d}`};}
     if(v==='vd2'){let d,q,dv;do{d=ri(11,25);q=ri(11,19);dv=d*q;}while(dv<100||dv>999);return{a:dv,op:'÷',b:d,ans:q,key:`v:${dv}÷${d}`};}
+    if(v==='vmix'){if(Math.random()<.5){const a=ri(11,29),b=ri(11,29);return{a,op:'×',b,ans:a*b,key:`v:${a}×${b}`};}else{let d,q,dv;do{d=ri(11,25);q=ri(11,19);dv=d*q;}while(dv<100||dv>999);return{a:dv,op:'÷',b:d,ans:q,key:`v:${dv}÷${d}`};}}
     if(v==='vwrong'){const ks=Object.keys(wrongMap).filter(k=>k.startsWith('v:'));if(!ks.length)return null;return wrongMap[ks[ri(0,ks.length-1)]].q;}
   }
 }
@@ -411,7 +452,7 @@ function buildQueue(area){
 }
 
 function startBatch(area){
-  const q=buildQueue(area);if(!q.length){alert('没有错题可练！');return;}
+  const q=buildQueue(area);if(!q.length){alert('No mistakes to practice!');return;}
   batch[area]={queue:q,idx:0,correct:0,wrongInBatch:[],startTime:Date.now()};
   done[area]=false;
   document.getElementById(area+'-start-wrap').style.display='none';
@@ -428,13 +469,14 @@ function loadQ(area){
   document.getElementById(area+'-ans').value='';
   document.getElementById(area+'-fb').textContent='';
   document.getElementById(area+'-tip').style.display='none';
-  document.getElementById(area+'-prog-txt').textContent=`第 ${n} 题 / 共 ${b.queue.length} 题`;
-  document.getElementById(area+'-prog-cor').textContent=`答对 ${b.correct}`;
+  document.getElementById(area+'-prog-txt').textContent=`Question ${n} / ${b.queue.length}`;
+  document.getElementById(area+'-prog-cor').textContent=`${b.correct} Correct`;
   document.getElementById(area+'-prog-fill').style.width=((n-1)/b.queue.length*100)+'%';
   setTimeout(()=>document.getElementById(area+'-ans').focus(),50);
 }
 
 function nxt(area){
+  if(autoTimer[area]){clearTimeout(autoTimer[area]);autoTimer[area]=null;}
   if(!done[area]){
     const q=batch[area].queue[batch[area].idx];
     if(q){batch[area].wrongInBatch.push(q);if(!wrongMap[q.key])wrongMap[q.key]={q,count:0};wrongMap[q.key].count++;saveWrongs();}
@@ -448,23 +490,23 @@ function chk(area){
   done[area]=true;
   const b=batch[area],q=b.queue[b.idx];
   const fb=document.getElementById(area+'-fb'),tip=document.getElementById(area+'-tip');
-  if(val===q.ans){
-    b.correct++;fb.textContent='答对了！';fb.className='fb ok';tip.style.display='none';
-    if(q.op==='×'&&area==='mul'){masteredMap[`${Math.min(q.a,q.b)}x${Math.max(q.a,q.b)}`]='ok';saveMastered();}
-    if(wrongMap[q.key]){wrongMap[q.key].count=Math.max(0,wrongMap[q.key].count-1);if(wrongMap[q.key].count===0)delete wrongMap[q.key];saveWrongs();}
-    document.getElementById(area+'-prog-cor').textContent=`答对 ${b.correct}`;
-  }else{
-    b.wrongInBatch.push(q);fb.textContent=`不对，答案是 ${q.ans}`;fb.className='fb no';
-    if(!wrongMap[q.key])wrongMap[q.key]={q,count:0};wrongMap[q.key].count++;saveWrongs();
-    if(q.op==='×'&&area==='mul'){masteredMap[`${Math.min(q.a,q.b)}x${Math.max(q.a,q.b)}`]='weak';saveMastered();}
-    if(area==='add'){if(q.op==='+'){const need=10-q.a;tip.textContent=need>0&&need<q.b?`凑10：${q.a}差${need}，拆${q.b}为${need}+${q.b-need}，10+${q.b-need}=${q.ans}`:`${q.a}+${q.b}=${q.ans}`;}else{const o=q.a-10;tip.textContent=q.a>10?`破10：${q.a}=10+${o}，10-${q.b}=${10-q.b}，${10-q.b}+${o}=${q.ans}`:`${q.a}-${q.b}=${q.ans}`;}}
-    else if(area==='mul'){tip.textContent=q.op==='×'?`口诀：${Math.min(q.a,q.b)}×${Math.max(q.a,q.b)}=${q.ans}`:`反推：?×${q.b}=${q.a}，答${q.ans}`;}
-    else{tip.textContent=`竖式答案是 ${q.ans}`;}
-    tip.style.display='block';
-  }
   const n=b.idx+1;
   document.getElementById(area+'-prog-fill').style.width=(n/b.queue.length*100)+'%';
-  document.getElementById(area+'-prog-txt').textContent=`第 ${n} 题 / 共 ${b.queue.length} 题`;
+  document.getElementById(area+'-prog-txt').textContent=`Question ${n} / ${b.queue.length}`;
+  if(val===q.ans){
+    b.correct++;fb.textContent='Correct! ✓';fb.className='fb ok';tip.style.display='none';
+    launchFireworks();
+    if(q.op==='×'&&area==='mul'){masteredMap[`${Math.min(q.a,q.b)}x${Math.max(q.a,q.b)}`]='ok';saveMastered();}
+    if(wrongMap[q.key]){wrongMap[q.key].count=Math.max(0,wrongMap[q.key].count-1);if(wrongMap[q.key].count===0)delete wrongMap[q.key];saveWrongs();}
+    document.getElementById(area+'-prog-cor').textContent=`${b.correct} Correct`;
+    autoTimer[area]=setTimeout(()=>nxt(area),700);
+  }else{
+    b.wrongInBatch.push(q);fb.textContent=`Not quite! The answer is ${q.ans}`;fb.className='fb no';
+    if(!wrongMap[q.key])wrongMap[q.key]={q,count:0};wrongMap[q.key].count++;saveWrongs();
+    if(q.op==='×'&&area==='mul'){masteredMap[`${Math.min(q.a,q.b)}x${Math.max(q.a,q.b)}`]='weak';saveMastered();}
+    tip.innerHTML=generateSteps(area,q);
+    tip.style.display='block';
+  }
 }
 
 function showResult(area){
@@ -473,32 +515,31 @@ function showResult(area){
   const total=b.queue.length,correct=b.correct,wrong=total-correct;
   const rate=Math.round(correct/total*100);
   const elapsed=Math.round((Date.now()-b.startTime)/1000);
-  // 保存到 localStorage
   const record={date:new Date().toISOString(),area,level:lv[area],typeKey:`${area}:${lv[area]}`,total,correct,rate,elapsed};
   saveHistory(record);
 
   const color=rate>=90?'#1D9E75':rate>=70?'#EF9F27':'#E24B4A';
-  const msg=rate===100?'全对！太厉害了！':rate>=90?'非常棒！':rate>=70?'不错，继续加油！':'要加油哦，多练错题！';
+  const msg=rate===100?'Perfect! Amazing!':rate>=90?'Excellent!':rate>=70?'Good job, keep going!':'Keep practicing!';
   const mins=Math.floor(elapsed/60),secs=elapsed%60;
-  const timeStr=mins>0?`${mins}分${secs}秒`:`${secs}秒`;
+  const timeStr=mins>0?`${mins}m ${secs}s`:`${secs}s`;
   const uniq=[];const seen=new Set();
   b.wrongInBatch.forEach(q=>{if(!seen.has(q.key)){seen.add(q.key);uniq.push(q);}});
-  const wrongHtml=uniq.length?`<div class="result-wrong"><div class="rw-title">这次答错的题：</div>${uniq.map(q=>`<span class="rw-item">${q.a} ${q.op} ${q.b} = ${q.ans}</span>`).join('')}</div>`:'';
+  const wrongHtml=uniq.length?`<div class="result-wrong"><div class="rw-title">Questions you missed:</div>${uniq.map(q=>`<span class="rw-item">${q.a} ${q.op} ${q.b} = ${q.ans}</span>`).join('')}</div>`:'';
 
   const el=document.getElementById(area+'-result');
   el.innerHTML=`<div class="result-card">
-    <div class="result-label">本轮成绩已保存 ✓</div>
+    <div class="result-label">Score Saved ✓</div>
     <div class="result-score" style="color:${color}">${rate}%</div>
     <div class="result-msg">${msg}</div>
     <div class="result-stats">
-      <div class="rsc"><div class="rsn" style="color:#1D9E75">${correct}</div><div class="rsl">答对</div></div>
-      <div class="rsc"><div class="rsn" style="color:#E24B4A">${wrong}</div><div class="rsl">答错</div></div>
-      <div class="rsc"><div class="rsn">${timeStr}</div><div class="rsl">用时</div></div>
+      <div class="rsc"><div class="rsn" style="color:#1D9E75">${correct}</div><div class="rsl">Correct</div></div>
+      <div class="rsc"><div class="rsn" style="color:#E24B4A">${wrong}</div><div class="rsl">Wrong</div></div>
+      <div class="rsc"><div class="rsn">${timeStr}</div><div class="rsl">Time</div></div>
     </div>
     ${wrongHtml}
     <div style="margin-top:1.25rem;">
-      <button class="again-btn" onclick="startBatch('${area}')">再来一轮 →</button>
-      ${uniq.length?`<button class="retry-wrong-btn" onclick="retryBatchWrong('${area}')">只练错题 →</button>`:''}
+      <button class="again-btn" onclick="startBatch('${area}')">Another Round →</button>
+      ${uniq.length?`<button class="retry-wrong-btn" onclick="retryBatchWrong('${area}')">Practice Mistakes →</button>`:''}
     </div>
   </div>`;
   el.style.display='block';
@@ -509,12 +550,11 @@ function retryBatchWrong(area){
   startBatch(area);
 }
 
-/* ===== 成绩历史 ===== */
+/* ===== Score History ===== */
 function renderHistory(){
   const all=loadHistory();
   const filtered=histFilter==='all'?all:all.filter(r=>r.area===histFilter);
 
-  // 连续练习天数
   const days=new Set(all.map(r=>r.date.slice(0,10)));
   let streak=0;const today=new Date();
   for(let i=0;i<365;i++){const d=new Date(today);d.setDate(d.getDate()-i);if(days.has(d.toISOString().slice(0,10)))streak++;else break;}
@@ -538,11 +578,11 @@ function renderHistory(){
   drawChart(filtered.slice(-20));
 
   const list=document.getElementById('hist-list');list.innerHTML='';
-  if(!filtered.length){list.innerHTML='<div class="empty">还没有记录，做完一轮会自动保存！</div>';return;}
+  if(!filtered.length){list.innerHTML='<div class="empty">No records yet - complete a round to save!</div>';return;}
   [...filtered].reverse().slice(0,50).forEach(r=>{
     const color=r.rate>=90?'#1D9E75':r.rate>=70?'#EF9F27':'#E24B4A';
     const d=new Date(r.date);
-    const dateStr=`${d.getMonth()+1}月${d.getDate()}日 ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const dateStr=`${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
     const label=TYPE_LABELS[r.typeKey]||r.typeKey;
     const div=document.createElement('div');div.className='hist-item';
     div.innerHTML=`<div class="hist-dot" style="background:${color}"></div>
@@ -550,7 +590,7 @@ function renderHistory(){
         <div class="hist-type">${label}</div>
         <div class="hist-rate" style="color:${color}">${r.rate}%</div>
         <div class="hist-score-bar"><div class="hist-score-fill" style="width:${r.rate}%;background:${color}"></div></div>
-        <div class="hist-date">${dateStr} · ${r.correct}/${r.total}题 · ${r.elapsed?Math.floor(r.elapsed/60)+'分'+r.elapsed%60+'秒':''}</div>
+        <div class="hist-date">${dateStr} · ${r.correct}/${r.total} Qs · ${r.elapsed?Math.floor(r.elapsed/60)+'m'+r.elapsed%60+'s':''}</div>
       </div>`;
     list.appendChild(div);
   });
@@ -568,7 +608,7 @@ function drawChart(data){
   const W=canvas.parentElement.clientWidth-24||300;
   canvas.width=W;canvas.height=80;
   ctx.clearRect(0,0,W,80);
-  if(!data.length){ctx.fillStyle='#aaa';ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('做完题目后会显示趋势',W/2,44);return;}
+  if(!data.length){ctx.fillStyle='#aaa';ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('Chart shows after practice',W/2,44);return;}
   const pad=20,cw=W-pad*2,ch=55;
   const step=data.length>1?cw/(data.length-1):0;
   [0,50,100].forEach(v=>{const y=pad+ch*(1-v/100);ctx.strokeStyle='rgba(0,0,0,0.08)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();ctx.fillStyle='#aaa';ctx.font='10px sans-serif';ctx.textAlign='left';ctx.fillText(v+'%',0,y+4);});
@@ -576,7 +616,7 @@ function drawChart(data){
   data.forEach((r,i)=>{const x=pad+i*step,y=pad+ch*(1-r.rate/100),c=r.rate>=90?'#1D9E75':r.rate>=70?'#EF9F27':'#E24B4A';ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle=c;ctx.fill();});
 }
 
-/* ===== 教学模块 ===== */
+/* ===== Teaching Module ===== */
 const CW=32,FS=22,RH=36;
 function mkSVG(nc,nr){const w=24+CW*nc+8,h=RH*nr+24;const s=document.createElementNS(NS,'svg');s.setAttribute('width',w);s.setAttribute('height',h);s.setAttribute('viewBox',`0 0 ${w} ${h}`);return s;}
 function cx(c){return c===0?12:24+CW*(c-1)+CW/2;}
@@ -644,23 +684,23 @@ function addEx(cid,svgEl,sh){const w=document.getElementById(cid);const bg=docum
 function renderTeach(){
   const el=document.getElementById('teach-content');el.innerHTML='';
   if(teachLv==='tm1'){
-    el.innerHTML=`<div class="card"><div class="card-title">竖式乘法：两位数 × 一位数</div><div class="method-mini">从右往左，个位先乘，十位后乘，有进位写在上方。</div><hr class="divider"><div class="method-mini" style="margin-bottom:4px;">例 1：<b>12 × 4</b>（无进位）</div><div class="teach-wrap" id="tm1a"></div><hr class="divider"><div class="method-mini" style="margin-bottom:4px;">例 2：<b>15 × 3</b>（有进位）</div><div class="teach-wrap" id="tm1b"></div></div>`;
-    addEx('tm1a',svgMul1(12,4),STEP(1,'个位：<b>2×4=8</b>')+STEP(2,'十位：<b>1×4=4</b>')+STEP(3,'答案：<b>48</b>'));
-    addEx('tm1b',svgMul1(15,3),STEP(1,'个位：<b>5×3=15</b>，写5，进位<span style="color:#378ADD;">1</span>写上方')+STEP(2,'十位：<b>1×3=3</b>，加进位1=<b>4</b>')+STEP(3,'答案：<b>45</b>'));
+    el.innerHTML=`<div class="card"><div class="card-title">Long Multiplication: 2-Digit × 1-Digit</div><div class="method-mini">Right to left: multiply ones first, then tens. Write carry on top.</div><hr class="divider"><div class="method-mini" style="margin-bottom:4px;">Example 1: <b>12 × 4</b> (no carry)</div><div class="teach-wrap" id="tm1a"></div><hr class="divider"><div class="method-mini" style="margin-bottom:4px;">Example 2: <b>15 × 3</b> (with carry)</div><div class="teach-wrap" id="tm1b"></div></div>`;
+    addEx('tm1a',svgMul1(12,4),STEP(1,'Ones: <b>2×4=8</b>')+STEP(2,'Tens: <b>1×4=4</b>')+STEP(3,'Answer: <b>48</b>'));
+    addEx('tm1b',svgMul1(15,3),STEP(1,'Ones: <b>5×3=15</b>, write 5, carry <span style="color:#378ADD;">1</span> on top')+STEP(2,'Tens: <b>1×3=3</b>, add carry 1 = <b>4</b>')+STEP(3,'Answer: <b>45</b>'));
   }else if(teachLv==='tm2'){
-    el.innerHTML=`<div class="card"><div class="card-title">竖式乘法：两位数 × 两位数</div><div class="notice">分两行：个位乘完，再十位乘（左移一格补0），两行相加。</div><div class="method-mini" style="margin-bottom:4px;">例：<b>13 × 12</b></div><div class="teach-wrap" id="tm2a"></div><div class="warn">第二行左移一格，因为乘的是十位，个位补0。</div></div>`;
-    addEx('tm2a',svgMul2(13,12),STEP(1,'个位<b>2</b>乘13 → <b>26</b>')+STEP(2,'十位<b>1</b>乘13，补0 → <b>130</b>')+STEP(3,'26+130=<b>156</b>'));
+    el.innerHTML=`<div class="card"><div class="card-title">Long Multiplication: 2-Digit × 2-Digit</div><div class="notice">Two rows: multiply by ones, then by tens (shift left and add 0), then add rows.</div><div class="method-mini" style="margin-bottom:4px;">Example: <b>13 × 12</b></div><div class="teach-wrap" id="tm2a"></div><div class="warn">Second row shifts left because we multiply by tens place, add 0 in ones place.</div></div>`;
+    addEx('tm2a',svgMul2(13,12),STEP(1,'Ones digit <b>2</b> × 13 → <b>26</b>')+STEP(2,'Tens digit <b>1</b> × 13, add 0 → <b>130</b>')+STEP(3,'26 + 130 = <b>156</b>'));
   }else if(teachLv==='td1'){
-    el.innerHTML=`<div class="card"><div class="card-title">竖式除法：两位数 ÷ 一位数</div><div class="notice">四步：<b>除→乘→减→带下来</b>，重复到余数为0。</div><div class="method-mini" style="margin-bottom:4px;">例 1：<b>48 ÷ 4</b></div><div class="teach-wrap" id="td1a"></div><hr class="divider"><div class="method-mini" style="margin-bottom:4px;">例 2：<b>75 ÷ 5</b></div><div class="teach-wrap" id="td1b"></div></div>`;
-    addEx('td1a',svgDiv1(48,4,12),STEP(1,'4÷4=<b>1</b>；减4，余0')+STEP(2,'带下<b>8</b>')+STEP(3,'8÷4=<b>2</b>；余0')+STEP(4,'答案：<b>12</b>'));
-    addEx('td1b',svgDiv1(75,5,15),STEP(1,'7÷5=<b>1</b>；减5，余2')+STEP(2,'带下5，合成<b>25</b>')+STEP(3,'25÷5=<b>5</b>；余0')+STEP(4,'答案：<b>15</b>'));
+    el.innerHTML=`<div class="card"><div class="card-title">Long Division: 2-Digit ÷ 1-Digit</div><div class="notice">Four steps: <b>Divide → Multiply → Subtract → Bring down</b>, repeat until remainder is 0.</div><div class="method-mini" style="margin-bottom:4px;">Example 1: <b>48 ÷ 4</b></div><div class="teach-wrap" id="td1a"></div><hr class="divider"><div class="method-mini" style="margin-bottom:4px;">Example 2: <b>75 ÷ 5</b></div><div class="teach-wrap" id="td1b"></div></div>`;
+    addEx('td1a',svgDiv1(48,4,12),STEP(1,'4÷4=<b>1</b>; subtract 4, remainder 0')+STEP(2,'Bring down <b>8</b>')+STEP(3,'8÷4=<b>2</b>; remainder 0')+STEP(4,'Answer: <b>12</b>'));
+    addEx('td1b',svgDiv1(75,5,15),STEP(1,'7÷5=<b>1</b>; subtract 5, remainder 2')+STEP(2,'Bring down 5, make <b>25</b>')+STEP(3,'25÷5=<b>5</b>; remainder 0')+STEP(4,'Answer: <b>15</b>'));
   }else if(teachLv==='td2'){
-    el.innerHTML=`<div class="card"><div class="card-title">竖式除法：三位数 ÷ 两位数</div><div class="notice">先看前两位够不够除，够就试商，不够看三位。</div><div class="method-mini" style="margin-bottom:4px;">例：<b>144 ÷ 12</b></div><div class="teach-wrap" id="td2a"></div></div>`;
-    addEx('td2a',svgDiv2(144,12,12),STEP(1,'前两位14÷12=<b>1</b>；1×12=12，14-12=<b>2</b>')+STEP(2,'余2，带下4，合成<b>24</b>')+STEP(3,'24÷12=<b>2</b>；余0')+STEP(4,'答案：<b>12</b>'));
+    el.innerHTML=`<div class="card"><div class="card-title">Long Division: 3-Digit ÷ 2-Digit</div><div class="notice">Check if first two digits are enough to divide. If yes, estimate quotient; if no, use three digits.</div><div class="method-mini" style="margin-bottom:4px;">Example: <b>144 ÷ 12</b></div><div class="teach-wrap" id="td2a"></div></div>`;
+    addEx('td2a',svgDiv2(144,12,12),STEP(1,'First two digits 14÷12=<b>1</b>; 1×12=12, 14-12=<b>2</b>')+STEP(2,'Remainder 2, bring down 4, make <b>24</b>')+STEP(3,'24÷12=<b>2</b>; remainder 0')+STEP(4,'Answer: <b>12</b>'));
   }
 }
 
-/* ===== 口诀闪卡 ===== */
+/* ===== Flash Cards ===== */
 let flashDeck=[],flashIdx=0;
 function startFlash(n,btn){
   document.querySelectorAll('.flash-pick .lbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
@@ -671,21 +711,21 @@ function startFlash(n,btn){
 function buildFD(n){const d=[];for(let i=2;i<=9;i++)d.push({a:n,b:i,ans:n*i});return d;}
 function showFlash(){
   document.getElementById('flash-before').style.display='block';document.getElementById('flash-after').style.display='none';document.getElementById('flash-ans').textContent='';
-  if(flashIdx>=flashDeck.length){document.getElementById('flash-q').textContent='练完了！';document.getElementById('flash-prog').textContent='全部看完，可以重新选一组';document.getElementById('flash-note').textContent='';return;}
+  if(flashIdx>=flashDeck.length){document.getElementById('flash-q').textContent='All done!';document.getElementById('flash-prog').textContent='Pick another times table';document.getElementById('flash-note').textContent='';return;}
   const c=flashDeck[flashIdx];
   document.getElementById('flash-q').textContent=`${c.a} × ${c.b} = ?`;
-  document.getElementById('flash-prog').textContent=`第${flashIdx+1}张 / 共${flashDeck.length}张`;
-  document.getElementById('flash-note').textContent='先心里想答案，再点显示';
+  document.getElementById('flash-prog').textContent=`Card ${flashIdx+1} / ${flashDeck.length}`;
+  document.getElementById('flash-note').textContent='Think of the answer first, then tap to show';
 }
 function revealFlash(){const c=flashDeck[flashIdx];document.getElementById('flash-ans').textContent=`= ${c.ans}`;document.getElementById('flash-before').style.display='none';document.getElementById('flash-after').style.display='block';}
 function flashGrade(r){
   const c=flashDeck[flashIdx];
-  if(r==='no'){const k=`mul:${c.a}×${c.b}`;if(!wrongMap[k])wrongMap[k]={q:{a:c.a,op:'×',b:c.b,ans:c.ans,key:k},count:0};wrongMap[k].count++;masteredMap[`${Math.min(c.a,c.b)}x${Math.max(c.a,c.b)}`]='weak';saveWrongs();saveMastered();document.getElementById('flash-note').textContent=`记住：${c.a}×${c.b}=${c.ans}`;}
+  if(r==='no'){const k=`mul:${c.a}×${c.b}`;if(!wrongMap[k])wrongMap[k]={q:{a:c.a,op:'×',b:c.b,ans:c.ans,key:k},count:0};wrongMap[k].count++;masteredMap[`${Math.min(c.a,c.b)}x${Math.max(c.a,c.b)}`]='weak';saveWrongs();saveMastered();document.getElementById('flash-note').textContent=`Remember: ${c.a}×${c.b}=${c.ans}`;}
   else{masteredMap[`${Math.min(c.a,c.b)}x${Math.max(c.a,c.b)}`]='ok';saveMastered();document.getElementById('flash-note').textContent='';}
   flashIdx++;setTimeout(showFlash,r==='no'?700:150);
 }
 
-/* ===== 口诀表 ===== */
+/* ===== Times Table Chart ===== */
 function renderTable(){
   const tbl=document.getElementById('mul-table');tbl.innerHTML='';
   const h=document.createElement('div');h.className='tcell hdr';h.textContent='×';tbl.appendChild(h);
@@ -694,16 +734,16 @@ function renderTable(){
     for(let b=2;b<=9;b++){const mk=`${Math.min(a,b)}x${Math.max(a,b)}`;const d=document.createElement('div');d.className='tcell';d.textContent=a*b;if(masteredMap[mk]==='ok')d.classList.add('done-c');else if(masteredMap[mk]==='weak')d.classList.add('weak-c');tbl.appendChild(d);}}
 }
 
-/* ===== 错题本 ===== */
+/* ===== Mistakes Notebook ===== */
 function renderWrongs(){
   const area=document.getElementById('wrong-area'),btn=document.getElementById('retry-btn');
   const keys=Object.keys(wrongMap);
-  if(!keys.length){area.innerHTML='<div class="empty">还没有错题，继续加油！</div>';btn.style.display='none';return;}
+  if(!keys.length){area.innerHTML='<div class="empty">No mistakes yet - keep it up!</div>';btn.style.display='none';return;}
   btn.style.display='block';
-  area.innerHTML='<div style="font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:10px;">需要加强的题目：</div>';
+  area.innerHTML='<div style="font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:10px;">Questions to practice:</div>';
   keys.sort((a,b)=>wrongMap[b].count-wrongMap[a].count).forEach(k=>{
     const it=wrongMap[k],q=it.q,d=document.createElement('div');d.className='wrong-item';
-    d.innerHTML=`<span style="font-weight:600;color:#1a1a1a;">${q.a} ${q.op} ${q.b} = ${q.ans}</span><span style="font-size:11px;color:#E24B4A;">错了 ${it.count} 次</span>`;
+    d.innerHTML=`<span style="font-weight:600;color:#1a1a1a;">${q.a} ${q.op} ${q.b} = ${q.ans}</span><span style="font-size:11px;color:#E24B4A;">Wrong ${it.count} times</span>`;
     area.appendChild(d);
   });
 }
@@ -714,9 +754,234 @@ function retryAll(){
   else if(hasAdd){lv.add='wrong';go('add',document.querySelectorAll('.tab')[0]);setTimeout(()=>startBatch('add'),50);}
 }
 
-/* ===== 初始化 ===== */
+/* ===== Step-by-step explanations ===== */
+function generateSteps(area, q) {
+  const {a, op, b, ans} = q;
+
+  if (op === '+') {
+    const need = 10 - a;
+    if (need > 0 && need < b && a >= 1 && a < 10) {
+      return `<b>Make 10 method:</b><br>① ${a} needs <b>${need}</b> more to make 10<br>② Split ${b} into <b>${need} + ${b-need}</b><br>③ ${a} + ${need} = <b>10</b><br>④ 10 + ${b-need} = <b>${ans}</b> ✓`;
+    }
+    return `${a} + ${b} = <b>${ans}</b>`;
+  }
+
+  if (op === '-') {
+    if (a > 10) {
+      const t = a - 10;
+      return `<b>Break 10 method:</b><br>① Split ${a} into <b>10 + ${t}</b><br>② 10 − ${b} = <b>${10-b}</b><br>③ Add leftover: ${10-b} + ${t} = <b>${ans}</b> ✓`;
+    }
+    return `${a} − ${b} = <b>${ans}</b>`;
+  }
+
+  if (op === '×' && area === 'mul') {
+    const sm=Math.min(a,b), lg=Math.max(a,b);
+    const seq=Array.from({length:Math.min(lg,10)},(_,i)=>sm*(i+1)).join(', ');
+    return `<b>Times table:</b><br>① Count by <b>${sm}</b>: ${seq}<br>② <b>${sm} × ${lg} = ${ans}</b> ✓`;
+  }
+
+  if (op === '÷' && area === 'mul') {
+    return `<b>Work backwards:</b><br>① Think: <b>${b} × ? = ${a}</b><br>② ${b} × <b>${ans}</b> = ${a}<br>③ So ${a} ÷ ${b} = <b>${ans}</b> ✓`;
+  }
+
+  // Long form — infer type from the numbers themselves
+  if (op === '×') {
+    if (b <= 9) {
+      // 2-digit × 1-digit
+      const a1=Math.floor(a/10), a0=a%10, p0=a0*b, carry=Math.floor(p0/10), p0d=p0%10;
+      let s=`<b>Long Multiplication (${a} × ${b}):</b><br>① Ones digit: <b>${a0} × ${b} = ${p0}</b>`;
+      if(carry) s+=` → write <b>${p0d}</b>, carry <b>${carry}</b>`;
+      s+=`<br>② Tens digit: <b>${a1} × ${b} = ${a1*b}</b>`;
+      if(carry) s+=` + carry ${carry} = <b>${a1*b+carry}</b>`;
+      s+=`<br>③ Answer: <b>${ans}</b> ✓`;
+      return s;
+    } else {
+      // 2-digit × 2-digit
+      const b0=b%10, b1=Math.floor(b/10), r1=a*b0, r2=a*b1;
+      return `<b>Long Multiplication (${a} × ${b}):</b><br>① <b>${a} × ${b0}</b> (ones) = <b>${r1}</b><br>② <b>${a} × ${b1}</b> (tens) = ${r2} → add a zero → <b>${r2*10}</b><br>③ Add the two rows: ${r1} + ${r2*10} = <b>${ans}</b> ✓`;
+    }
+  }
+
+  if (op === '÷') {
+    const ds=String(a), q1=Math.floor(ans/10), q0=ans%10;
+    if (ds.length === 2) {
+      // 2-digit ÷ 1-digit
+      const d0=parseInt(ds[0]), d1=parseInt(ds[1]), rem1=d0-q1*b, bd=rem1*10+d1;
+      return `<b>Long Division (${a} ÷ ${b}):</b><br>① <b>${d0} ÷ ${b} = ${q1}</b> → ${q1}×${b}=${q1*b}, remainder <b>${rem1}</b><br>② Bring down <b>${d1}</b> → ${bd}<br>③ <b>${bd} ÷ ${b} = ${q0}</b><br>④ Answer: <b>${ans}</b> ✓`;
+    } else {
+      // 3-digit ÷ 2-digit
+      const f2=parseInt(ds.slice(0,2)), sub1=q1*b, rem1=f2-sub1, bd=rem1*10+parseInt(ds[2]);
+      return `<b>Long Division (${a} ÷ ${b}):</b><br>① First 2 digits: <b>${f2} ÷ ${b} → ${q1}</b> (${q1}×${b}=${sub1}, remainder <b>${rem1}</b>)<br>② Bring down <b>${ds[2]}</b> → ${bd}<br>③ <b>${bd} ÷ ${b} = ${q0}</b><br>④ Answer: <b>${ans}</b> ✓`;
+    }
+  }
+
+  return `Answer: <b>${ans}</b>`;
+}
+
+/* ===== Fireworks ===== */
+function launchFireworks(){
+  const canvas=document.getElementById('fw-canvas');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;canvas.style.display='block';
+  const ctx=canvas.getContext('2d');
+  const colors=['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#FF922B','#DA77F2','#FF8CC8','#38D9A9'];
+  const bursts=[];
+  for(let b=0;b<3;b++){
+    const bx=canvas.width*(0.2+b*0.3),by=canvas.height*(0.2+Math.random()*0.3);
+    for(let i=0;i<50;i++){
+      const angle=Math.PI*2*i/50+Math.random()*0.2;
+      const spd=3+Math.random()*7;
+      bursts.push({x:bx,y:by,vx:Math.cos(angle)*spd,vy:Math.sin(angle)*spd-2,
+        color:colors[Math.floor(Math.random()*colors.length)],life:1,sz:3+Math.random()*3,g:0.18});
+    }
+  }
+  let raf;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive=false;
+    bursts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;p.life-=0.022;
+      if(p.life>0){alive=true;ctx.globalAlpha=p.life;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.sz*p.life,0,Math.PI*2);ctx.fill();}
+    });
+    ctx.globalAlpha=1;
+    if(alive)raf=requestAnimationFrame(draw);else canvas.style.display='none';
+  }
+  cancelAnimationFrame(raf);draw();
+}
+
+/* ===== Speed Challenge ===== */
+const CHALLENGE_WEAK_KEY='mathtrainer-challenge-weak';
+let challengeWeakMap={};
+let cSt={deck:[],idx:0,correct:0,slow:0,wrong:0,startTime:0,qStart:0,timer:null,sessionWeak:[]};
+
+function loadChallengeWeak(){try{const d=localStorage.getItem(CHALLENGE_WEAK_KEY);if(d)challengeWeakMap=JSON.parse(d);}catch(e){}}
+function saveChallengeWeak(){try{localStorage.setItem(CHALLENGE_WEAK_KEY,JSON.stringify(challengeWeakMap));}catch(e){}}
+
+function initChallenge(){
+  const cnt=Object.keys(challengeWeakMap).length;
+  document.getElementById('ch-weak-count').textContent=cnt;
+  document.getElementById('ch-weak-btn-wrap').style.display=cnt>0?'block':'none';
+  const ws=document.getElementById('ch-weak-stats');
+  if(cnt>0){
+    const top=Object.values(challengeWeakMap).sort((a,b)=>b.count-a.count).slice(0,5);
+    ws.innerHTML='Saved weak spots: <b>'+cnt+'</b> | Weakest: '+top.map(w=>`<b>${w.q.a}×${w.q.b}</b>`).join(' ');
+    ws.style.display='block';
+  }else ws.style.display='none';
+}
+
+function buildChallengeDeck(weakOnly){
+  if(weakOnly){
+    const ks=Object.keys(challengeWeakMap);if(!ks.length)return[];
+    const pool=[];
+    while(pool.length<Math.min(ks.length*4,100))ks.forEach(k=>{if(pool.length<100)pool.push(JSON.parse(JSON.stringify(challengeWeakMap[k].q)));});
+    return shuffle(pool);
+  }
+  const deck=[];
+  for(let a=2;a<=9;a++)for(let b=2;b<=9;b++)deck.push({a,op:'×',b,ans:a*b,key:`ch:${a}×${b}`});
+  return shuffle(deck);
+}
+
+function startChallenge(weakOnly){
+  const deck=buildChallengeDeck(weakOnly);
+  if(!deck.length){alert('No weak spots yet! Complete a full challenge round first.');return;}
+  cSt={deck,idx:0,correct:0,slow:0,wrong:0,startTime:Date.now(),qStart:0,timer:null,sessionWeak:[]};
+  document.getElementById('ch-start-wrap').style.display='none';
+  document.getElementById('ch-result').style.display='none';document.getElementById('ch-result').innerHTML='';
+  document.getElementById('ch-quiz').style.display='block';
+  loadChallengeQ();
+}
+
+const CH_TIME=5;
+function loadChallengeQ(){
+  if(cSt.timer)clearInterval(cSt.timer);
+  if(cSt.idx>=cSt.deck.length){showChallengeResult();return;}
+  const q=cSt.deck[cSt.idx];
+  document.getElementById('ch-q').textContent=`${q.a} × ${q.b} = ?`;
+  document.getElementById('ch-ans').value='';
+  document.getElementById('ch-fb').textContent='';
+  document.getElementById('ch-tip').style.display='none';
+  document.getElementById('ch-prog-txt').textContent=`Question ${cSt.idx+1} / ${cSt.deck.length}`;
+  document.getElementById('ch-prog-cor').textContent=`${cSt.correct} Correct`;
+  document.getElementById('ch-prog-fill').style.width=(cSt.idx/cSt.deck.length*100)+'%';
+  const tf=document.getElementById('ch-timer-fill');tf.style.width='100%';tf.style.background='#1D9E75';
+  cSt.qStart=Date.now();
+  cSt.timer=setInterval(()=>{
+    const el=(Date.now()-cSt.qStart)/1000;
+    const pct=Math.max(0,(CH_TIME-el)/CH_TIME*100);
+    tf.style.width=pct+'%';tf.style.background=pct>50?'#1D9E75':pct>20?'#EF9F27':'#E24B4A';
+    if(pct<=0){clearInterval(cSt.timer);cSt.timer=null;chkChallengeFail(cSt.deck[cSt.idx],'slow');}
+  },80);
+  setTimeout(()=>document.getElementById('ch-ans').focus(),50);
+}
+
+function chkChallenge(){
+  if(cSt.idx>=cSt.deck.length)return;
+  const val=parseInt(document.getElementById('ch-ans').value);if(isNaN(val))return;
+  if(cSt.timer){clearInterval(cSt.timer);cSt.timer=null;}
+  const q=cSt.deck[cSt.idx];
+  const elapsed=(Date.now()-cSt.qStart)/1000;
+  if(val===q.ans&&elapsed<CH_TIME){
+    cSt.correct++;
+    document.getElementById('ch-fb').textContent='✓';document.getElementById('ch-fb').className='fb ok';
+    if(challengeWeakMap[q.key]){challengeWeakMap[q.key].count=Math.max(0,challengeWeakMap[q.key].count-1);if(challengeWeakMap[q.key].count===0)delete challengeWeakMap[q.key];saveChallengeWeak();}
+    launchFireworks();
+    cSt.idx++;setTimeout(loadChallengeQ,350);
+  }else{
+    chkChallengeFail(q,val!==q.ans?'wrong':'slow');
+  }
+}
+
+function chkChallengeFail(q,reason){
+  if(cSt.timer){clearInterval(cSt.timer);cSt.timer=null;}
+  if(reason==='wrong'){cSt.wrong++;document.getElementById('ch-fb').textContent=`Not quite! The answer is ${q.ans}`;document.getElementById('ch-fb').className='fb no';}
+  else{cSt.slow++;document.getElementById('ch-fb').textContent=`⏱ Too slow! The answer is ${q.ans}`;document.getElementById('ch-fb').className='fb no';}
+  const sm=Math.min(q.a,q.b),lg=Math.max(q.a,q.b);
+  const seq=Array.from({length:Math.min(lg,10)},(_,i)=>sm*(i+1)).join(', ');
+  const tip=document.getElementById('ch-tip');
+  tip.innerHTML=`<b>Times table:</b><br>① Count by <b>${sm}</b>: ${seq}<br>② <b>${sm} × ${lg} = ${q.ans}</b> ✓`;
+  tip.style.display='block';
+  cSt.sessionWeak.push(q);
+  if(!challengeWeakMap[q.key])challengeWeakMap[q.key]={q,count:0};
+  challengeWeakMap[q.key].count++;saveChallengeWeak();
+  cSt.idx++;setTimeout(loadChallengeQ,900);
+}
+
+function showChallengeResult(){
+  if(cSt.timer)clearInterval(cSt.timer);
+  document.getElementById('ch-quiz').style.display='none';
+  const total=cSt.deck.length,rate=Math.round(cSt.correct/total*100);
+  const color=rate>=90?'#1D9E75':rate>=70?'#EF9F27':'#E24B4A';
+  const elapsed=Math.round((Date.now()-cSt.startTime)/1000);
+  const timeStr=elapsed>=60?`${Math.floor(elapsed/60)}m${elapsed%60}s`:`${elapsed}s`;
+  const seen=new Set(),uniq=[];
+  cSt.sessionWeak.forEach(q=>{if(!seen.has(q.key)){seen.add(q.key);uniq.push(q);}});
+  const totalWeak=Object.keys(challengeWeakMap).length;
+  const weakHtml=uniq.length?`<div class="result-wrong"><div class="rw-title">This round's weak spots (wrong or too slow):</div>${uniq.map(q=>`<span class="rw-item">${q.a}×${q.b}=${q.ans}</span>`).join('')}</div>`:'';
+  const el=document.getElementById('ch-result');
+  el.innerHTML=`<div class="result-card">
+    <div class="result-label">Challenge Complete ✓</div>
+    <div class="result-score" style="color:${color}">${rate}%</div>
+    <div class="result-msg">${rate===100?'Perfect! All correct!':rate>=90?'Excellent!':rate>=70?'Good job, keep going!':'Keep practicing, you can do it!'}</div>
+    <div class="result-stats">
+      <div class="rsc"><div class="rsn" style="color:#1D9E75">${cSt.correct}</div><div class="rsl">Correct</div></div>
+      <div class="rsc"><div class="rsn" style="color:#E24B4A">${cSt.wrong}</div><div class="rsl">Wrong</div></div>
+      <div class="rsc"><div class="rsn" style="color:#EF9F27">${cSt.slow}</div><div class="rsl">Too Slow</div></div>
+      <div class="rsc"><div class="rsn">${timeStr}</div><div class="rsl">Time</div></div>
+    </div>
+    ${weakHtml}
+    <div style="margin-top:.75rem;font-size:12px;color:#888;">Total saved weak spots: <b style="color:#E24B4A">${totalWeak}</b></div>
+    <div style="margin-top:1.25rem;">
+      <button class="again-btn" onclick="startChallenge(false)">Full Challenge →</button>
+      ${totalWeak>0?`<button class="retry-wrong-btn" onclick="startChallenge(true)">Practice Weak Spots (${totalWeak}) →</button>`:''}
+    </div>
+  </div>`;
+  el.style.display='block';
+  initChallenge();
+}
+
+/* ===== Initialize ===== */
 loadWrongs();
 loadMastered();
+loadChallengeWeak();
 renderTeach();
 startFlash(2,document.querySelector('.flash-pick .lbtn'));
 </script>

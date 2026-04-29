@@ -106,6 +106,46 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ch-timer-wrap{height:8px;background:#fff;border-radius:4px;border:0.5px solid #e0e0da;margin-bottom:14px;overflow:hidden;}
 #ch-timer-fill{height:100%;width:100%;background:#1D9E75;border-radius:4px;transition:width 0.1s linear;}
 .ch-weak-stats{font-size:12px;color:#E24B4A;background:#fcebeb;border:0.5px solid #E24B4A;border-radius:8px;padding:8px 12px;margin-bottom:10px;display:none;}
+/* English Module */
+.eng-key-setup{background:#faeeda;border:0.5px solid #BA7517;border-radius:8px;padding:10px 14px;margin-bottom:1rem;font-size:12px;color:#633806;}
+.eng-key-row{display:flex;gap:8px;margin-top:8px;align-items:center;}
+.eng-key-in{flex:1;border:0.5px solid #ccc;border-radius:8px;padding:7px 10px;font-size:12px;font-family:monospace;}
+.word-cards{display:flex;flex-direction:column;gap:10px;}
+.word-card{background:#fff;border:0.5px solid #e0e0da;border-radius:12px;padding:1rem 1.25rem;}
+.wc-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.wc-word{font-size:22px;font-weight:700;color:#1a1a1a;}
+.wc-syl{font-size:13px;color:#378ADD;font-weight:600;}
+.wc-pos{font-size:11px;color:#fff;background:#888;border-radius:4px;padding:2px 7px;flex-shrink:0;}
+.phonics-tip{background:#e6f1fb;border:0.5px solid #378ADD;border-radius:8px;padding:7px 11px;font-size:12px;color:#185fa5;margin-bottom:8px;line-height:1.7;}
+.wc-def{font-size:13px;color:#1a1a1a;margin-bottom:5px;line-height:1.6;}
+.wc-ex{font-size:12px;color:#666;font-style:italic;line-height:1.6;}
+.tts-btn{background:#e6f1fb;border:0.5px solid #185fa5;border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer;color:#185fa5;flex-shrink:0;}
+.story-blank{display:inline-block;min-width:80px;border-bottom:2px solid #378ADD;background:#e8f4fc;border-radius:4px;padding:1px 8px;color:#185fa5;font-weight:600;cursor:pointer;text-align:center;font-size:13px;margin:0 2px;}
+.story-blank.correct{background:#eaf3de;border-color:#3b6d11;color:#3b6d11;}
+.story-blank.wrong{background:#fcebeb;border-color:#E24B4A;color:#A32D2D;}
+.word-bank{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px;}
+.wb-word{background:#e8f4fc;border:0.5px solid #378ADD;border-radius:8px;padding:6px 14px;font-size:13px;color:#185fa5;cursor:pointer;font-weight:600;transition:box-shadow 0.15s;}
+.wb-word.used{opacity:0.35;pointer-events:none;text-decoration:line-through;}
+.wb-word.selected{box-shadow:0 0 0 2px #185fa5;}
+.spell-q{font-size:16px;color:#666;margin:0.75rem 0 0.5rem;}
+.spell-in{font-size:22px;width:180px;text-align:center;border:2px solid #ccc;border-radius:8px;padding:8px;background:#fff;color:#1a1a1a;letter-spacing:2px;}
+.spell-in:focus{outline:none;border-color:#378ADD;}
+.hear-btn{background:#e6f1fb;border:0.5px solid #185fa5;border-radius:8px;padding:8px 18px;font-size:13px;cursor:pointer;color:#185fa5;font-weight:600;}
+.phonics-hint{background:#faeeda;border:0.5px solid #BA7517;border-radius:8px;padding:10px 14px;font-size:13px;color:#633806;margin-top:10px;line-height:1.8;text-align:left;}
+.char-diff{display:inline-flex;gap:3px;margin:8px 0;flex-wrap:wrap;justify-content:center;}
+.ch-ok{background:#eaf3de;color:#3b6d11;border-radius:4px;padding:4px 7px;font-size:18px;font-weight:700;}
+.ch-no{background:#fcebeb;color:#A32D2D;border-radius:4px;padding:4px 7px;font-size:18px;font-weight:700;}
+.upload-area{border:2px dashed #ccc;border-radius:12px;padding:2rem;text-align:center;cursor:pointer;color:#888;font-size:13px;background:#f9f9f7;transition:border-color 0.2s;display:block;}
+.upload-area:hover{border-color:#378ADD;color:#378ADD;}
+.generating{text-align:center;padding:2rem;color:#888;font-size:13px;}
+.spin{display:inline-block;width:18px;height:18px;border:2px solid #ccc;border-top-color:#378ADD;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.week-item{background:#fff;border:0.5px solid #e0e0da;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:8px;}
+.week-item:hover{background:#e8f4fc;}
+.week-info{flex:1;}
+.week-label{font-size:14px;font-weight:600;color:#1a1a1a;}
+.week-meta{font-size:11px;color:#888;margin-top:2px;}
+.week-arrow{color:#aaa;font-size:18px;}
 </style>
 </head>
 <body>
@@ -124,6 +164,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="tab" onclick="go('table',this)">Table Chart</div>
   <div class="tab" onclick="go('wrongs',this)">Mistakes</div>
   <div class="tab" onclick="go('history',this)">History</div>
+  <div class="tab" onclick="go('english',this)">English</div>
 </div>
 
 <!-- Addition & Subtraction -->
@@ -328,6 +369,87 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="hist-list" id="hist-list"></div>
   <button class="clear-btn" onclick="clearHistory()">Clear History</button>
 </div>
+
+<!-- English Module -->
+<div class="sec" id="sec-english">
+  <div id="eng-key-setup" class="eng-key-setup" style="display:none;">
+    <b>API Key Required</b> — Enter your Anthropic API key to enable AI word generation.
+    <div class="eng-key-row">
+      <input class="eng-key-in" type="password" id="eng-key-in" placeholder="sk-ant-...">
+      <button class="confirm-btn" style="margin:0;" onclick="saveApiKey()">Save</button>
+    </div>
+  </div>
+  <div id="eng-key-saved" style="display:none;font-size:11px;color:#888;text-align:right;margin-bottom:6px;">
+    API key saved &nbsp;·&nbsp; <span style="cursor:pointer;color:#E24B4A;" onclick="clearApiKey()">Clear</span>
+  </div>
+  <div class="sub-tabs">
+    <div class="stab on" onclick="showEngSub('words',this)">This Week</div>
+    <div class="stab" onclick="showEngSub('spell',this)">Spell Test</div>
+    <div class="stab" onclick="showEngSub('story',this)">Story</div>
+    <div class="stab" onclick="showEngSub('weeks',this)">Past Weeks</div>
+  </div>
+  <!-- This Week: Words -->
+  <div class="spanel on" id="eng-words">
+    <div id="eng-upload-area">
+      <label class="upload-area" for="eng-img-in">
+        <input type="file" id="eng-img-in" accept="image/*" onchange="handleWordImage(this)">
+        <div style="font-size:28px;margin-bottom:8px;">📷</div>
+        <div style="font-weight:600;margin-bottom:4px;">Upload this week's word list photo</div>
+        <div style="font-size:11px;">Tap to choose image · AI will read the words automatically</div>
+      </label>
+      <div style="text-align:center;margin-top:10px;">
+        <span style="font-size:11px;color:#aaa;">or</span>
+        <button class="next-btn" style="margin-left:8px;" onclick="showManualEntry()">Enter words manually</button>
+      </div>
+    </div>
+    <div id="eng-manual-entry" style="display:none;">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:8px;">Enter words (one per line, up to 15)</div>
+        <textarea id="eng-manual-words" style="width:100%;height:160px;border:0.5px solid #ccc;border-radius:8px;padding:8px;font-size:13px;resize:none;" placeholder="adventure&#10;beautiful&#10;calendar&#10;..."></textarea>
+        <button class="start-btn" style="margin-top:8px;" onclick="generateFromManual()">Generate Word Data →</button>
+        <button class="next-btn" style="margin-top:6px;display:block;margin-left:auto;margin-right:auto;" onclick="document.getElementById('eng-manual-entry').style.display='none';document.getElementById('eng-upload-area').style.display='block';">← Back</button>
+      </div>
+    </div>
+    <div id="eng-generating" class="generating" style="display:none;"></div>
+    <div id="eng-word-cards" class="word-cards" style="display:none;"></div>
+    <div id="eng-week-actions" style="display:none;text-align:center;margin-top:8px;">
+      <button class="next-btn" onclick="showUploadArea()">Upload New Week →</button>
+    </div>
+  </div>
+  <!-- Spell Test -->
+  <div class="spanel" id="eng-spell">
+    <div id="spell-start-wrap">
+      <div class="card"><div class="method-mini">Listen to each word, then type how you think it's spelled. If you get it wrong, you'll see a phonics tip to help you remember!</div></div>
+      <button class="start-btn" onclick="startSpellTest()">Start Spell Test →</button>
+    </div>
+    <div id="spell-quiz" style="display:none;">
+      <div class="quiz-box" style="text-align:center;">
+        <div class="progress-wrap">
+          <div class="progress-info"><span id="spell-prog-txt">Word 1 / 10</span><span id="spell-prog-cor" style="color:#1D9E75;">0 Correct</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="spell-prog-fill" style="width:0%"></div></div>
+        </div>
+        <div class="spell-q" id="spell-hint-text">Listen carefully...</div>
+        <div style="margin:12px 0 8px;">
+          <button class="hear-btn" onclick="speakCurrentWord()">🔊 Hear the Word</button>
+        </div>
+        <input class="spell-in" type="text" id="spell-ans" placeholder="spell it" autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter')checkSpelling()">
+        <div class="phonics-hint" id="spell-phonics-hint" style="display:none;"></div>
+        <div class="fb" id="spell-fb"></div>
+        <button class="confirm-btn" id="spell-check-btn" onclick="checkSpelling()">Check ✓</button>
+        <button class="next-btn" id="spell-next-btn" style="display:none;" onclick="nextSpellWord()">Next →</button>
+      </div>
+    </div>
+    <div id="spell-result" style="display:none;"></div>
+  </div>
+  <!-- Story fill-in-the-blank -->
+  <div class="spanel" id="eng-story">
+    <div id="story-content"></div>
+  </div>
+  <!-- Past Weeks -->
+  <div class="spanel" id="eng-weeks">
+    <div id="weeks-list"></div>
+  </div>
+</div>
 </div>
 
 <script>
@@ -395,10 +517,12 @@ function go(id,btn){
   if(id==='wrongs')renderWrongs();
   if(id==='history')renderHistory();
   if(id==='challenge')initChallenge();
+  if(id==='english')initEngTab();
 }
 function showSub(id,btn){
-  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on'));
-  document.querySelectorAll('.spanel').forEach(p=>p.classList.remove('on'));
+  const sec=document.getElementById('sec-vertical');
+  sec.querySelectorAll('.stab').forEach(b=>b.classList.remove('on'));
+  sec.querySelectorAll('.spanel').forEach(p=>p.classList.remove('on'));
   btn.classList.add('on');document.getElementById('sub-'+id).classList.add('on');
 }
 function setLv(area,v,btn){
@@ -976,6 +1100,478 @@ function showChallengeResult(){
   </div>`;
   el.style.display='block';
   initChallenge();
+}
+
+/* ===== English Module ===== */
+const ENG_WEEKS_KEY='mathtrainer-english-weeks';
+const API_KEY_STORAGE='mathtrainer-apikey';
+let engCurrentWeek=null;
+let spellSt={words:[],idx:0,correct:0,wrongWords:[]};
+let storySt={blanks:[],selections:{},checked:false};
+let storySelWord=null;
+
+/* --- API Key --- */
+function initEngApiKey(){
+  const k=localStorage.getItem(API_KEY_STORAGE);
+  document.getElementById('eng-key-setup').style.display=k?'none':'block';
+  document.getElementById('eng-key-saved').style.display=k?'block':'none';
+}
+function saveApiKey(){
+  const v=document.getElementById('eng-key-in').value.trim();
+  if(!v)return;
+  localStorage.setItem(API_KEY_STORAGE,v);
+  document.getElementById('eng-key-setup').style.display='none';
+  document.getElementById('eng-key-saved').style.display='block';
+}
+function clearApiKey(){
+  if(!confirm('Remove saved API key?'))return;
+  localStorage.removeItem(API_KEY_STORAGE);
+  document.getElementById('eng-key-in').value='';
+  document.getElementById('eng-key-setup').style.display='block';
+  document.getElementById('eng-key-saved').style.display='none';
+}
+
+/* --- Storage --- */
+function loadEngWeeks(){try{const d=localStorage.getItem(ENG_WEEKS_KEY);return d?JSON.parse(d):[];}catch(e){return[];}}
+function saveEngWeek(week){
+  const weeks=loadEngWeeks();
+  const i=weeks.findIndex(w=>w.weekId===week.weekId);
+  if(i>=0)weeks[i]=week;else weeks.push(week);
+  try{localStorage.setItem(ENG_WEEKS_KEY,JSON.stringify(weeks));}catch(e){}
+}
+function getWeekId(){
+  const d=new Date(),jan1=new Date(d.getFullYear(),0,1);
+  const wn=Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+  return`${d.getFullYear()}-W${String(wn).padStart(2,'0')}`;
+}
+function getWeekLabel(){
+  return'Week of '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+
+/* --- Claude API --- */
+async function callClaude(messages){
+  const apiKey=localStorage.getItem(API_KEY_STORAGE);
+  if(!apiKey){alert('Please enter your Anthropic API key first.');return null;}
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:4096,messages})
+  });
+  if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error?.message||`API error ${resp.status}`);}
+  return(await resp.json()).content[0].text;
+}
+
+/* --- Image Upload --- */
+function handleWordImage(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    const base64=e.target.result.split(',')[1];
+    await generateWeekFromImage(base64,file.type||'image/jpeg');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function generateWeekFromImage(base64,mimeType){
+  showEngGenerating('Reading word list from image...');
+  try{
+    const apiKey=localStorage.getItem(API_KEY_STORAGE);
+    if(!apiKey){hideEngGenerating();alert('Please enter your Anthropic API key first.');return;}
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:300,messages:[{role:'user',content:[
+        {type:'image',source:{type:'base64',media_type:mimeType,data:base64}},
+        {type:'text',text:'This is a child\'s school vocabulary word list. Extract all the English vocabulary words from this image. Return ONLY a JSON array of the words in lowercase, nothing else. Example: ["adventure","beautiful","calendar"]'}
+      ]}]})
+    });
+    if(!resp.ok)throw new Error(`API error ${resp.status}`);
+    const txt=(await resp.json()).content[0].text.trim();
+    let words;
+    try{const m=txt.match(/\[[\s\S]*?\]/);words=JSON.parse(m?m[0]:txt);}
+    catch(e){throw new Error('Could not read words from image. Please try manual entry.');}
+    await generateWeekData(words);
+  }catch(err){hideEngGenerating();alert('Error: '+err.message);}
+}
+
+function showManualEntry(){
+  document.getElementById('eng-upload-area').style.display='none';
+  document.getElementById('eng-manual-entry').style.display='block';
+}
+function showUploadArea(){
+  document.getElementById('eng-word-cards').style.display='none';
+  document.getElementById('eng-week-actions').style.display='none';
+  document.getElementById('eng-upload-area').style.display='block';
+  document.getElementById('eng-manual-entry').style.display='none';
+  document.getElementById('eng-img-in').value='';
+}
+
+async function generateFromManual(){
+  const text=document.getElementById('eng-manual-words').value.trim();
+  if(!text)return;
+  const words=text.split('\n').map(w=>w.trim()).filter(w=>w.length>0).slice(0,15);
+  if(!words.length)return;
+  document.getElementById('eng-manual-entry').style.display='none';
+  await generateWeekData(words);
+}
+
+async function generateWeekData(words){
+  showEngGenerating('Generating word cards and story...');
+  try{
+    const prompt=`You are helping a Grade 3-4 student (age 8-10) learn their weekly vocabulary words.
+
+Given these ${words.length} words: ${words.join(', ')}
+
+Return a JSON object with this EXACT structure (no extra text, just JSON):
+{
+  "words": [
+    {
+      "word": "adventure",
+      "syllables": "ad·ven·ture",
+      "pos": "noun",
+      "phonicsTip": "The ending 'ture' sounds like 'cher' — same as in 'picture' and 'nature'. Remember: t-u-r-e = cher sound.",
+      "definition": "An exciting trip or experience where something surprising might happen.",
+      "example": "Climbing the big oak tree in the backyard felt like a real adventure."
+    }
+  ],
+  "story": "A complete story of about 150 words naturally using ALL the vocabulary words. Use a character named Lily or Max. Make it fun and engaging for a 3rd grader.",
+  "blanks": [
+    {
+      "word": "adventure",
+      "sentence": "One sunny morning, Lily went on an ____ in the forest."
+    }
+  ]
+}
+
+Rules:
+- phonicsTip: explain the trickiest part to spell using simple phonics rules. Compare to similar common words the child might know.
+- definition: simple, clear, 1-2 sentences. Use vocabulary a 3rd grader understands.
+- example: a fun, relatable sentence for a child.
+- story: use ALL ${words.length} words naturally. About 150 words.
+- blanks: one per word. Show the sentence from the story with that word replaced by ____. Keep enough context to identify which word fits.
+- Return ONLY valid JSON.`;
+    const result=await callClaude([{role:'user',content:prompt}]);
+    if(!result)return;
+    let data;
+    try{const m=result.match(/\{[\s\S]*\}/);data=JSON.parse(m?m[0]:result);}
+    catch(e){throw new Error('Could not parse AI response. Please try again.');}
+    const week={weekId:getWeekId(),label:getWeekLabel(),createdAt:new Date().toISOString(),
+      words:data.words,story:data.story,blanks:data.blanks,spellScores:{}};
+    saveEngWeek(week);
+    engCurrentWeek=week;
+    hideEngGenerating();
+    renderWordCards(week);
+  }catch(err){hideEngGenerating();alert('Error: '+err.message);}
+}
+
+function showEngGenerating(msg){
+  document.getElementById('eng-upload-area').style.display='none';
+  document.getElementById('eng-manual-entry').style.display='none';
+  document.getElementById('eng-word-cards').style.display='none';
+  document.getElementById('eng-week-actions').style.display='none';
+  const g=document.getElementById('eng-generating');
+  g.innerHTML=`<span class="spin"></span>${msg}`;
+  g.style.display='block';
+}
+function hideEngGenerating(){document.getElementById('eng-generating').style.display='none';}
+
+/* --- Word Cards --- */
+function renderWordCards(week){
+  const c=document.getElementById('eng-word-cards');
+  c.innerHTML='';
+  if(!week||!week.words||!week.words.length){
+    c.innerHTML='<div class="empty">No words yet — upload a photo or enter words manually.</div>';
+    c.style.display='flex';return;
+  }
+  const hdr=document.createElement('div');
+  hdr.style.cssText='font-size:13px;color:#888;margin-bottom:10px;';
+  hdr.textContent=week.label+' · '+week.words.length+' words';
+  c.appendChild(hdr);
+  week.words.forEach(w=>{
+    const card=document.createElement('div');card.className='word-card';
+    const safeWord=w.word.replace(/'/g,"\\'");
+    card.innerHTML=`<div class="wc-top">
+      <span class="wc-word">${w.word}</span>
+      <span class="wc-syl">${w.syllables}</span>
+      <span class="wc-pos">${w.pos}</span>
+      <button class="tts-btn" onclick="speakWord('${safeWord}')">🔊</button>
+    </div>
+    <div class="phonics-tip">💡 ${w.phonicsTip}</div>
+    <div class="wc-def">${w.definition}</div>
+    <div class="wc-ex">"${w.example}"</div>`;
+    c.appendChild(card);
+  });
+  c.style.display='flex';
+  document.getElementById('eng-week-actions').style.display='block';
+}
+
+/* --- TTS --- */
+function speakWord(word){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(word);
+  u.lang='en-US';u.rate=0.85;
+  window.speechSynthesis.speak(u);
+}
+
+/* --- Story fill-in-the-blank --- */
+function renderStory(week){
+  const c=document.getElementById('story-content');c.innerHTML='';
+  if(!week||!week.story){
+    c.innerHTML='<div class="empty">No story yet — generate this week\'s words first!</div>';return;
+  }
+  storySt={blanks:week.blanks||[],selections:{},checked:false};
+  storySelWord=null;
+  const wordList=week.words.map(w=>w.word);
+
+  // Word bank card
+  const bankCard=document.createElement('div');bankCard.className='card';
+  bankCard.innerHTML='<div class="card-title" style="margin-bottom:8px;">Word Bank — tap a word, then tap a blank to place it</div>';
+  const bank=document.createElement('div');bank.className='word-bank';bank.id='story-word-bank';
+  shuffle([...wordList]).forEach(w=>{
+    const btn=document.createElement('button');
+    btn.className='wb-word';btn.dataset.word=w;btn.textContent=w;
+    btn.onclick=()=>selectBankWord(w);
+    bank.appendChild(btn);
+  });
+  bankCard.appendChild(bank);
+
+  // Blanks card
+  const blanksCard=document.createElement('div');blanksCard.className='card';blanksCard.style.marginTop='10px';
+  const t=document.createElement('div');t.className='card-title';t.style.marginBottom='14px';t.textContent='Fill in the blanks:';
+  blanksCard.appendChild(t);
+  week.blanks.forEach((blank,i)=>{
+    const row=document.createElement('div');row.style.cssText='margin-bottom:14px;font-size:14px;line-height:2;';
+    const parts=blank.sentence.split('____');
+    row.appendChild(document.createTextNode(parts[0]||''));
+    const slot=document.createElement('span');
+    slot.className='story-blank';slot.id='blank-'+i;
+    slot.dataset.idx=i;slot.dataset.answer=blank.word;
+    slot.textContent='______';
+    slot.onclick=()=>blankClick(i);
+    row.appendChild(slot);
+    if(parts[1])row.appendChild(document.createTextNode(parts[1]));
+    blanksCard.appendChild(row);
+  });
+  const btnRow=document.createElement('div');btnRow.style.marginTop='12px';
+  const chkBtn=document.createElement('button');chkBtn.className='confirm-btn';chkBtn.style.margin='0 4px';
+  chkBtn.textContent='Check Answers ✓';chkBtn.onclick=checkStoryAnswers;
+  const rstBtn=document.createElement('button');rstBtn.className='next-btn';rstBtn.style.margin='4px';
+  rstBtn.textContent='Reset';rstBtn.onclick=()=>renderStory(week);
+  btnRow.appendChild(chkBtn);btnRow.appendChild(rstBtn);
+  blanksCard.appendChild(btnRow);
+
+  // Full story card
+  const storyCard=document.createElement('div');storyCard.className='card';storyCard.style.marginTop='10px';
+  storyCard.innerHTML='<div class="card-title" style="margin-bottom:8px;">Read the Story</div><div class="story-text" style="font-size:14px;line-height:2;color:#1a1a1a;">'+week.story+'</div>';
+
+  c.appendChild(bankCard);c.appendChild(blanksCard);c.appendChild(storyCard);
+}
+
+function selectBankWord(word){
+  if(storySt.checked)return;
+  storySelWord=word;
+  document.querySelectorAll('.wb-word').forEach(b=>{
+    b.classList.toggle('selected',b.dataset.word===word&&!b.classList.contains('used'));
+  });
+}
+function blankClick(idx){
+  if(storySt.checked)return;
+  const slot=document.getElementById('blank-'+idx);
+  const oldWord=storySt.selections[idx];
+  if(oldWord){
+    const ob=document.querySelector('.wb-word[data-word="'+oldWord+'"]');
+    if(ob){ob.classList.remove('used');ob.classList.remove('selected');}
+    delete storySt.selections[idx];
+    slot.textContent='______';slot.className='story-blank';
+  }
+  if(storySelWord&&storySelWord!==oldWord){
+    storySt.selections[idx]=storySelWord;
+    slot.textContent=storySelWord;
+    const nb=document.querySelector('.wb-word[data-word="'+storySelWord+'"]');
+    if(nb){nb.classList.add('used');nb.classList.remove('selected');}
+    storySelWord=null;
+    document.querySelectorAll('.wb-word').forEach(b=>b.classList.remove('selected'));
+  }
+}
+function checkStoryAnswers(){
+  let correct=0;
+  storySt.blanks.forEach((blank,i)=>{
+    const slot=document.getElementById('blank-'+i);
+    const ans=storySt.selections[i];
+    if(!ans){slot.classList.add('wrong');return;}
+    if(ans.toLowerCase()===blank.word.toLowerCase()){slot.classList.add('correct');correct++;}
+    else slot.classList.add('wrong');
+  });
+  storySt.checked=true;
+  const total=storySt.blanks.length;
+  const msg=correct===total?'🎉 Perfect! All correct!':correct+' / '+total+' correct — try again!';
+  setTimeout(()=>alert(msg),100);
+}
+
+/* --- Spell Test --- */
+function startSpellTest(){
+  if(!engCurrentWeek||!engCurrentWeek.words||!engCurrentWeek.words.length){
+    alert('No words loaded — generate this week\'s words first!');return;
+  }
+  spellSt={words:shuffle([...engCurrentWeek.words]),idx:0,correct:0,wrongWords:[]};
+  document.getElementById('spell-start-wrap').style.display='none';
+  document.getElementById('spell-result').style.display='none';
+  document.getElementById('spell-quiz').style.display='block';
+  loadSpellWord();
+}
+function loadSpellWord(){
+  const s=spellSt;
+  if(s.idx>=s.words.length){showSpellResult();return;}
+  const w=s.words[s.idx];
+  document.getElementById('spell-prog-txt').textContent='Word '+(s.idx+1)+' / '+s.words.length;
+  document.getElementById('spell-prog-cor').textContent=s.correct+' Correct';
+  document.getElementById('spell-prog-fill').style.width=(s.idx/s.words.length*100)+'%';
+  document.getElementById('spell-hint-text').textContent='Listen, then spell the word:';
+  document.getElementById('spell-ans').value='';
+  document.getElementById('spell-fb').textContent='';
+  document.getElementById('spell-fb').className='fb';
+  document.getElementById('spell-phonics-hint').style.display='none';
+  document.getElementById('spell-check-btn').style.display='inline-block';
+  document.getElementById('spell-next-btn').style.display='none';
+  setTimeout(()=>{speakWord(w.word);document.getElementById('spell-ans').focus();},300);
+}
+function speakCurrentWord(){
+  if(spellSt.idx<spellSt.words.length)speakWord(spellSt.words[spellSt.idx].word);
+}
+function checkSpelling(){
+  const s=spellSt;
+  if(s.idx>=s.words.length)return;
+  const typed=document.getElementById('spell-ans').value.trim().toLowerCase();
+  if(!typed)return;
+  const w=s.words[s.idx];
+  const ok=typed===w.word.toLowerCase();
+  document.getElementById('spell-check-btn').style.display='none';
+  document.getElementById('spell-next-btn').style.display='inline-block';
+  document.getElementById('spell-prog-fill').style.width=((s.idx+1)/s.words.length*100)+'%';
+  if(ok){
+    s.correct++;
+    document.getElementById('spell-fb').textContent='Correct! ✓';
+    document.getElementById('spell-fb').className='fb ok';
+    launchFireworks();
+    if(engCurrentWeek){
+      if(!engCurrentWeek.spellScores[w.word])engCurrentWeek.spellScores[w.word]={correct:0,wrong:0};
+      engCurrentWeek.spellScores[w.word].correct++;saveEngWeek(engCurrentWeek);
+    }
+    setTimeout(()=>nextSpellWord(),700);
+  }else{
+    s.wrongWords.push(w);
+    document.getElementById('spell-fb').textContent='Not quite!';
+    document.getElementById('spell-fb').className='fb no';
+    showPhonicsHint(w,typed);
+    if(engCurrentWeek){
+      if(!engCurrentWeek.spellScores[w.word])engCurrentWeek.spellScores[w.word]={correct:0,wrong:0};
+      engCurrentWeek.spellScores[w.word].wrong++;saveEngWeek(engCurrentWeek);
+    }
+  }
+}
+function showPhonicsHint(wordData,typed){
+  const hint=document.getElementById('spell-phonics-hint');
+  let diffHtml='';
+  const correct=wordData.word;
+  for(let i=0;i<correct.length;i++){
+    const tc=(typed[i]||'').toLowerCase(),cc=correct[i].toLowerCase();
+    diffHtml+='<span class="'+(tc===cc?'ch-ok':'ch-no')+'">'+correct[i]+'</span>';
+  }
+  hint.innerHTML='<div style="margin-bottom:6px;font-size:12px;">The correct spelling is:</div>'
+    +'<div class="char-diff">'+diffHtml+'</div>'
+    +'<div style="margin-top:8px;"><b>Phonics tip:</b> '+wordData.phonicsTip+'</div>'
+    +'<div style="margin-top:5px;font-size:12px;">Syllables: <b>'+wordData.syllables+'</b></div>';
+  hint.style.display='block';
+}
+function nextSpellWord(){spellSt.idx++;loadSpellWord();}
+function showSpellResult(){
+  document.getElementById('spell-quiz').style.display='none';
+  const s=spellSt,total=s.words.length,rate=Math.round(s.correct/total*100);
+  const color=rate>=90?'#1D9E75':rate>=70?'#EF9F27':'#E24B4A';
+  const msg=rate===100?'Perfect spelling! Amazing!':rate>=90?'Excellent spelling!':rate>=70?'Good job, keep practicing!':'Keep going — use the phonics tips!';
+  const uniq=[...new Map(s.wrongWords.map(w=>[w.word,w])).values()];
+  const wrongHtml=uniq.length?'<div class="result-wrong"><div class="rw-title">Words to practice more:</div>'+uniq.map(w=>'<span class="rw-item">'+w.word+' ('+w.syllables+')</span>').join('')+'</div>':'';
+  const el=document.getElementById('spell-result');
+  el.innerHTML=`<div class="result-card">
+    <div class="result-label">Spell Test Complete ✓</div>
+    <div class="result-score" style="color:${color}">${rate}%</div>
+    <div class="result-msg">${msg}</div>
+    <div class="result-stats">
+      <div class="rsc"><div class="rsn" style="color:#1D9E75">${s.correct}</div><div class="rsl">Correct</div></div>
+      <div class="rsc"><div class="rsn" style="color:#E24B4A">${total-s.correct}</div><div class="rsl">Wrong</div></div>
+    </div>
+    ${wrongHtml}
+    <div style="margin-top:1.25rem;">
+      <button class="again-btn" onclick="startSpellTest()">Try Again →</button>
+      ${uniq.length?'<button class="retry-wrong-btn" onclick="retrySpellWrong()">Practice Missed Words →</button>':''}
+    </div>
+  </div>`;
+  el.style.display='block';
+}
+function retrySpellWrong(){
+  const uniq=[...new Map(spellSt.wrongWords.map(w=>[w.word,w])).values()];
+  spellSt={words:shuffle(uniq),idx:0,correct:0,wrongWords:[]};
+  document.getElementById('spell-result').style.display='none';
+  document.getElementById('spell-quiz').style.display='block';
+  loadSpellWord();
+}
+
+/* --- English History --- */
+function renderEnglishHistory(){
+  const list=document.getElementById('weeks-list');list.innerHTML='';
+  const weeks=[...loadEngWeeks()].reverse();
+  if(!weeks.length){list.innerHTML='<div class="empty">No weeks saved yet!</div>';return;}
+  weeks.forEach(week=>{
+    const item=document.createElement('div');item.className='week-item';
+    const scores=Object.values(week.spellScores||{});
+    const tot=scores.reduce((s,v)=>s+v.correct+v.wrong,0);
+    const cor=scores.reduce((s,v)=>s+v.correct,0);
+    const scoreTxt=tot>0?'Spell: '+Math.round(cor/tot*100)+'%':'Not tested yet';
+    item.innerHTML='<div class="week-info"><div class="week-label">'+week.label+'</div><div class="week-meta">'+(week.words?week.words.length:0)+' words · '+scoreTxt+'</div></div><div class="week-arrow">›</div>';
+    item.onclick=()=>{
+      engCurrentWeek=week;
+      document.querySelectorAll('#sec-english .stab').forEach(b=>b.classList.remove('on'));
+      document.querySelectorAll('#sec-english .spanel').forEach(p=>p.classList.remove('on'));
+      document.querySelector('#sec-english .stab').classList.add('on');
+      document.getElementById('eng-words').classList.add('on');
+      document.getElementById('eng-upload-area').style.display='none';
+      document.getElementById('eng-manual-entry').style.display='none';
+      renderWordCards(week);
+    };
+    list.appendChild(item);
+  });
+}
+
+/* --- Sub-tab switching --- */
+function showEngSub(id,btn){
+  document.querySelectorAll('#sec-english .stab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('#sec-english .spanel').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('eng-'+id).classList.add('on');
+  if(id==='story')renderStory(engCurrentWeek);
+  if(id==='weeks')renderEnglishHistory();
+  if(id==='spell'){
+    document.getElementById('spell-start-wrap').style.display='block';
+    document.getElementById('spell-quiz').style.display='none';
+    document.getElementById('spell-result').style.display='none';
+  }
+}
+
+/* --- Init English Tab --- */
+function initEngTab(){
+  initEngApiKey();
+  if(!engCurrentWeek){
+    const weeks=loadEngWeeks();
+    if(weeks.length){
+      engCurrentWeek=weeks[weeks.length-1];
+      document.getElementById('eng-upload-area').style.display='none';
+      renderWordCards(engCurrentWeek);
+    }
+  }else{
+    document.getElementById('eng-upload-area').style.display='none';
+    renderWordCards(engCurrentWeek);
+  }
 }
 
 /* ===== Initialize ===== */

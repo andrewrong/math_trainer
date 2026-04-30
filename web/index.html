@@ -1492,6 +1492,7 @@ function checkStudy(){
     }
     hint.innerHTML='<div class="char-diff">'+diff+'</div><div style="margin-top:6px;">💡 '+w.phonicsTip+'</div>';
     hint.style.display='block';
+    setTimeout(()=>speakWord(w.phonicsTip),600);
   }
 }
 function nextStudyWord(){studySt.idx++;loadStudyWord();}
@@ -1573,6 +1574,7 @@ function showPhonicsHint(wordData,typed){
     +'<div style="margin-top:8px;"><b>Phonics tip:</b> '+wordData.phonicsTip+'</div>'
     +'<div style="margin-top:5px;font-size:12px;">Syllables: <b>'+wordData.syllables+'</b></div>';
   hint.style.display='block';
+  setTimeout(()=>speakWord(wordData.phonicsTip),600);
 }
 function nextSpellWord(){spellSt.idx++;loadSpellWord();}
 function showSpellResult(){

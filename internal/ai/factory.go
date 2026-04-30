@@ -46,6 +46,13 @@ func BuildChain(cfg config.AIConfig) *Chain {
 			}
 			return NewLMStudio(p.APIKey, p.Model, p.BaseURL)
 		},
+		"openrouter": func(p config.AIProvider) Provider {
+			if p.APIKey == "" {
+				log.Printf("[ai] openrouter: api_key not set, skipping")
+				return nil
+			}
+			return NewOpenRouter(p.APIKey, p.Model)
+		},
 	}
 
 	var providers []Provider

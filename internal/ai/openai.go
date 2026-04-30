@@ -10,14 +10,15 @@ import (
 	"net/http"
 )
 
-// OpenAIProvider handles both api.openai.com and OpenAI-compatible endpoints
-// (LM Studio, etc.) by setting a different baseURL.
+// OpenAIProvider handles api.openai.com and any OpenAI-compatible endpoint
+// (LM Studio, OpenRouter, etc.) by varying baseURL and extraHeaders.
 type OpenAIProvider struct {
-	name    string // "openai" or "lmstudio"
-	apiKey  string
-	model   string
-	baseURL string
-	client  *http.Client
+	name         string
+	apiKey       string
+	model        string
+	baseURL      string
+	extraHeaders map[string]string
+	client       *http.Client
 }
 
 func NewOpenAI(apiKey, model, baseURL string) *OpenAIProvider {
@@ -38,6 +39,26 @@ func NewLMStudio(apiKey, model, baseURL string) *OpenAIProvider {
 		apiKey = "lm-studio"
 	}
 	return &OpenAIProvider{name: "lmstudio", apiKey: apiKey, model: model, baseURL: baseURL, client: &http.Client{}}
+}
+
+// NewOpenRouter creates a provider that routes through openrouter.ai.
+// model examples: "anthropic/claude-3-5-haiku", "google/gemini-2.0-flash",
+// "openai/gpt-4o-mini", "meta-llama/llama-3.1-8b-instruct:free"
+func NewOpenRouter(apiKey, model string) *OpenAIProvider {
+	if model == "" {
+		model = "anthropic/claude-3-5-haiku"
+	}
+	return &OpenAIProvider{
+		name:    "openrouter",
+		apiKey:  apiKey,
+		model:   model,
+		baseURL: "https://openrouter.ai/api/v1",
+		extraHeaders: map[string]string{
+			"HTTP-Referer": "http://localhost:8080",
+			"X-Title":      "Math Trainer",
+		},
+		client: &http.Client{},
+	}
 }
 
 func (p *OpenAIProvider) Name() string        { return p.name }
@@ -126,6 +147,9 @@ func (p *OpenAIProvider) call(ctx context.Context, msgs []oaiMessage, maxTokens 
 	req, _ := http.NewRequestWithContext(ctx, "POST", p.baseURL+"/chat/completions", bytes.NewReader(body))
 	req.Header.Set("Authorization", "Bearer "+p.apiKey)
 	req.Header.Set("Content-Type", "application/json")
+	for k, v := range p.extraHeaders {
+		req.Header.Set(k, v)
+	}
 
 	resp, err := p.client.Do(req)
 	if err != nil {

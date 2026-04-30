@@ -160,6 +160,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .week-item{display:block;cursor:default;}.week-item:hover{background:#fff;}
 .week-item-hdr{display:flex;align-items:center;gap:12px;cursor:pointer;padding:4px 0;}
 .week-item-hdr:hover{background:#e8f4fc;border-radius:6px;}
+/* Week feed */
+.week-feed-item{background:#fff;border:0.5px solid #e0e0da;border-radius:12px;padding:12px 16px;margin-bottom:10px;}
+.week-feed-hdr{margin-bottom:8px;}
+.week-feed-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
 </style>
 </head>
 <body>
@@ -390,14 +394,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <!-- English Module -->
 <div class="sec" id="sec-english">
-  <div class="sub-tabs">
-    <div class="stab on" onclick="showEngSub('words',this)">This Week</div>
-    <div class="stab" onclick="showEngSub('spell',this)">Spell Test</div>
-    <div class="stab" onclick="showEngSub('story',this)">Story</div>
-    <div class="stab" onclick="showEngSub('weeks',this)">Past Weeks</div>
+  <!-- Add new week -->
+  <div id="eng-new-bar" style="margin-bottom:10px;">
+    <button class="next-btn" style="width:100%;" onclick="showNewWeekArea()">📷 Add New Week</button>
   </div>
-  <!-- This Week: Words -->
-  <div class="spanel on" id="eng-words">
+  <div id="eng-new-week" style="display:none;">
     <div id="eng-upload-area">
       <label class="upload-area" for="eng-img-in">
         <input type="file" id="eng-img-in" accept="image/*" onchange="handleWordImage(this)">
@@ -408,6 +409,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div style="text-align:center;margin-top:10px;">
         <span style="font-size:11px;color:#aaa;">or</span>
         <button class="next-btn" style="margin-left:8px;" onclick="showManualEntry()">Enter words manually</button>
+        <button class="next-btn" style="margin-left:8px;" onclick="hideNewWeekArea()">Cancel</button>
       </div>
     </div>
     <div id="eng-manual-entry" style="display:none;">
@@ -418,16 +420,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="next-btn" style="margin-top:6px;display:block;margin-left:auto;margin-right:auto;" onclick="document.getElementById('eng-manual-entry').style.display='none';document.getElementById('eng-upload-area').style.display='block';">← Back</button>
       </div>
     </div>
-    <div id="eng-generating" class="generating" style="display:none;"></div>
-    <div id="eng-word-cards" class="word-cards" style="display:none;"></div>
-    <div id="eng-week-actions" style="display:none;text-align:center;margin-top:8px;">
-      <button class="next-btn" onclick="showUploadArea()">Upload New Week →</button>
-    </div>
   </div>
-  <!-- Spell Test -->
-  <div class="spanel" id="eng-spell">
-    <div id="spell-start-wrap">
-      <div class="card"><div class="method-mini">Listen to each word, then type how you think it's spelled. If you get it wrong, you'll see a phonics tip to help you remember!</div></div>
+  <div id="eng-generating" class="generating" style="display:none;"></div>
+
+  <!-- Weeks list -->
+  <div id="eng-weeks-feed"></div>
+
+  <!-- Word Cards view -->
+  <div id="eng-word-view" style="display:none;">
+    <button class="next-btn" style="margin-bottom:12px;" onclick="closeEngView()">← Back</button>
+    <div id="eng-word-cards" class="word-cards"></div>
+  </div>
+
+  <!-- Spell Test view -->
+  <div id="eng-spell-view" style="display:none;">
+    <button class="next-btn" style="margin-bottom:8px;" onclick="closeEngView()">← Back</button>
+    <div class="card"><div class="method-mini">Listen to each word, then type how you think it's spelled. Wrong answers show phonics tips!</div></div>
+    <div id="spell-start-wrap" style="margin-top:8px;">
       <button class="start-btn" onclick="startSpellTest()">Start Spell Test →</button>
     </div>
     <div id="spell-quiz" style="display:none;">
@@ -449,13 +458,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <div id="spell-result" style="display:none;"></div>
   </div>
-  <!-- Story fill-in-the-blank -->
-  <div class="spanel" id="eng-story">
+
+  <!-- Story view -->
+  <div id="eng-story-view" style="display:none;">
+    <button class="next-btn" style="margin-bottom:12px;" onclick="closeEngView()">← Back</button>
     <div id="story-content"></div>
-  </div>
-  <!-- Past Weeks -->
-  <div class="spanel" id="eng-weeks">
-    <div id="weeks-list"></div>
   </div>
 </div>
 </div>
@@ -1179,6 +1186,8 @@ async function generateWeekFromImage(file){
     const week=await r.json();
     engCurrentWeek=week;
     hideEngGenerating();
+    hideNewWeekArea();
+    showEngView('word');
     renderWordCards(week);
   }catch(err){hideEngGenerating();alert('Error: '+err.message);}
 }
@@ -1187,12 +1196,16 @@ function showManualEntry(){
   document.getElementById('eng-upload-area').style.display='none';
   document.getElementById('eng-manual-entry').style.display='block';
 }
-function showUploadArea(){
-  document.getElementById('eng-word-cards').style.display='none';
-  document.getElementById('eng-week-actions').style.display='none';
+function showNewWeekArea(){
+  document.getElementById('eng-new-bar').style.display='none';
+  document.getElementById('eng-new-week').style.display='block';
   document.getElementById('eng-upload-area').style.display='block';
   document.getElementById('eng-manual-entry').style.display='none';
   document.getElementById('eng-img-in').value='';
+}
+function hideNewWeekArea(){
+  document.getElementById('eng-new-week').style.display='none';
+  document.getElementById('eng-new-bar').style.display='block';
 }
 
 async function generateFromManual(){
@@ -1206,6 +1219,8 @@ async function generateFromManual(){
     const week=await apiFetch('POST','/english/weeks/generate/text',{words});
     engCurrentWeek=week;
     hideEngGenerating();
+    hideNewWeekArea();
+    showEngView('word');
     renderWordCards(week);
   }catch(err){hideEngGenerating();alert('Error: '+err.message);}
 }
@@ -1213,8 +1228,6 @@ async function generateFromManual(){
 function showEngGenerating(msg){
   document.getElementById('eng-upload-area').style.display='none';
   document.getElementById('eng-manual-entry').style.display='none';
-  document.getElementById('eng-word-cards').style.display='none';
-  document.getElementById('eng-week-actions').style.display='none';
   const g=document.getElementById('eng-generating');
   g.innerHTML=`<span class="spin"></span>${msg}`;
   g.style.display='block';
@@ -1248,7 +1261,6 @@ function renderWordCards(week){
     c.appendChild(card);
   });
   c.style.display='flex';
-  document.getElementById('eng-week-actions').style.display='block';
 }
 
 /* --- TTS --- */
@@ -1467,81 +1479,72 @@ function retrySpellWrong(){
   loadSpellWord();
 }
 
-/* --- English History --- */
-async function renderEnglishHistory(){
-  const list=document.getElementById('weeks-list');
-  list.innerHTML='<div class="generating"><span class="spin"></span>Loading...</div>';
+/* --- English feed view management --- */
+const ENG_VIEWS=['eng-weeks-feed','eng-word-view','eng-spell-view','eng-story-view'];
+function showEngView(view){
+  ENG_VIEWS.forEach(id=>document.getElementById(id).style.display='none');
+  const map={feed:'eng-weeks-feed',word:'eng-word-view',spell:'eng-spell-view',story:'eng-story-view'};
+  if(map[view])document.getElementById(map[view]).style.display='block';
+  document.getElementById('eng-new-bar').style.display=view==='feed'?'block':'none';
+  document.getElementById('eng-new-week').style.display='none';
+}
+function closeEngView(){renderEngFeed();}
+
+async function renderEngFeed(){
+  showEngView('feed');
+  const feed=document.getElementById('eng-weeks-feed');
+  feed.innerHTML='<div class="generating"><span class="spin"></span>Loading...</div>';
   try{
     const data=await apiFetch('GET','/english/weeks');
     const weeks=data.weeks||[];
-    list.innerHTML='';
-    if(!weeks.length){list.innerHTML='<div class="empty">No weeks saved yet!</div>';return;}
-    weeks.forEach(week=>{
-      const item=document.createElement('div');item.className='week-item';
-      const spellMap=week.spellScores||{};
-      const scores=Object.values(spellMap);
-      const tot=scores.reduce((s,v)=>s+v.correct+v.wrong,0);
-      const cor=scores.reduce((s,v)=>s+v.correct,0);
-      const scoreTxt=tot>0?'Spell: '+Math.round(cor/tot*100)+'%':'Not tested yet';
-
-      // per-word chips
-      const wordList=(week.words||[]);
-      const chipsHTML=wordList.map(w=>{
-        const sc=spellMap[w];
-        if(!sc||sc.correct+sc.wrong===0)return`<span class="ww-chip untested">${w}</span>`;
-        const pct=Math.round(sc.correct/(sc.correct+sc.wrong)*100);
-        const cls=pct>=80?'ok':'weak';
-        return`<span class="ww-chip ${cls}">${w} ${pct}%</span>`;
-      }).join('');
-
-      item.innerHTML=
-        '<div class="week-item-hdr">'+
-          '<div class="week-info">'+
-            '<div class="week-label">'+week.label+'</div>'+
-            '<div class="week-meta">'+(week.wordCount||0)+' words · '+scoreTxt+'</div>'+
-          '</div>'+
-          '<div class="week-arrow">›</div>'+
-        '</div>'+
-        (chipsHTML?'<div class="week-words">'+chipsHTML+'</div>':'')+
-        '<button class="week-review-btn">Review Spelling →</button>';
-
-      const loadWeek=async(startSpell)=>{
-        try{
-          const full=await apiFetch('GET','/english/weeks/'+week.weekId);
-          engCurrentWeek=full;
-          document.querySelectorAll('#sec-english .stab').forEach(b=>b.classList.remove('on'));
-          document.querySelectorAll('#sec-english .spanel').forEach(p=>p.classList.remove('on'));
-          if(startSpell){
-            document.querySelectorAll('#sec-english .stab')[1].classList.add('on');
-            document.getElementById('eng-spell').classList.add('on');
-            document.getElementById('spell-start-wrap').style.display='block';
-            document.getElementById('spell-quiz').style.display='none';
-            document.getElementById('spell-result').style.display='none';
-          }else{
-            document.querySelector('#sec-english .stab').classList.add('on');
-            document.getElementById('eng-words').classList.add('on');
-            document.getElementById('eng-upload-area').style.display='none';
-            document.getElementById('eng-manual-entry').style.display='none';
-            renderWordCards(full);
-          }
-        }catch(e){alert('Failed to load week: '+e.message);}
-      };
-      item.querySelector('.week-item-hdr').onclick=()=>loadWeek(false);
-      item.querySelector('.week-review-btn').onclick=(e)=>{e.stopPropagation();loadWeek(true);};
-      list.appendChild(item);
-    });
-  }catch(e){list.innerHTML='<div class="empty">Failed to load history.</div>';}
+    feed.innerHTML='';
+    if(!weeks.length){
+      feed.innerHTML='<div class="empty">No weeks yet — add your first week above!</div>';
+      return;
+    }
+    weeks.forEach(week=>feed.appendChild(buildWeekCard(week)));
+  }catch(e){feed.innerHTML='<div class="empty">Failed to load weeks.</div>';}
 }
 
-/* --- Sub-tab switching --- */
-function showEngSub(id,btn){
-  document.querySelectorAll('#sec-english .stab').forEach(b=>b.classList.remove('on'));
-  document.querySelectorAll('#sec-english .spanel').forEach(p=>p.classList.remove('on'));
-  btn.classList.add('on');
-  document.getElementById('eng-'+id).classList.add('on');
-  if(id==='story')renderStory(engCurrentWeek);
-  if(id==='weeks')renderEnglishHistory();
-  if(id==='spell'){
+function buildWeekCard(week){
+  const spellMap=week.spellScores||{};
+  const scores=Object.values(spellMap);
+  const tot=scores.reduce((s,v)=>s+v.correct+v.wrong,0);
+  const cor=scores.reduce((s,v)=>s+v.correct,0);
+  const scoreTxt=tot>0?'Spell: '+Math.round(cor/tot*100)+'%':'Not tested yet';
+  const wordList=week.words||[];
+  const chipsHTML=wordList.map(w=>{
+    const sc=spellMap[w];
+    if(!sc||sc.correct+sc.wrong===0)return`<span class="ww-chip untested">${w}</span>`;
+    const pct=Math.round(sc.correct/(sc.correct+sc.wrong)*100);
+    return`<span class="ww-chip ${pct>=80?'ok':'weak'}">${w} ${pct}%</span>`;
+  }).join('');
+  const div=document.createElement('div');div.className='week-feed-item';
+  div.innerHTML=
+    '<div class="week-feed-hdr">'+
+      '<div class="week-label">'+week.label+'</div>'+
+      '<div class="week-meta">'+(week.wordCount||0)+' words · '+scoreTxt+'</div>'+
+    '</div>'+
+    (chipsHTML?'<div class="week-words" style="margin-bottom:8px;">'+chipsHTML+'</div>':'')+
+    '<div class="week-feed-actions">'+
+      '<button class="week-review-btn" data-action="words">Word Cards</button>'+
+      '<button class="week-review-btn" data-action="spell">Spell Test →</button>'+
+      '<button class="week-review-btn" style="border-color:#3b6d11;background:#eaf3de;color:#3b6d11;" data-action="story">Story →</button>'+
+    '</div>';
+  div.querySelector('[data-action=words]').onclick=()=>openEngView('word',week.weekId);
+  div.querySelector('[data-action=spell]').onclick=()=>openEngView('spell',week.weekId);
+  div.querySelector('[data-action=story]').onclick=()=>openEngView('story',week.weekId);
+  return div;
+}
+
+async function openEngView(view,weekId){
+  const full=await apiFetch('GET','/english/weeks/'+weekId).catch(e=>{alert(e.message);return null;});
+  if(!full)return;
+  engCurrentWeek=full;
+  showEngView(view);
+  if(view==='word'){renderWordCards(full);}
+  else if(view==='story'){renderStory(full);}
+  else if(view==='spell'){
     document.getElementById('spell-start-wrap').style.display='block';
     document.getElementById('spell-quiz').style.display='none';
     document.getElementById('spell-result').style.display='none';
@@ -1549,25 +1552,7 @@ function showEngSub(id,btn){
 }
 
 /* --- Init English Tab --- */
-async function initEngTab(){
-  if(!engCurrentWeek){
-    try{
-      const data=await apiFetch('GET','/english/weeks');
-      const weeks=data.weeks||[];
-      if(weeks.length){
-        // Load the most recent week in full
-        const full=await apiFetch('GET','/english/weeks/'+weeks[0].weekId);
-        engCurrentWeek=full;
-        document.getElementById('eng-upload-area').style.display='none';
-        renderWordCards(full);
-        return;
-      }
-    }catch(e){console.warn('initEngTab:',e);}
-  }else{
-    document.getElementById('eng-upload-area').style.display='none';
-    renderWordCards(engCurrentWeek);
-  }
-}
+function initEngTab(){renderEngFeed();}
 
 /* ===== Initialize ===== */
 async function init(){

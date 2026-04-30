@@ -43,8 +43,9 @@ func (h *EnglishHandler) listWeeks(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
 		return
 	}
-	defer rows.Close()
 
+	// Scan all rows before closing — avoids holding the connection open
+	// while loadSpellScores tries to acquire a second connection (deadlock with MaxOpenConns=1).
 	var summaries []model.WeekSummary
 	for rows.Next() {
 		var s model.WeekSummary
@@ -59,8 +60,13 @@ func (h *EnglishHandler) listWeeks(c *gin.Context) {
 		for _, w := range words {
 			s.Words = append(s.Words, w.Word)
 		}
-		s.SpellScores = h.loadSpellScores(c, s.WeekID)
 		summaries = append(summaries, s)
+	}
+	rows.Close()
+
+	// Now safe to query spell scores — outer rows are closed
+	for i := range summaries {
+		summaries[i].SpellScores = h.loadSpellScores(c, summaries[i].WeekID)
 	}
 	if summaries == nil {
 		summaries = []model.WeekSummary{}

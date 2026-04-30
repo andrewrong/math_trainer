@@ -164,6 +164,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .week-feed-item{background:#fff;border:0.5px solid #e0e0da;border-radius:12px;padding:12px 16px;margin-bottom:10px;}
 .week-feed-hdr{margin-bottom:8px;}
 .week-feed-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+/* Weak words banner */
+.weak-banner{background:#faeeda;border:0.5px solid #BA7517;border-radius:12px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;}
+.weak-banner-txt{flex:1;font-size:13px;color:#633806;line-height:1.6;}
+.weak-banner-btn{padding:8px 16px;border:0.5px solid #BA7517;border-radius:8px;font-size:12px;cursor:pointer;background:#fff;color:#633806;font-weight:600;white-space:nowrap;}
+/* Study mode */
+.study-look{text-align:center;padding:1.25rem 0.5rem;}
+.study-word-big{font-size:44px;font-weight:700;color:#1a1a1a;letter-spacing:3px;margin-bottom:8px;}
+.study-syl{font-size:15px;color:#378ADD;font-weight:600;margin-bottom:10px;}
+.study-phonics{background:#e6f1fb;border:0.5px solid #378ADD;border-radius:8px;padding:8px 12px;font-size:13px;color:#185fa5;margin-bottom:16px;line-height:1.7;text-align:left;}
+/* Make your own sentence */
+.my-sentence-wrap{margin-top:10px;border-top:0.5px solid #f0f0ec;padding-top:10px;}
+.my-sentence-label{font-size:12px;color:#888;margin-bottom:5px;}
+.my-sentence-in{width:100%;border:0.5px solid #ccc;border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;}
+.my-sentence-in:focus{outline:none;border-color:#378ADD;}
+.my-sentence-fb{font-size:12px;margin-top:4px;}
 </style>
 </head>
 <body>
@@ -435,9 +450,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- Spell Test view -->
   <div id="eng-spell-view" style="display:none;">
     <button class="next-btn" style="margin-bottom:8px;" onclick="closeEngView()">← Back</button>
-    <div class="card"><div class="method-mini">Listen to each word, then type how you think it's spelled. Wrong answers show phonics tips!</div></div>
+    <div class="card"><div class="method-mini">Study mode: see the word, cover it, write it from memory. Then take the real test!</div></div>
     <div id="spell-start-wrap" style="margin-top:8px;">
-      <button class="start-btn" onclick="startSpellTest()">Start Spell Test →</button>
+      <button class="start-btn" style="margin-bottom:8px;" onclick="startStudy()">Study First →</button>
+      <button class="next-btn" style="display:block;width:100%;text-align:center;padding:10px;" onclick="startSpellTest()">Skip — Start Spell Test directly →</button>
+    </div>
+    <!-- Study panel (look-cover-write-check) -->
+    <div id="study-panel" style="display:none;">
+      <div id="study-look" class="study-look">
+        <div id="study-prog" style="font-size:12px;color:#888;margin-bottom:12px;"></div>
+        <div class="study-word-big" id="study-word"></div>
+        <div class="study-syl" id="study-syl"></div>
+        <div class="study-phonics" id="study-phonics"></div>
+        <button class="confirm-btn" onclick="studyCover()">Cover &amp; Test ›</button>
+      </div>
+      <div id="study-type" style="display:none;text-align:center;padding:1rem 0;">
+        <div id="study-prog2" style="font-size:12px;color:#888;margin-bottom:12px;"></div>
+        <div style="font-size:22px;font-weight:600;color:#aaa;letter-spacing:6px;margin-bottom:16px;" id="study-hidden"></div>
+        <input class="spell-in" type="text" id="study-ans" placeholder="spell it" autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter')checkStudy()">
+        <div class="fb" id="study-fb" style="margin-top:8px;min-height:20px;"></div>
+        <div class="phonics-hint" id="study-phonics-hint" style="display:none;margin-top:8px;"></div>
+        <button class="confirm-btn" id="study-check-btn" style="margin-top:10px;" onclick="checkStudy()">Check ✓</button>
+        <button class="next-btn" id="study-next-btn" style="display:none;margin-top:8px;" onclick="nextStudyWord()">Next →</button>
+      </div>
+      <div id="study-done" style="display:none;text-align:center;padding:1.5rem 0;">
+        <div class="result-score" id="study-done-score" style="color:#1D9E75;"></div>
+        <div style="font-size:14px;color:#888;margin:8px 0 16px;">Study round complete!</div>
+        <button class="start-btn" onclick="startSpellTest()">Take the Real Test →</button>
+        <button class="next-btn" style="display:block;margin:8px auto 0;" onclick="startStudy()">Study Again</button>
+      </div>
     </div>
     <div id="spell-quiz" style="display:none;">
       <div class="quiz-box" style="text-align:center;">
@@ -1249,6 +1290,7 @@ function renderWordCards(week){
   week.words.forEach(w=>{
     const card=document.createElement('div');card.className='word-card';
     const safeWord=w.word.replace(/'/g,"\\'");
+    const uid='ms-'+Math.random().toString(36).slice(2);
     card.innerHTML=`<div class="wc-top">
       <span class="wc-word">${w.word}</span>
       <span class="wc-syl">${w.syllables}</span>
@@ -1257,8 +1299,27 @@ function renderWordCards(week){
     </div>
     <div class="phonics-tip">💡 ${w.phonicsTip}</div>
     <div class="wc-def">${w.definition}</div>
-    <div class="wc-ex">"${w.example}"</div>`;
+    <div class="wc-ex">"${w.example}"</div>
+    <div class="my-sentence-wrap">
+      <div class="my-sentence-label">✏️ Your sentence:</div>
+      <input class="my-sentence-in" id="${uid}" type="text" placeholder="Use '${w.word}' in a sentence..." autocorrect="off" spellcheck="true">
+      <div class="my-sentence-fb" id="${uid}-fb"></div>
+    </div>`;
     c.appendChild(card);
+    // Wire sentence check
+    const inp=card.querySelector('.my-sentence-in');
+    const fb=card.querySelector('.my-sentence-fb');
+    const checkSentence=()=>{
+      const val=inp.value.trim();
+      if(!val){fb.textContent='';fb.style.color='';return;}
+      if(val.toLowerCase().includes(w.word.toLowerCase())){
+        fb.textContent='✅ Great sentence!';fb.style.color='#1D9E75';
+      }else{
+        fb.textContent=`💡 Try to include the word "${w.word}"`;fb.style.color='#BA7517';
+      }
+    };
+    inp.addEventListener('blur',checkSentence);
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();checkSentence();}});
   });
   c.style.display='flex';
 }
@@ -1368,12 +1429,88 @@ function checkStoryAnswers(){
 }
 
 /* --- Spell Test --- */
+/* --- Study mode (look-cover-write-check) --- */
+let studySt={words:[],idx:0,correct:0};
+function startStudy(){
+  if(!engCurrentWeek||!engCurrentWeek.words||!engCurrentWeek.words.length){
+    alert('No words loaded!');return;
+  }
+  studySt={words:shuffle([...engCurrentWeek.words]),idx:0,correct:0};
+  document.getElementById('spell-start-wrap').style.display='none';
+  document.getElementById('study-panel').style.display='block';
+  document.getElementById('study-done').style.display='none';
+  loadStudyWord();
+}
+function loadStudyWord(){
+  const s=studySt;
+  if(s.idx>=s.words.length){showStudyDone();return;}
+  const w=s.words[s.idx];
+  const prog='Word '+(s.idx+1)+' / '+s.words.length;
+  document.getElementById('study-prog').textContent=prog;
+  document.getElementById('study-word').textContent=w.word;
+  document.getElementById('study-syl').textContent=w.syllables;
+  document.getElementById('study-phonics').textContent='💡 '+w.phonicsTip;
+  document.getElementById('study-look').style.display='block';
+  document.getElementById('study-type').style.display='none';
+  speakWord(w.word);
+}
+function studyCover(){
+  const w=studySt.words[studySt.idx];
+  const prog='Word '+(studySt.idx+1)+' / '+studySt.words.length;
+  document.getElementById('study-prog2').textContent=prog;
+  document.getElementById('study-hidden').textContent=w.word.split('').map(()=>'_').join(' ');
+  document.getElementById('study-ans').value='';
+  document.getElementById('study-fb').textContent='';
+  document.getElementById('study-fb').className='fb';
+  document.getElementById('study-phonics-hint').style.display='none';
+  document.getElementById('study-check-btn').style.display='inline-block';
+  document.getElementById('study-next-btn').style.display='none';
+  document.getElementById('study-look').style.display='none';
+  document.getElementById('study-type').style.display='block';
+  setTimeout(()=>document.getElementById('study-ans').focus(),100);
+}
+function checkStudy(){
+  const w=studySt.words[studySt.idx];
+  const typed=document.getElementById('study-ans').value.trim().toLowerCase();
+  if(!typed)return;
+  const ok=typed===w.word.toLowerCase();
+  document.getElementById('study-check-btn').style.display='none';
+  document.getElementById('study-next-btn').style.display='inline-block';
+  if(ok){
+    studySt.correct++;
+    document.getElementById('study-fb').textContent='Correct! ✓';
+    document.getElementById('study-fb').className='fb ok';
+  }else{
+    document.getElementById('study-fb').textContent='Not quite — see below';
+    document.getElementById('study-fb').className='fb no';
+    // show char diff
+    const hint=document.getElementById('study-phonics-hint');
+    let diff='';
+    for(let i=0;i<w.word.length;i++){
+      const tc=(typed[i]||'').toLowerCase(),cc=w.word[i].toLowerCase();
+      diff+='<span class="'+(tc===cc?'ch-ok':'ch-no')+'">'+w.word[i]+'</span>';
+    }
+    hint.innerHTML='<div class="char-diff">'+diff+'</div><div style="margin-top:6px;">💡 '+w.phonicsTip+'</div>';
+    hint.style.display='block';
+  }
+}
+function nextStudyWord(){studySt.idx++;loadStudyWord();}
+function showStudyDone(){
+  const s=studySt;
+  const rate=Math.round(s.correct/s.words.length*100);
+  document.getElementById('study-done-score').textContent=rate+'%';
+  document.getElementById('study-look').style.display='none';
+  document.getElementById('study-type').style.display='none';
+  document.getElementById('study-done').style.display='block';
+}
+
 function startSpellTest(){
   if(!engCurrentWeek||!engCurrentWeek.words||!engCurrentWeek.words.length){
     alert('No words loaded — generate this week\'s words first!');return;
   }
   spellSt={words:shuffle([...engCurrentWeek.words]),idx:0,correct:0,wrongWords:[]};
   document.getElementById('spell-start-wrap').style.display='none';
+  document.getElementById('study-panel').style.display='none';
   document.getElementById('spell-result').style.display='none';
   document.getElementById('spell-quiz').style.display='block';
   loadSpellWord();
@@ -1407,29 +1544,20 @@ function checkSpelling(){
   document.getElementById('spell-check-btn').style.display='none';
   document.getElementById('spell-next-btn').style.display='inline-block';
   document.getElementById('spell-prog-fill').style.width=((s.idx+1)/s.words.length*100)+'%';
+  const wkId=w.__weekId||(engCurrentWeek&&engCurrentWeek.weekId);
   if(ok){
     s.correct++;
     document.getElementById('spell-fb').textContent='Correct! ✓';
     document.getElementById('spell-fb').className='fb ok';
     launchFireworks();
-    if(engCurrentWeek){
-      if(!engCurrentWeek.spellScores)engCurrentWeek.spellScores={};
-      if(!engCurrentWeek.spellScores[w.word])engCurrentWeek.spellScores[w.word]={correct:0,wrong:0};
-      engCurrentWeek.spellScores[w.word].correct++;
-      apiFetch('PUT',`/english/weeks/${engCurrentWeek.weekId}/spell`,{word:w.word,correct:1,wrong:0}).catch(()=>{});
-    }
+    if(wkId)apiFetch('PUT',`/english/weeks/${wkId}/spell`,{word:w.word,correct:1,wrong:0}).catch(()=>{});
     setTimeout(()=>nextSpellWord(),700);
   }else{
     s.wrongWords.push(w);
     document.getElementById('spell-fb').textContent='Not quite!';
     document.getElementById('spell-fb').className='fb no';
     showPhonicsHint(w,typed);
-    if(engCurrentWeek){
-      if(!engCurrentWeek.spellScores)engCurrentWeek.spellScores={};
-      if(!engCurrentWeek.spellScores[w.word])engCurrentWeek.spellScores[w.word]={correct:0,wrong:0};
-      engCurrentWeek.spellScores[w.word].wrong++;
-      apiFetch('PUT',`/english/weeks/${engCurrentWeek.weekId}/spell`,{word:w.word,correct:0,wrong:1}).catch(()=>{});
-    }
+    if(wkId)apiFetch('PUT',`/english/weeks/${wkId}/spell`,{word:w.word,correct:0,wrong:1}).catch(()=>{});
   }
 }
 function showPhonicsHint(wordData,typed){
@@ -1502,8 +1630,50 @@ async function renderEngFeed(){
       feed.innerHTML='<div class="empty">No weeks yet — add your first week above!</div>';
       return;
     }
+    // Collect weak words across all weeks
+    const weakRefs=[];// {wordStr, weekId}
+    weeks.forEach(wk=>{
+      Object.entries(wk.spellScores||{}).forEach(([word,sc])=>{
+        if(sc.correct+sc.wrong>0&&sc.correct/(sc.correct+sc.wrong)<0.8){
+          weakRefs.push({wordStr:word,weekId:wk.weekId});
+        }
+      });
+    });
+    if(weakRefs.length){
+      const banner=document.createElement('div');banner.className='weak-banner';
+      banner.innerHTML='<div class="weak-banner-txt">📚 <b>'+weakRefs.length+' words</b> need more practice across past weeks</div>'
+        +'<button class="weak-banner-btn" id="weak-practice-btn">Practice Now →</button>';
+      banner.querySelector('#weak-practice-btn').onclick=()=>startWeakWordPractice(weakRefs,weeks);
+      feed.appendChild(banner);
+    }
     weeks.forEach(week=>feed.appendChild(buildWeekCard(week)));
   }catch(e){feed.innerHTML='<div class="empty">Failed to load weeks.</div>';}
+}
+
+async function startWeakWordPractice(weakRefs,summaries){
+  // Fetch full week data for unique weekIds that have weak words
+  const weekIds=[...new Set(weakRefs.map(r=>r.weekId))];
+  const fullWeeks={};
+  for(const wid of weekIds){
+    try{fullWeeks[wid]=await apiFetch('GET','/english/weeks/'+wid);}catch(e){}
+  }
+  // Build WordEntry list with __weekId
+  const wordEntries=[];
+  weakRefs.forEach(({wordStr,weekId})=>{
+    const fw=fullWeeks[weekId];
+    if(!fw)return;
+    const entry=fw.words.find(w=>w.word===wordStr);
+    if(entry)wordEntries.push({...entry,__weekId:weekId});
+  });
+  if(!wordEntries.length){alert('Could not load weak words.');return;}
+  engCurrentWeek=null;// cross-week mode
+  showEngView('spell');
+  document.getElementById('spell-start-wrap').style.display='none';
+  document.getElementById('study-panel').style.display='none';
+  document.getElementById('spell-result').style.display='none';
+  spellSt={words:shuffle(wordEntries),idx:0,correct:0,wrongWords:[]};
+  document.getElementById('spell-quiz').style.display='block';
+  loadSpellWord();
 }
 
 function buildWeekCard(week){
@@ -1546,6 +1716,7 @@ async function openEngView(view,weekId){
   else if(view==='story'){renderStory(full);}
   else if(view==='spell'){
     document.getElementById('spell-start-wrap').style.display='block';
+    document.getElementById('study-panel').style.display='none';
     document.getElementById('spell-quiz').style.display='none';
     document.getElementById('spell-result').style.display='none';
   }

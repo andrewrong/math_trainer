@@ -1,0 +1,5 @@
+bin/
+math_trainer.db
+config.yaml
+*.db-shm
+*.db-wal

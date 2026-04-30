@@ -1,0 +1,41 @@
+server:
+  host: "0.0.0.0"   # 0.0.0.0 = 局域网可访问
+  port: 8080
+
+db:
+  path: "./math_trainer.db"
+
+ai:
+  # 按顺序尝试，失败则自动切换下一个
+  fallback_order:
+    - ollama        # 本地优先（免费、离线）
+    - lmstudio      # 本地备用
+    - anthropic     # 云端
+    - openai
+    - gemini
+
+  providers:
+    anthropic:
+      api_key: ""   # 或 env: ANTHROPIC_API_KEY
+      model: "claude-haiku-4-5-20251001"
+      base_url: "https://api.anthropic.com"
+
+    openai:
+      api_key: ""   # 或 env: OPENAI_API_KEY
+      model: "gpt-4o-mini"
+      base_url: "https://api.openai.com/v1"
+
+    gemini:
+      api_key: ""   # 或 env: GEMINI_API_KEY
+      model: "gemini-2.0-flash"
+      base_url: "https://generativelanguage.googleapis.com"
+
+    ollama:
+      base_url: "http://localhost:11434"
+      model: "qwen2.5:7b"         # 文字生成
+      vision_model: "llava:7b"    # 图片识别（留空则跳过 vision）
+
+    lmstudio:
+      base_url: "http://localhost:1234/v1"
+      model: "loaded-model-name"  # LM Studio 中当前加载的模型名
+      api_key: "lm-studio"        # LM Studio 接受任意非空 key

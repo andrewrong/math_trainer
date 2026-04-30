@@ -372,16 +372,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <!-- English Module -->
 <div class="sec" id="sec-english">
-  <div id="eng-key-setup" class="eng-key-setup" style="display:none;">
-    <b>API Key Required</b> — Enter your Anthropic API key to enable AI word generation.
-    <div class="eng-key-row">
-      <input class="eng-key-in" type="password" id="eng-key-in" placeholder="sk-ant-...">
-      <button class="confirm-btn" style="margin:0;" onclick="saveApiKey()">Save</button>
-    </div>
-  </div>
-  <div id="eng-key-saved" style="display:none;font-size:11px;color:#888;text-align:right;margin-bottom:6px;">
-    API key saved &nbsp;·&nbsp; <span style="cursor:pointer;color:#E24B4A;" onclick="clearApiKey()">Clear</span>
-  </div>
   <div class="sub-tabs">
     <div class="stab on" onclick="showEngSub('words',this)">This Week</div>
     <div class="stab" onclick="showEngSub('spell',this)">Spell Test</div>
@@ -457,9 +447,15 @@ const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=ri(0,i);[a[i],a[j]]=[a[j],a[i]];}return a;};
 const NS='http://www.w3.org/2000/svg';
 const BATCH=30;
-const STORAGE_KEY='mathtrainer-history';
-const WRONG_KEY='mathtrainer-wrongs';
-const MASTER_KEY='mathtrainer-mastered';
+/* API base — relative so it works on any device/IP */
+const API='/api/v1';
+async function apiFetch(method,path,body){
+  const opts={method,headers:{'Content-Type':'application/json'}};
+  if(body!=null)opts.body=JSON.stringify(body);
+  const r=await fetch(API+path,opts);
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error||`HTTP ${r.status}`);}
+  return r.json();
+}
 
 let wrongMap={}, masteredMap={};
 let lv={add:'easy',mul:'m25',v:'vm1'};
@@ -478,33 +474,48 @@ const TYPE_LABELS={
   'v:vm1':'Long·2D×1D','v:vm2':'Long·2D×2D','v:vd1':'Long·2D÷1D','v:vd2':'Long·3D÷2D','v:vmix':'Long·Mixed ×÷ Adv'
 };
 
-/* ===== localStorage ===== */
-function saveHistory(record){
+/* ===== API persistence ===== */
+async function saveHistory(record){
+  try{await apiFetch('POST','/math/sessions',record);}catch(e){console.warn('saveHistory:',e);}
+}
+async function loadHistory(){
+  try{const d=await apiFetch('GET','/math/sessions');return d.sessions||[];}catch(e){return[];}
+}
+/* Incremental wrong answer sync — category 'practice' by default */
+function syncWrong(q,delta,category){
+  category=category||'practice';
+  apiFetch('PUT','/math/wrongs',{key:q.key,category,a:q.a,op:q.op,b:q.b,ans:q.ans,delta}).catch(e=>console.warn('syncWrong:',e));
+}
+async function loadWrongs(){
   try{
-    const arr=loadHistory();
-    arr.push(record);
-    if(arr.length>300)arr.splice(0,arr.length-300);
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(arr));
-  }catch(e){}
+    const d=await apiFetch('GET','/math/wrongs?category=practice');
+    wrongMap={};
+    (d.wrongs||[]).forEach(w=>{wrongMap[w.key]={q:w.q,count:w.count};});
+  }catch(e){console.warn('loadWrongs:',e);}
 }
-function loadHistory(){
-  try{const d=localStorage.getItem(STORAGE_KEY);return d?JSON.parse(d):[];}catch(e){return[];}
+function syncMastered(factKey,status){
+  apiFetch('PUT','/math/mastered/'+encodeURIComponent(factKey),{status}).catch(e=>console.warn('syncMastered:',e));
 }
-function saveWrongs(){
-  try{localStorage.setItem(WRONG_KEY,JSON.stringify(wrongMap));}catch(e){}
+async function loadMastered(){
+  try{
+    const d=await apiFetch('GET','/math/mastered');
+    masteredMap={};
+    (d.facts||[]).forEach(f=>{masteredMap[f.factKey]=f.status;});
+  }catch(e){console.warn('loadMastered:',e);}
 }
-function loadWrongs(){
-  try{const d=localStorage.getItem(WRONG_KEY);if(d)wrongMap=JSON.parse(d);}catch(e){}
+function syncChallengeWeak(q,delta){
+  apiFetch('PUT','/math/challenge/weak',{key:q.key,category:'challenge',a:q.a,op:q.op,b:q.b,ans:q.ans,delta}).catch(e=>console.warn('syncChallengeWeak:',e));
 }
-function saveMastered(){
-  try{localStorage.setItem(MASTER_KEY,JSON.stringify(masteredMap));}catch(e){}
+async function loadChallengeWeak(){
+  try{
+    const d=await apiFetch('GET','/math/challenge/weak');
+    challengeWeakMap={};
+    (d.wrongs||[]).forEach(w=>{challengeWeakMap[w.key]={q:w.q,count:w.count};});
+  }catch(e){console.warn('loadChallengeWeak:',e);}
 }
-function loadMastered(){
-  try{const d=localStorage.getItem(MASTER_KEY);if(d)masteredMap=JSON.parse(d);}catch(e){}
-}
-function clearHistory(){
+async function clearHistory(){
   if(!confirm('Clear all score history?'))return;
-  localStorage.removeItem(STORAGE_KEY);
+  try{await apiFetch('DELETE','/math/sessions');}catch(e){console.warn('clearHistory:',e);}
   renderHistory();
 }
 
@@ -603,7 +614,7 @@ function nxt(area){
   if(autoTimer[area]){clearTimeout(autoTimer[area]);autoTimer[area]=null;}
   if(!done[area]){
     const q=batch[area].queue[batch[area].idx];
-    if(q){batch[area].wrongInBatch.push(q);if(!wrongMap[q.key])wrongMap[q.key]={q,count:0};wrongMap[q.key].count++;saveWrongs();}
+    if(q){batch[area].wrongInBatch.push(q);if(!wrongMap[q.key])wrongMap[q.key]={q,count:0};wrongMap[q.key].count++;syncWrong(q,1);}
   }
   batch[area].idx++;loadQ(area);
 }
@@ -620,14 +631,14 @@ function chk(area){
   if(val===q.ans){
     b.correct++;fb.textContent='Correct! ✓';fb.className='fb ok';tip.style.display='none';
     launchFireworks();
-    if(q.op==='×'&&area==='mul'){masteredMap[`${Math.min(q.a,q.b)}x${Math.max(q.a,q.b)}`]='ok';saveMastered();}
-    if(wrongMap[q.key]){wrongMap[q.key].count=Math.max(0,wrongMap[q.key].count-1);if(wrongMap[q.key].count===0)delete wrongMap[q.key];saveWrongs();}
+    if(q.op==='×'&&area==='mul'){const mk=`${Math.min(q.a,q.b)}x${Math.max(q.a,q.b)}`;masteredMap[mk]='ok';syncMastered(mk,'ok');}
+    if(wrongMap[q.key]){wrongMap[q.key].count=Math.max(0,wrongMap[q.key].count-1);if(wrongMap[q.key].count===0)delete wrongMap[q.key];syncWrong(q,-1);}
     document.getElementById(area+'-prog-cor').textContent=`${b.correct} Correct`;
     autoTimer[area]=setTimeout(()=>nxt(area),700);
   }else{
     b.wrongInBatch.push(q);fb.textContent=`Not quite! The answer is ${q.ans}`;fb.className='fb no';
-    if(!wrongMap[q.key])wrongMap[q.key]={q,count:0};wrongMap[q.key].count++;saveWrongs();
-    if(q.op==='×'&&area==='mul'){masteredMap[`${Math.min(q.a,q.b)}x${Math.max(q.a,q.b)}`]='weak';saveMastered();}
+    if(!wrongMap[q.key])wrongMap[q.key]={q,count:0};wrongMap[q.key].count++;syncWrong(q,1);
+    if(q.op==='×'&&area==='mul'){const mk=`${Math.min(q.a,q.b)}x${Math.max(q.a,q.b)}`;masteredMap[mk]='weak';syncMastered(mk,'weak');}
     tip.innerHTML=generateSteps(area,q);
     tip.style.display='block';
   }
@@ -640,7 +651,7 @@ function showResult(area){
   const rate=Math.round(correct/total*100);
   const elapsed=Math.round((Date.now()-b.startTime)/1000);
   const record={date:new Date().toISOString(),area,level:lv[area],typeKey:`${area}:${lv[area]}`,total,correct,rate,elapsed};
-  saveHistory(record);
+  saveHistory(record); // async fire-and-forget
 
   const color=rate>=90?'#1D9E75':rate>=70?'#EF9F27':'#E24B4A';
   const msg=rate===100?'Perfect! Amazing!':rate>=90?'Excellent!':rate>=70?'Good job, keep going!':'Keep practicing!';
@@ -675,8 +686,8 @@ function retryBatchWrong(area){
 }
 
 /* ===== Score History ===== */
-function renderHistory(){
-  const all=loadHistory();
+async function renderHistory(){
+  const all=await loadHistory();
   const filtered=histFilter==='all'?all:all.filter(r=>r.area===histFilter);
 
   const days=new Set(all.map(r=>r.date.slice(0,10)));
@@ -844,8 +855,8 @@ function showFlash(){
 function revealFlash(){const c=flashDeck[flashIdx];document.getElementById('flash-ans').textContent=`= ${c.ans}`;document.getElementById('flash-before').style.display='none';document.getElementById('flash-after').style.display='block';}
 function flashGrade(r){
   const c=flashDeck[flashIdx];
-  if(r==='no'){const k=`mul:${c.a}×${c.b}`;if(!wrongMap[k])wrongMap[k]={q:{a:c.a,op:'×',b:c.b,ans:c.ans,key:k},count:0};wrongMap[k].count++;masteredMap[`${Math.min(c.a,c.b)}x${Math.max(c.a,c.b)}`]='weak';saveWrongs();saveMastered();document.getElementById('flash-note').textContent=`Remember: ${c.a}×${c.b}=${c.ans}`;}
-  else{masteredMap[`${Math.min(c.a,c.b)}x${Math.max(c.a,c.b)}`]='ok';saveMastered();document.getElementById('flash-note').textContent='';}
+  if(r==='no'){const k=`mul:${c.a}×${c.b}`;const q={a:c.a,op:'×',b:c.b,ans:c.ans,key:k};if(!wrongMap[k])wrongMap[k]={q,count:0};wrongMap[k].count++;syncWrong(q,1);const mk=`${Math.min(c.a,c.b)}x${Math.max(c.a,c.b)}`;masteredMap[mk]='weak';syncMastered(mk,'weak');document.getElementById('flash-note').textContent=`Remember: ${c.a}×${c.b}=${c.ans}`;}
+  else{const mk=`${Math.min(c.a,c.b)}x${Math.max(c.a,c.b)}`;masteredMap[mk]='ok';syncMastered(mk,'ok');document.getElementById('flash-note').textContent='';}
   flashIdx++;setTimeout(showFlash,r==='no'?700:150);
 }
 
@@ -973,12 +984,10 @@ function launchFireworks(){
 }
 
 /* ===== Speed Challenge ===== */
-const CHALLENGE_WEAK_KEY='mathtrainer-challenge-weak';
+// challengeWeakMap syncs via /api/v1/math/challenge/weak
 let challengeWeakMap={};
 let cSt={deck:[],idx:0,correct:0,slow:0,wrong:0,startTime:0,qStart:0,timer:null,sessionWeak:[]};
 
-function loadChallengeWeak(){try{const d=localStorage.getItem(CHALLENGE_WEAK_KEY);if(d)challengeWeakMap=JSON.parse(d);}catch(e){}}
-function saveChallengeWeak(){try{localStorage.setItem(CHALLENGE_WEAK_KEY,JSON.stringify(challengeWeakMap));}catch(e){}}
 
 function initChallenge(){
   const cnt=Object.keys(challengeWeakMap).length;
@@ -1046,7 +1055,7 @@ function chkChallenge(){
   if(val===q.ans&&elapsed<CH_TIME){
     cSt.correct++;
     document.getElementById('ch-fb').textContent='✓';document.getElementById('ch-fb').className='fb ok';
-    if(challengeWeakMap[q.key]){challengeWeakMap[q.key].count=Math.max(0,challengeWeakMap[q.key].count-1);if(challengeWeakMap[q.key].count===0)delete challengeWeakMap[q.key];saveChallengeWeak();}
+    if(challengeWeakMap[q.key]){challengeWeakMap[q.key].count=Math.max(0,challengeWeakMap[q.key].count-1);if(challengeWeakMap[q.key].count===0)delete challengeWeakMap[q.key];syncChallengeWeak(q,-1);}
     launchFireworks();
     cSt.idx++;setTimeout(loadChallengeQ,350);
   }else{
@@ -1065,7 +1074,7 @@ function chkChallengeFail(q,reason){
   tip.style.display='block';
   cSt.sessionWeak.push(q);
   if(!challengeWeakMap[q.key])challengeWeakMap[q.key]={q,count:0};
-  challengeWeakMap[q.key].count++;saveChallengeWeak();
+  challengeWeakMap[q.key].count++;syncChallengeWeak(q,1);
   cSt.idx++;setTimeout(loadChallengeQ,900);
 }
 
@@ -1103,94 +1112,27 @@ function showChallengeResult(){
 }
 
 /* ===== English Module ===== */
-const ENG_WEEKS_KEY='mathtrainer-english-weeks';
-const API_KEY_STORAGE='mathtrainer-apikey';
 let engCurrentWeek=null;
 let spellSt={words:[],idx:0,correct:0,wrongWords:[]};
 let storySt={blanks:[],selections:{},checked:false};
 let storySelWord=null;
 
-/* --- API Key --- */
-function initEngApiKey(){
-  const k=localStorage.getItem(API_KEY_STORAGE);
-  document.getElementById('eng-key-setup').style.display=k?'none':'block';
-  document.getElementById('eng-key-saved').style.display=k?'block':'none';
-}
-function saveApiKey(){
-  const v=document.getElementById('eng-key-in').value.trim();
-  if(!v)return;
-  localStorage.setItem(API_KEY_STORAGE,v);
-  document.getElementById('eng-key-setup').style.display='none';
-  document.getElementById('eng-key-saved').style.display='block';
-}
-function clearApiKey(){
-  if(!confirm('Remove saved API key?'))return;
-  localStorage.removeItem(API_KEY_STORAGE);
-  document.getElementById('eng-key-in').value='';
-  document.getElementById('eng-key-setup').style.display='block';
-  document.getElementById('eng-key-saved').style.display='none';
-}
-
-/* --- Storage --- */
-function loadEngWeeks(){try{const d=localStorage.getItem(ENG_WEEKS_KEY);return d?JSON.parse(d):[];}catch(e){return[];}}
-function saveEngWeek(week){
-  const weeks=loadEngWeeks();
-  const i=weeks.findIndex(w=>w.weekId===week.weekId);
-  if(i>=0)weeks[i]=week;else weeks.push(week);
-  try{localStorage.setItem(ENG_WEEKS_KEY,JSON.stringify(weeks));}catch(e){}
-}
-function getWeekId(){
-  const d=new Date(),jan1=new Date(d.getFullYear(),0,1);
-  const wn=Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
-  return`${d.getFullYear()}-W${String(wn).padStart(2,'0')}`;
-}
-function getWeekLabel(){
-  return'Week of '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-}
-
-/* --- Claude API --- */
-async function callClaude(messages){
-  const apiKey=localStorage.getItem(API_KEY_STORAGE);
-  if(!apiKey){alert('Please enter your Anthropic API key first.');return null;}
-  const resp=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:4096,messages})
-  });
-  if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error?.message||`API error ${resp.status}`);}
-  return(await resp.json()).content[0].text;
-}
-
-/* --- Image Upload --- */
+/* --- Image Upload → backend API --- */
 function handleWordImage(input){
   const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=async(e)=>{
-    const base64=e.target.result.split(',')[1];
-    await generateWeekFromImage(base64,file.type||'image/jpeg');
-  };
-  reader.readAsDataURL(file);
+  generateWeekFromImage(file);
 }
 
-async function generateWeekFromImage(base64,mimeType){
+async function generateWeekFromImage(file){
   showEngGenerating('Reading word list from image...');
   try{
-    const apiKey=localStorage.getItem(API_KEY_STORAGE);
-    if(!apiKey){hideEngGenerating();alert('Please enter your Anthropic API key first.');return;}
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:300,messages:[{role:'user',content:[
-        {type:'image',source:{type:'base64',media_type:mimeType,data:base64}},
-        {type:'text',text:'This is a child\'s school vocabulary word list. Extract all the English vocabulary words from this image. Return ONLY a JSON array of the words in lowercase, nothing else. Example: ["adventure","beautiful","calendar"]'}
-      ]}]})
-    });
-    if(!resp.ok)throw new Error(`API error ${resp.status}`);
-    const txt=(await resp.json()).content[0].text.trim();
-    let words;
-    try{const m=txt.match(/\[[\s\S]*?\]/);words=JSON.parse(m?m[0]:txt);}
-    catch(e){throw new Error('Could not read words from image. Please try manual entry.');}
-    await generateWeekData(words);
+    const fd=new FormData();fd.append('image',file);
+    const r=await fetch(API+'/english/weeks/generate/image',{method:'POST',body:fd});
+    if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error||`HTTP ${r.status}`);}
+    const week=await r.json();
+    engCurrentWeek=week;
+    hideEngGenerating();
+    renderWordCards(week);
   }catch(err){hideEngGenerating();alert('Error: '+err.message);}
 }
 
@@ -1212,52 +1154,9 @@ async function generateFromManual(){
   const words=text.split('\n').map(w=>w.trim()).filter(w=>w.length>0).slice(0,15);
   if(!words.length)return;
   document.getElementById('eng-manual-entry').style.display='none';
-  await generateWeekData(words);
-}
-
-async function generateWeekData(words){
   showEngGenerating('Generating word cards and story...');
   try{
-    const prompt=`You are helping a Grade 3-4 student (age 8-10) learn their weekly vocabulary words.
-
-Given these ${words.length} words: ${words.join(', ')}
-
-Return a JSON object with this EXACT structure (no extra text, just JSON):
-{
-  "words": [
-    {
-      "word": "adventure",
-      "syllables": "ad·ven·ture",
-      "pos": "noun",
-      "phonicsTip": "The ending 'ture' sounds like 'cher' — same as in 'picture' and 'nature'. Remember: t-u-r-e = cher sound.",
-      "definition": "An exciting trip or experience where something surprising might happen.",
-      "example": "Climbing the big oak tree in the backyard felt like a real adventure."
-    }
-  ],
-  "story": "A complete story of about 150 words naturally using ALL the vocabulary words. Use a character named Lily or Max. Make it fun and engaging for a 3rd grader.",
-  "blanks": [
-    {
-      "word": "adventure",
-      "sentence": "One sunny morning, Lily went on an ____ in the forest."
-    }
-  ]
-}
-
-Rules:
-- phonicsTip: explain the trickiest part to spell using simple phonics rules. Compare to similar common words the child might know.
-- definition: simple, clear, 1-2 sentences. Use vocabulary a 3rd grader understands.
-- example: a fun, relatable sentence for a child.
-- story: use ALL ${words.length} words naturally. About 150 words.
-- blanks: one per word. Show the sentence from the story with that word replaced by ____. Keep enough context to identify which word fits.
-- Return ONLY valid JSON.`;
-    const result=await callClaude([{role:'user',content:prompt}]);
-    if(!result)return;
-    let data;
-    try{const m=result.match(/\{[\s\S]*\}/);data=JSON.parse(m?m[0]:result);}
-    catch(e){throw new Error('Could not parse AI response. Please try again.');}
-    const week={weekId:getWeekId(),label:getWeekLabel(),createdAt:new Date().toISOString(),
-      words:data.words,story:data.story,blanks:data.blanks,spellScores:{}};
-    saveEngWeek(week);
+    const week=await apiFetch('POST','/english/weeks/generate/text',{words});
     engCurrentWeek=week;
     hideEngGenerating();
     renderWordCards(week);
@@ -1455,8 +1354,10 @@ function checkSpelling(){
     document.getElementById('spell-fb').className='fb ok';
     launchFireworks();
     if(engCurrentWeek){
+      if(!engCurrentWeek.spellScores)engCurrentWeek.spellScores={};
       if(!engCurrentWeek.spellScores[w.word])engCurrentWeek.spellScores[w.word]={correct:0,wrong:0};
-      engCurrentWeek.spellScores[w.word].correct++;saveEngWeek(engCurrentWeek);
+      engCurrentWeek.spellScores[w.word].correct++;
+      apiFetch('PUT',`/english/weeks/${engCurrentWeek.weekId}/spell`,{word:w.word,correct:1,wrong:0}).catch(()=>{});
     }
     setTimeout(()=>nextSpellWord(),700);
   }else{
@@ -1465,8 +1366,10 @@ function checkSpelling(){
     document.getElementById('spell-fb').className='fb no';
     showPhonicsHint(w,typed);
     if(engCurrentWeek){
+      if(!engCurrentWeek.spellScores)engCurrentWeek.spellScores={};
       if(!engCurrentWeek.spellScores[w.word])engCurrentWeek.spellScores[w.word]={correct:0,wrong:0};
-      engCurrentWeek.spellScores[w.word].wrong++;saveEngWeek(engCurrentWeek);
+      engCurrentWeek.spellScores[w.word].wrong++;
+      apiFetch('PUT',`/english/weeks/${engCurrentWeek.weekId}/spell`,{word:w.word,correct:0,wrong:1}).catch(()=>{});
     }
   }
 }
@@ -1518,29 +1421,37 @@ function retrySpellWrong(){
 }
 
 /* --- English History --- */
-function renderEnglishHistory(){
-  const list=document.getElementById('weeks-list');list.innerHTML='';
-  const weeks=[...loadEngWeeks()].reverse();
-  if(!weeks.length){list.innerHTML='<div class="empty">No weeks saved yet!</div>';return;}
-  weeks.forEach(week=>{
-    const item=document.createElement('div');item.className='week-item';
-    const scores=Object.values(week.spellScores||{});
-    const tot=scores.reduce((s,v)=>s+v.correct+v.wrong,0);
-    const cor=scores.reduce((s,v)=>s+v.correct,0);
-    const scoreTxt=tot>0?'Spell: '+Math.round(cor/tot*100)+'%':'Not tested yet';
-    item.innerHTML='<div class="week-info"><div class="week-label">'+week.label+'</div><div class="week-meta">'+(week.words?week.words.length:0)+' words · '+scoreTxt+'</div></div><div class="week-arrow">›</div>';
-    item.onclick=()=>{
-      engCurrentWeek=week;
-      document.querySelectorAll('#sec-english .stab').forEach(b=>b.classList.remove('on'));
-      document.querySelectorAll('#sec-english .spanel').forEach(p=>p.classList.remove('on'));
-      document.querySelector('#sec-english .stab').classList.add('on');
-      document.getElementById('eng-words').classList.add('on');
-      document.getElementById('eng-upload-area').style.display='none';
-      document.getElementById('eng-manual-entry').style.display='none';
-      renderWordCards(week);
-    };
-    list.appendChild(item);
-  });
+async function renderEnglishHistory(){
+  const list=document.getElementById('weeks-list');
+  list.innerHTML='<div class="generating"><span class="spin"></span>Loading...</div>';
+  try{
+    const data=await apiFetch('GET','/english/weeks');
+    const weeks=data.weeks||[];
+    list.innerHTML='';
+    if(!weeks.length){list.innerHTML='<div class="empty">No weeks saved yet!</div>';return;}
+    weeks.forEach(week=>{
+      const item=document.createElement('div');item.className='week-item';
+      const scores=Object.values(week.spellScores||{});
+      const tot=scores.reduce((s,v)=>s+v.correct+v.wrong,0);
+      const cor=scores.reduce((s,v)=>s+v.correct,0);
+      const scoreTxt=tot>0?'Spell: '+Math.round(cor/tot*100)+'%':'Not tested yet';
+      item.innerHTML='<div class="week-info"><div class="week-label">'+week.label+'</div><div class="week-meta">'+(week.wordCount||0)+' words · '+scoreTxt+'</div></div><div class="week-arrow">›</div>';
+      item.onclick=async()=>{
+        try{
+          const full=await apiFetch('GET','/english/weeks/'+week.weekId);
+          engCurrentWeek=full;
+          document.querySelectorAll('#sec-english .stab').forEach(b=>b.classList.remove('on'));
+          document.querySelectorAll('#sec-english .spanel').forEach(p=>p.classList.remove('on'));
+          document.querySelector('#sec-english .stab').classList.add('on');
+          document.getElementById('eng-words').classList.add('on');
+          document.getElementById('eng-upload-area').style.display='none';
+          document.getElementById('eng-manual-entry').style.display='none';
+          renderWordCards(full);
+        }catch(e){alert('Failed to load week: '+e.message);}
+      };
+      list.appendChild(item);
+    });
+  }catch(e){list.innerHTML='<div class="empty">Failed to load history.</div>';}
 }
 
 /* --- Sub-tab switching --- */
@@ -1559,15 +1470,20 @@ function showEngSub(id,btn){
 }
 
 /* --- Init English Tab --- */
-function initEngTab(){
-  initEngApiKey();
+async function initEngTab(){
   if(!engCurrentWeek){
-    const weeks=loadEngWeeks();
-    if(weeks.length){
-      engCurrentWeek=weeks[weeks.length-1];
-      document.getElementById('eng-upload-area').style.display='none';
-      renderWordCards(engCurrentWeek);
-    }
+    try{
+      const data=await apiFetch('GET','/english/weeks');
+      const weeks=data.weeks||[];
+      if(weeks.length){
+        // Load the most recent week in full
+        const full=await apiFetch('GET','/english/weeks/'+weeks[0].weekId);
+        engCurrentWeek=full;
+        document.getElementById('eng-upload-area').style.display='none';
+        renderWordCards(full);
+        return;
+      }
+    }catch(e){console.warn('initEngTab:',e);}
   }else{
     document.getElementById('eng-upload-area').style.display='none';
     renderWordCards(engCurrentWeek);
@@ -1575,11 +1491,12 @@ function initEngTab(){
 }
 
 /* ===== Initialize ===== */
-loadWrongs();
-loadMastered();
-loadChallengeWeak();
-renderTeach();
-startFlash(2,document.querySelector('.flash-pick .lbtn'));
+async function init(){
+  await Promise.all([loadWrongs(),loadMastered(),loadChallengeWeak()]);
+  renderTeach();
+  startFlash(2,document.querySelector('.flash-pick .lbtn'));
+}
+init().catch(e=>console.error('init failed:',e));
 </script>
 </body>
 </html>

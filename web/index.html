@@ -1297,7 +1297,10 @@ function renderWordCards(week){
       <span class="wc-pos">${w.pos}</span>
       <button class="tts-btn" onclick="speakWord('${safeWord}')">🔊</button>
     </div>
-    <div class="phonics-tip">💡 ${w.phonicsTip}</div>
+    <div class="phonics-tip" style="display:flex;align-items:flex-start;gap:8px;">
+      <span style="flex:1;">💡 ${w.phonicsTip}</span>
+      <button class="tts-btn" style="flex-shrink:0;" onclick="speakWord(${JSON.stringify(w.phonicsTip)})">🔊</button>
+    </div>
     <div class="wc-def">${w.definition}</div>
     <div class="wc-ex">"${w.example}"</div>
     <div class="my-sentence-wrap">

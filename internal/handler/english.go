@@ -31,6 +31,7 @@ func (h *EnglishHandler) Register(r gin.IRouter) {
 	r.POST("/english/weeks/generate/text", h.generateFromText)
 	r.POST("/english/weeks/generate/image", h.generateFromImage)
 	r.PUT("/english/weeks/:weekId/spell", h.updateSpell)
+	r.POST("/english/sentence-check", h.checkSentence)
 }
 
 // ─── List weeks ───────────────────────────────────────────────────────────────
@@ -168,6 +169,56 @@ func (h *EnglishHandler) updateSpell(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, model.OKResponse{OK: true})
+}
+
+// ─── Sentence grammar check ───────────────────────────────────────────────────
+
+func (h *EnglishHandler) checkSentence(c *gin.Context) {
+	var req model.SentenceCheckReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.APIError{Error: err.Error()})
+		return
+	}
+	prompt := fmt.Sprintf(`You are a friendly English teacher helping a child (age 8-10).
+
+The child was asked to write a sentence using the word "%s".
+Their sentence: "%s"
+
+Check:
+1. Is "%s" used correctly in context?
+2. Are there any grammar mistakes?
+
+Reply with ONLY a JSON object (no extra text):
+{"ok": true, "feedback": "Great sentence! You used 'convenience' perfectly."}
+OR if there are issues:
+{"ok": false, "feedback": "Almost! 'went' should be 'goes' here.", "corrected": "The store is open for convenience."}
+
+Rules:
+- feedback: 1 short sentence, encouraging tone, mention what's good or what to fix
+- corrected: only include if there is a grammar error; give a natural corrected version
+- If the word is missing, ok=false and say so kindly`, req.Word, req.Sentence, req.Word)
+
+	result, err := h.ai.GenerateText(c.Request.Context(), ai.TextRequest{
+		UserPrompt: prompt,
+		MaxTokens:  200,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	result = strings.TrimSpace(result)
+	start := strings.Index(result, "{")
+	end := strings.LastIndex(result, "}")
+	if start == -1 || end == -1 {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: "unexpected AI response"})
+		return
+	}
+	var resp model.SentenceCheckResp
+	if err := json.Unmarshal([]byte(result[start:end+1]), &resp); err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: "parse error"})
+		return
+	}
+	c.JSON(http.StatusOK, resp)
 }
 
 // ─── AI generation helpers ────────────────────────────────────────────────────

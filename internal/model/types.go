@@ -111,6 +111,17 @@ type UpdateSpellReq struct {
 	Wrong   int    `json:"wrong"`
 }
 
+type SentenceCheckReq struct {
+	Word     string `json:"word"     binding:"required"`
+	Sentence string `json:"sentence" binding:"required"`
+}
+
+type SentenceCheckResp struct {
+	OK        bool   `json:"ok"`
+	Feedback  string `json:"feedback"`
+	Corrected string `json:"corrected,omitempty"`
+}
+
 // ─── Generic responses ───────────────────────────────────────────────────────
 
 type APIError struct {

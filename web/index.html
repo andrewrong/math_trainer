@@ -1299,7 +1299,7 @@ function renderWordCards(week){
     </div>
     <div class="phonics-tip" style="display:flex;align-items:flex-start;gap:8px;">
       <span style="flex:1;">💡 ${w.phonicsTip}</span>
-      <button class="tts-btn" style="flex-shrink:0;" onclick="speakWord(${JSON.stringify(w.phonicsTip)})">🔊</button>
+      <button class="tts-btn phonics-tts" style="flex-shrink:0;" data-tip="">🔊</button>
     </div>
     <div class="wc-def">${w.definition}</div>
     <div class="wc-ex">"${w.example}"</div>
@@ -1309,16 +1309,30 @@ function renderWordCards(week){
       <div class="my-sentence-fb" id="${uid}-fb"></div>
     </div>`;
     c.appendChild(card);
-    // Wire sentence check
+    // Wire phonics TTS button (data attribute avoids quote escaping in onclick)
+    const tipBtn=card.querySelector('.phonics-tts');
+    tipBtn.dataset.tip=w.phonicsTip;
+    tipBtn.onclick=()=>speakWord(tipBtn.dataset.tip);
+    // Wire sentence grammar check
     const inp=card.querySelector('.my-sentence-in');
     const fb=card.querySelector('.my-sentence-fb');
-    const checkSentence=()=>{
+    const checkSentence=async()=>{
       const val=inp.value.trim();
-      if(!val){fb.textContent='';fb.style.color='';return;}
-      if(val.toLowerCase().includes(w.word.toLowerCase())){
-        fb.textContent='✅ Great sentence!';fb.style.color='#1D9E75';
-      }else{
-        fb.textContent=`💡 Try to include the word "${w.word}"`;fb.style.color='#BA7517';
+      if(!val){fb.textContent='';return;}
+      if(!val.toLowerCase().includes(w.word.toLowerCase())){
+        fb.innerHTML=`<span style="color:#BA7517;">💡 Try to include the word "<b>${w.word}</b>"</span>`;return;
+      }
+      fb.innerHTML='<span style="color:#888;"><span class="spin" style="width:12px;height:12px;border-width:1.5px;"></span> Checking...</span>';
+      try{
+        const res=await apiFetch('POST','/english/sentence-check',{word:w.word,sentence:val});
+        if(res.ok){
+          fb.innerHTML='<span style="color:#1D9E75;">✅ '+res.feedback+'</span>';
+        }else{
+          fb.innerHTML='<span style="color:#E24B4A;">✏️ '+res.feedback+'</span>'
+            +(res.corrected?'<div style="margin-top:4px;color:#185fa5;font-size:12px;">Try: <i>'+res.corrected+'</i></div>':'');
+        }
+      }catch(e){
+        fb.innerHTML='<span style="color:#888;">Could not check — try again later</span>';
       }
     };
     inp.addEventListener('blur',checkSentence);

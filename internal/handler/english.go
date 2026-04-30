@@ -56,6 +56,9 @@ func (h *EnglishHandler) listWeeks(c *gin.Context) {
 		var words []model.WordEntry
 		json.Unmarshal([]byte(wordsJSON), &words)
 		s.WordCount = len(words)
+		for _, w := range words {
+			s.Words = append(s.Words, w.Word)
+		}
 		s.SpellScores = h.loadSpellScores(c, s.WeekID)
 		summaries = append(summaries, s)
 	}

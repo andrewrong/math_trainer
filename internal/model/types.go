@@ -97,6 +97,7 @@ type WeekSummary struct {
 	Label       string                `json:"label"`
 	CreatedAt   time.Time             `json:"createdAt"`
 	WordCount   int                   `json:"wordCount"`
+	Words       []string              `json:"words"`
 	SpellScores map[string]SpellScore `json:"spellScores"`
 }
 

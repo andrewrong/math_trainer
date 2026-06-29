@@ -4,22 +4,25 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 )
 
 // TextRequest is used for plain-text generation (word cards, story, grammar, etc.).
 type TextRequest struct {
-	SystemPrompt string
-	UserPrompt   string
-	MaxTokens    int
+	SystemPrompt     string
+	UserPrompt       string
+	MaxTokens        int
+	ResponseMIMEType string
 }
 
 // VisionRequest is used when an image is part of the input (e.g. word list photo).
 type VisionRequest struct {
-	SystemPrompt string
-	UserPrompt   string
-	ImageData    []byte
-	MimeType     string // "image/jpeg" | "image/png" | "image/webp"
-	MaxTokens    int
+	SystemPrompt     string
+	UserPrompt       string
+	ImageData        []byte
+	MimeType         string // "image/jpeg" | "image/png" | "image/webp"
+	MaxTokens        int
+	ResponseMIMEType string
 }
 
 // Provider is implemented by every AI backend.
@@ -60,6 +63,7 @@ func (c *Chain) GenerateText(ctx context.Context, req TextRequest) (string, erro
 		if err == nil {
 			return result, nil
 		}
+		log.Printf("[ai] text provider %s failed: %v", p.Name(), err)
 		errs = append(errs, fmt.Errorf("%s: %w", p.Name(), err))
 	}
 	return "", fmt.Errorf("all providers failed: %w", errors.Join(errs...))
@@ -72,12 +76,14 @@ func (c *Chain) GenerateWithVision(ctx context.Context, req VisionRequest) (stri
 	var errs []error
 	for _, p := range c.providers {
 		if !p.SupportsVision() {
+			log.Printf("[ai] vision provider %s skipped: vision not supported", p.Name())
 			continue
 		}
 		result, err := p.GenerateWithVision(ctx, req)
 		if err == nil {
 			return result, nil
 		}
+		log.Printf("[ai] vision provider %s failed: %v", p.Name(), err)
 		errs = append(errs, fmt.Errorf("%s: %w", p.Name(), err))
 	}
 	if len(errs) == 0 {

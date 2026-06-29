@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -32,6 +34,9 @@ func (h *EnglishHandler) Register(r gin.IRouter) {
 	r.POST("/english/weeks/generate/image", h.generateFromImage)
 	r.PUT("/english/weeks/:weekId/spell", h.updateSpell)
 	r.POST("/english/sentence-check", h.checkSentence)
+	r.GET("/english/diagnostics", h.listDiagnostics)
+	r.GET("/english/diagnostics/latest", h.latestDiagnostic)
+	r.POST("/english/diagnostics", h.saveDiagnostic)
 }
 
 // ─── List weeks ───────────────────────────────────────────────────────────────
@@ -101,6 +106,7 @@ func (h *EnglishHandler) generateFromText(c *gin.Context) {
 	}
 	week, err := h.generateWeekData(c.Request.Context(), req.Words)
 	if err != nil {
+		log.Printf("[english] generate from text failed: %v", err)
 		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
 		return
 	}
@@ -136,13 +142,16 @@ func (h *EnglishHandler) generateFromImage(c *gin.Context) {
 	// Step 1: extract words from image
 	words, err := h.extractWordsFromImage(c.Request.Context(), imgData, mimeType)
 	if err != nil {
+		log.Printf("[english] word extraction failed: filename=%q mime=%q bytes=%d err=%v", header.Filename, mimeType, len(imgData), err)
 		c.JSON(http.StatusInternalServerError, model.APIError{Error: "word extraction failed: " + err.Error()})
 		return
 	}
+	log.Printf("[english] extracted %d words from image %q: %v", len(words), header.Filename, words)
 
 	// Step 2: generate full week data
 	week, err := h.generateWeekData(c.Request.Context(), words)
 	if err != nil {
+		log.Printf("[english] week data generation failed: words=%v err=%v", words, err)
 		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
 		return
 	}
@@ -179,74 +188,348 @@ func (h *EnglishHandler) checkSentence(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, model.APIError{Error: err.Error()})
 		return
 	}
-	prompt := fmt.Sprintf(`You are a friendly English teacher helping a child (age 8-10).
+	wordJSON, _ := json.Marshal(req.Word)
+	sentenceJSON, _ := json.Marshal(req.Sentence)
+	system := `You are a primary-school English teacher. Return valid JSON only. Do not use markdown. Do not add text outside JSON.`
+	prompt := fmt.Sprintf(`Check a child's sentence.
 
-The child was asked to write a sentence using the word "%s".
-Their sentence: "%s"
+Target word: %s
+Sentence: %s
 
-Check:
-1. Is "%s" used correctly in context?
-2. Are there any grammar mistakes?
+Decide if the target word is used naturally and if grammar, tense, articles, plurals, word order, capitalization, and punctuation are okay.
 
-Reply with ONLY a JSON object (no extra text):
-{"ok": true, "feedback": "Great sentence! You used 'convenience' perfectly."}
-OR if there are issues:
-{"ok": false, "feedback": "Almost! 'went' should be 'goes' here.", "corrected": "The store is open for convenience."}
+Return exactly one compact JSON object:
+{"ok":true,"feedback":"One short child-friendly sentence."}
+or
+{"ok":false,"feedback":"One short child-friendly sentence explaining the biggest problem.","corrected":"One natural corrected sentence."}
 
 Rules:
-- feedback: 1 short sentence, encouraging tone, mention what's good or what to fix
-- corrected: only include if there is a grammar error; give a natural corrected version
-- If the word is missing, ok=false and say so kindly`, req.Word, req.Sentence, req.Word)
+- feedback must be under 22 words.
+- corrected is required when ok is false.
+- corrected must include the target word.
+- no bullets, no markdown, no explanation outside JSON.`, wordJSON, sentenceJSON)
 
 	result, err := h.ai.GenerateText(c.Request.Context(), ai.TextRequest{
-		UserPrompt: prompt,
-		MaxTokens:  200,
+		SystemPrompt:     system,
+		UserPrompt:       prompt,
+		MaxTokens:        700,
+		ResponseMIMEType: "application/json",
 	})
+	if err != nil {
+		log.Printf("[checkSentence] AI error: %v", err)
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	resp, parseErr := parseSentenceCheckResp(result)
+	if parseErr != nil {
+		log.Printf("[checkSentence] invalid AI response, retrying: %v | raw: %q", parseErr, result)
+		retryPrompt := prompt + "\n\nYour previous answer was invalid JSON. Return ONLY the JSON object now."
+		result, err = h.ai.GenerateText(c.Request.Context(), ai.TextRequest{
+			SystemPrompt:     system,
+			UserPrompt:       retryPrompt,
+			MaxTokens:        700,
+			ResponseMIMEType: "application/json",
+		})
+		if err != nil {
+			log.Printf("[checkSentence] AI retry error: %v", err)
+			c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+			return
+		}
+		resp, parseErr = parseSentenceCheckResp(result)
+		if parseErr != nil {
+			log.Printf("[checkSentence] invalid AI response after retry: %v | raw: %q", parseErr, result)
+			c.JSON(http.StatusOK, model.SentenceCheckResp{
+				OK:        false,
+				Feedback:  "I could not check this clearly. Please try again.",
+				Corrected: req.Sentence,
+			})
+			return
+		}
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
+func parseSentenceCheckResp(raw string) (model.SentenceCheckResp, error) {
+	raw = strings.TrimSpace(raw)
+	start := strings.Index(raw, "{")
+	end := strings.LastIndex(raw, "}")
+	if start == -1 || end == -1 || end <= start {
+		return model.SentenceCheckResp{}, fmt.Errorf("missing JSON object")
+	}
+	var resp model.SentenceCheckResp
+	if err := json.Unmarshal([]byte(raw[start:end+1]), &resp); err != nil {
+		return model.SentenceCheckResp{}, err
+	}
+	resp.Feedback = strings.TrimSpace(resp.Feedback)
+	resp.Corrected = strings.TrimSpace(resp.Corrected)
+	if resp.Feedback == "" {
+		return model.SentenceCheckResp{}, fmt.Errorf("empty feedback")
+	}
+	if !resp.OK && resp.Corrected == "" {
+		return model.SentenceCheckResp{}, fmt.Errorf("missing corrected sentence")
+	}
+	return resp, nil
+}
+
+// ─── English diagnostic reports ───────────────────────────────────────────────
+
+func (h *EnglishHandler) listDiagnostics(c *gin.Context) {
+	rows, err := h.db.QueryContext(c, `
+		SELECT id, created_at, grade_level, report_json
+		FROM english_diagnostics ORDER BY created_at DESC LIMIT 20`)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
 		return
 	}
-	result = strings.TrimSpace(result)
+	defer rows.Close()
+	out := []model.EnglishDiagnostic{}
+	for rows.Next() {
+		var d model.EnglishDiagnostic
+		var ts, raw string
+		if err := rows.Scan(&d.ID, &ts, &d.GradeLevel, &raw); err != nil {
+			continue
+		}
+		d.CreatedAt = parseTime(ts)
+		d.Report = json.RawMessage(raw)
+		out = append(out, d)
+	}
+	c.JSON(http.StatusOK, gin.H{"diagnostics": out})
+}
+
+func (h *EnglishHandler) latestDiagnostic(c *gin.Context) {
+	var d model.EnglishDiagnostic
+	var ts, raw string
+	err := h.db.QueryRowContext(c, `
+		SELECT id, created_at, grade_level, report_json
+		FROM english_diagnostics ORDER BY created_at DESC LIMIT 1`).
+		Scan(&d.ID, &ts, &d.GradeLevel, &raw)
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusOK, gin.H{"diagnostic": nil})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	d.CreatedAt = parseTime(ts)
+	d.Report = json.RawMessage(raw)
+	c.JSON(http.StatusOK, gin.H{"diagnostic": d})
+}
+
+func (h *EnglishHandler) saveDiagnostic(c *gin.Context) {
+	var req model.SaveEnglishDiagnosticReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.APIError{Error: err.Error()})
+		return
+	}
+	if strings.TrimSpace(req.GradeLevel) == "" {
+		req.GradeLevel = "Grade 4"
+	}
+
+	report := map[string]any{}
+	if err := json.Unmarshal(req.Report, &report); err != nil {
+		c.JSON(http.StatusBadRequest, model.APIError{Error: "report must be a JSON object"})
+		return
+	}
+	report["gradeLevel"] = req.GradeLevel
+	report["savedAt"] = time.Now().UTC().Format(time.RFC3339)
+	report["ai"] = h.enrichDiagnosticWithAI(c.Request.Context(), report)
+
+	reportJSON, _ := json.Marshal(report)
+	res, err := h.db.ExecContext(c, `
+		INSERT INTO english_diagnostics(grade_level, report_json)
+		VALUES(?,?)`, req.GradeLevel, string(reportJSON))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	id, _ := res.LastInsertId()
+	c.JSON(http.StatusOK, gin.H{"id": id, "report": json.RawMessage(reportJSON)})
+}
+
+func (h *EnglishHandler) enrichDiagnosticWithAI(ctx context.Context, report map[string]any) map[string]any {
+	fallback := fallbackEnglishDiagnosticAdvice(report)
+	writing, _ := report["writingSample"].(string)
+	if strings.TrimSpace(writing) == "" || h.ai == nil {
+		return fallback
+	}
+	payload, _ := json.Marshal(report)
+	system := `You are an experienced Grade 4 international-school English teacher. Return valid JSON only.`
+	prompt := fmt.Sprintf(`Review this Grade 4 English diagnostic report and the child's writing sample.
+
+Report JSON:
+%s
+
+Return exactly one compact JSON object with this shape:
+{
+  "writingRubric": {
+    "ideas": {"score": 1, "note": "short note"},
+    "organization": {"score": 1, "note": "short note"},
+    "sentenceStructure": {"score": 1, "note": "short note"},
+    "grammar": {"score": 1, "note": "short note"},
+    "vocabulary": {"score": 1, "note": "short note"},
+    "spelling": {"score": 1, "note": "short note"}
+  },
+  "summary": "2-3 sentence parent-friendly summary.",
+  "mainBlocker": "the most important blocker",
+  "fourWeekPlan": [
+    {"week": 1, "focus": "Inference + Evidence", "routine": "specific 20-minute routine", "success": "observable success criterion"}
+  ],
+  "parentCoaching": ["one concrete thing to say or ask", "one concrete thing to avoid"]
+}
+
+Rules:
+- Scores are 1 to 4.
+- Be specific and practical.
+- Do not shame the child.
+- The plan must choose 1-2 focus areas per week based on the report, not generic advice.
+- Return only JSON.`, string(payload))
+	result, err := h.ai.GenerateText(ctx, ai.TextRequest{
+		SystemPrompt:     system,
+		UserPrompt:       prompt,
+		MaxTokens:        2500,
+		ResponseMIMEType: "application/json",
+	})
+	if err != nil {
+		log.Printf("[english diagnostic] AI enrichment failed: %v", err)
+		return fallback
+	}
 	start := strings.Index(result, "{")
 	end := strings.LastIndex(result, "}")
-	if start == -1 || end == -1 {
-		c.JSON(http.StatusInternalServerError, model.APIError{Error: "unexpected AI response"})
-		return
+	if start == -1 || end <= start {
+		log.Printf("[english diagnostic] AI response missing JSON: %q", result)
+		return fallback
 	}
-	var resp model.SentenceCheckResp
-	if err := json.Unmarshal([]byte(result[start:end+1]), &resp); err != nil {
-		c.JSON(http.StatusInternalServerError, model.APIError{Error: "parse error"})
-		return
+	aiReport := map[string]any{}
+	if err := json.Unmarshal([]byte(result[start:end+1]), &aiReport); err != nil {
+		log.Printf("[english diagnostic] AI response parse failed: %v | raw: %q", err, result)
+		return fallback
 	}
-	c.JSON(http.StatusOK, resp)
+	return aiReport
+}
+
+func fallbackEnglishDiagnosticAdvice(report map[string]any) map[string]any {
+	main := "academic reading and structured writing"
+	if weak, ok := report["weakSkills"].([]any); ok && len(weak) > 0 {
+		if first, ok := weak[0].(map[string]any); ok {
+			if name, ok := first["name"].(string); ok && name != "" {
+				main = name
+			}
+		}
+	}
+	return map[string]any{
+		"writingRubric": map[string]any{
+			"ideas":             map[string]any{"score": 2, "note": "Use the writing sample to add clearer details."},
+			"organization":      map[string]any{"score": 2, "note": "Use a topic sentence, details, and a closing sentence."},
+			"sentenceStructure": map[string]any{"score": 2, "note": "Practise full sentences with because, but, and so."},
+			"grammar":           map[string]any{"score": 2, "note": "Review one grammar pattern at a time."},
+			"vocabulary":        map[string]any{"score": 2, "note": "Use more precise school words and evidence words."},
+			"spelling":          map[string]any{"score": 2, "note": "Use weekly phonics and spelling patterns."},
+		},
+		"summary":     "The diagnostic was saved. Use the section profile to choose one reading focus and one writing focus for the next week.",
+		"mainBlocker": main,
+		"fourWeekPlan": []map[string]any{
+			{"week": 1, "focus": "Inference + Evidence", "routine": "Read a short passage and answer: What happened? Why? How do you know?", "success": "She can point to a sentence as evidence."},
+			{"week": 2, "focus": "Sentence Expansion", "routine": "Write 4 sentences and add why, when, where, or one detail.", "success": "Most answers are full sentences."},
+			{"week": 3, "focus": "Paragraph Structure", "routine": "Use topic sentence, two details, example, closing sentence.", "success": "The paragraph stays on one main idea."},
+			{"week": 4, "focus": "Accuracy Focus", "routine": "Choose one pattern: tense, articles, plurals, prepositions, punctuation, or spelling.", "success": "She can find and fix that pattern in her own writing."},
+		},
+		"parentCoaching": []string{
+			"Ask: Can you say that in a full sentence?",
+			"Ask: Which sentence gives you the clue?",
+			"Avoid correcting every mistake at once; choose one focus.",
+		},
+	}
 }
 
 // ─── AI generation helpers ────────────────────────────────────────────────────
 
 func (h *EnglishHandler) extractWordsFromImage(ctx context.Context, imgData []byte, mimeType string) ([]string, error) {
+	prompt := `This is a child's school vocabulary word list. Extract all the English vocabulary words from this image.
+Return ONLY a complete JSON array of strings, all lowercase, nothing else.
+The array must start with [ and end with ]. Do not stop halfway.
+Example: ["adventure","beautiful","calendar"]`
 	result, err := h.ai.GenerateWithVision(ctx, ai.VisionRequest{
-		UserPrompt: `This is a child's school vocabulary word list. Extract all the English vocabulary words from this image.
-Return ONLY a JSON array of the words in lowercase, nothing else.
-Example: ["adventure","beautiful","calendar"]`,
-		ImageData: imgData,
-		MimeType:  mimeType,
-		MaxTokens: 300,
+		UserPrompt:       prompt,
+		ImageData:        imgData,
+		MimeType:         mimeType,
+		MaxTokens:        1000,
+		ResponseMIMEType: "application/json",
 	})
 	if err != nil {
 		return nil, err
 	}
-	result = strings.TrimSpace(result)
-	// Find JSON array in response
-	start := strings.Index(result, "[")
-	end := strings.LastIndex(result, "]")
-	if start == -1 || end == -1 {
-		return nil, fmt.Errorf("no JSON array found in response: %q", result)
+	words, parseErr := parseWordListResponse(result)
+	if parseErr == nil {
+		return words, nil
+	}
+	log.Printf("[english] invalid word extraction response, retrying: %v | raw: %q", parseErr, result)
+
+	retryResult, err := h.ai.GenerateWithVision(ctx, ai.VisionRequest{
+		UserPrompt:       prompt + "\n\nYour previous answer was incomplete. Return the complete JSON array only.",
+		ImageData:        imgData,
+		MimeType:         mimeType,
+		MaxTokens:        1000,
+		ResponseMIMEType: "application/json",
+	})
+	if err != nil {
+		return nil, err
+	}
+	words, parseErr = parseWordListResponse(retryResult)
+	if parseErr == nil {
+		return words, nil
+	}
+
+	// Last-resort salvage for truncated output like:
+	// ["comprehension", "extension", "expansion"
+	words = extractQuotedWords(result)
+	if len(words) > 0 {
+		log.Printf("[english] salvaged %d words from truncated response: %v", len(words), words)
+		return words, nil
+	}
+	return nil, parseErr
+}
+
+func parseWordListResponse(raw string) ([]string, error) {
+	raw = strings.TrimSpace(raw)
+	start := strings.Index(raw, "[")
+	end := strings.LastIndex(raw, "]")
+	if start == -1 || end == -1 || end <= start {
+		return nil, fmt.Errorf("no JSON array found in response: %q", raw)
 	}
 	var words []string
-	if err := json.Unmarshal([]byte(result[start:end+1]), &words); err != nil {
+	if err := json.Unmarshal([]byte(raw[start:end+1]), &words); err != nil {
 		return nil, fmt.Errorf("parse words: %w", err)
 	}
+	words = cleanWordList(words)
+	if len(words) == 0 {
+		return nil, fmt.Errorf("empty word list")
+	}
 	return words, nil
+}
+
+func extractQuotedWords(raw string) []string {
+	matches := regexp.MustCompile(`"([A-Za-z][A-Za-z' -]*)"`).FindAllStringSubmatch(raw, -1)
+	words := make([]string, 0, len(matches))
+	for _, m := range matches {
+		words = append(words, m[1])
+	}
+	return cleanWordList(words)
+}
+
+func cleanWordList(words []string) []string {
+	seen := map[string]bool{}
+	out := make([]string, 0, len(words))
+	for _, w := range words {
+		w = strings.ToLower(strings.TrimSpace(w))
+		w = strings.Trim(w, ".,;:!?()[]{}\"'")
+		if w == "" || seen[w] {
+			continue
+		}
+		seen[w] = true
+		out = append(out, w)
+	}
+	return out
 }
 
 func (h *EnglishHandler) generateWeekData(ctx context.Context, words []string) (*model.WeekData, error) {
@@ -262,8 +545,13 @@ Return a JSON object with this EXACT structure (no extra text, just valid JSON):
       "syllables": "ad·ven·ture",
       "pos": "noun",
       "phonicsTip": "The ending 'ture' sounds like 'cher' — same as in 'picture' and 'nature'. Remember: t-u-r-e = cher sound.",
-      "definition": "An exciting trip or experience where something surprising might happen.",
-      "example": "Climbing the big oak tree in the backyard felt like a real adventure."
+      "definition": "An adventure is an exciting experience where you explore somewhere new or face a surprise challenge. It makes you feel brave and curious. Adventures can be big (like a trip) or small (like exploring your backyard).",
+      "example": "Climbing the big oak tree in the backyard felt like a real adventure.",
+      "examples": [
+        "Climbing the big oak tree in the backyard felt like a real adventure.",
+        "Max packed his bag and set off on an adventure through the forest.",
+        "Reading a great book can feel like going on an adventure without leaving your chair."
+      ]
     }
   ],
   "story": "A complete engaging story of about 150 words using ALL the vocabulary words naturally. Use a character named Lily or Max.",
@@ -277,16 +565,20 @@ Return a JSON object with this EXACT structure (no extra text, just valid JSON):
 
 Rules:
 - phonicsTip: explain the trickiest part to spell using simple phonics rules. Compare to similar common words.
-- definition: simple, 1-2 sentences, grade 3 vocabulary.
-- example: fun and relatable for a child.
-- story: use ALL %d words naturally. About 150 words.
+- definition: write 2-3 rich but simple sentences for a child. Sentence 1 = clear meaning. Sentence 2 = what the word feels like / when people use it. Sentence 3 = real-life child-friendly example or contrast if helpful.
+- Avoid vague dictionary language like "something" or "in a way" unless necessary. Be concrete.
+- example: the first entry of examples (for compatibility).
+- examples: exactly 3 short, natural, relatable sentences for a child, each in a DIFFERENT context (home, school, friends, feelings, outdoors, etc.).
+- story: use ALL %d words naturally. About 150 words. Make the story understandable without needing the original word list.
 - blanks: one entry per word. Show the sentence from the story with that word replaced by ____.
+- Each blank sentence should give enough context that a child can reason from meaning, not only from letter shape.
 - Return ONLY valid JSON.`,
 		len(words), strings.Join(words, ", "), len(words))
 
 	result, err := h.ai.GenerateText(ctx, ai.TextRequest{
-		UserPrompt: prompt,
-		MaxTokens:  4096,
+		UserPrompt:       prompt,
+		MaxTokens:        65536,
+		ResponseMIMEType: "application/json",
 	})
 	if err != nil {
 		return nil, err

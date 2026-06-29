@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type GeminiProvider struct {
@@ -27,12 +28,12 @@ func NewGemini(apiKey, model, baseURL string) *GeminiProvider {
 	return &GeminiProvider{apiKey: apiKey, model: model, baseURL: baseURL, client: &http.Client{}}
 }
 
-func (p *GeminiProvider) Name() string        { return "gemini" }
+func (p *GeminiProvider) Name() string         { return "gemini" }
 func (p *GeminiProvider) SupportsVision() bool { return true }
 
 func (p *GeminiProvider) GenerateText(ctx context.Context, req TextRequest) (string, error) {
 	parts := []geminiPart{{Text: req.UserPrompt}}
-	return p.call(ctx, req.SystemPrompt, parts, req.MaxTokens)
+	return p.call(ctx, req.SystemPrompt, parts, req.MaxTokens, req.ResponseMIMEType)
 }
 
 func (p *GeminiProvider) GenerateWithVision(ctx context.Context, req VisionRequest) (string, error) {
@@ -45,13 +46,13 @@ func (p *GeminiProvider) GenerateWithVision(ctx context.Context, req VisionReque
 		},
 		{Text: req.UserPrompt},
 	}
-	return p.call(ctx, req.SystemPrompt, parts, req.MaxTokens)
+	return p.call(ctx, req.SystemPrompt, parts, req.MaxTokens, req.ResponseMIMEType)
 }
 
 // ─── internal types ───────────────────────────────────────────────────────────
 
 type geminiPart struct {
-	Text       string           `json:"text,omitempty"`
+	Text       string            `json:"text,omitempty"`
 	InlineData *geminiInlineData `json:"inline_data,omitempty"`
 }
 
@@ -61,9 +62,9 @@ type geminiInlineData struct {
 }
 
 type geminiReq struct {
-	SystemInstruction *geminiSystem      `json:"system_instruction,omitempty"`
-	Contents          []geminiContent    `json:"contents"`
-	GenerationConfig  geminiGenConfig    `json:"generation_config"`
+	SystemInstruction *geminiSystem   `json:"system_instruction,omitempty"`
+	Contents          []geminiContent `json:"contents"`
+	GenerationConfig  geminiGenConfig `json:"generationConfig"`
 }
 
 type geminiSystem struct {
@@ -76,12 +77,14 @@ type geminiContent struct {
 }
 
 type geminiGenConfig struct {
-	MaxOutputTokens int `json:"maxOutputTokens,omitempty"`
+	MaxOutputTokens  int    `json:"maxOutputTokens,omitempty"`
+	ResponseMIMEType string `json:"responseMimeType,omitempty"`
 }
 
 type geminiResp struct {
 	Candidates []struct {
-		Content struct {
+		FinishReason string `json:"finishReason"`
+		Content      struct {
 			Parts []struct {
 				Text string `json:"text"`
 			} `json:"parts"`
@@ -92,7 +95,7 @@ type geminiResp struct {
 	} `json:"error,omitempty"`
 }
 
-func (p *GeminiProvider) call(ctx context.Context, system string, parts []geminiPart, maxTokens int) (string, error) {
+func (p *GeminiProvider) call(ctx context.Context, system string, parts []geminiPart, maxTokens int, responseMIMEType string) (string, error) {
 	if p.apiKey == "" {
 		return "", fmt.Errorf("gemini: api_key not configured")
 	}
@@ -100,8 +103,8 @@ func (p *GeminiProvider) call(ctx context.Context, system string, parts []gemini
 		maxTokens = 4096
 	}
 	reqBody := geminiReq{
-		Contents: []geminiContent{{Role: "user", Parts: parts}},
-		GenerationConfig: geminiGenConfig{MaxOutputTokens: maxTokens},
+		Contents:         []geminiContent{{Role: "user", Parts: parts}},
+		GenerationConfig: geminiGenConfig{MaxOutputTokens: maxTokens, ResponseMIMEType: responseMIMEType},
 	}
 	if system != "" {
 		reqBody.SystemInstruction = &geminiSystem{Parts: []geminiPart{{Text: system}}}
@@ -128,5 +131,13 @@ func (p *GeminiProvider) call(ctx context.Context, system string, parts []gemini
 	if len(gr.Candidates) == 0 || len(gr.Candidates[0].Content.Parts) == 0 {
 		return "", fmt.Errorf("gemini: empty response (status %d)", resp.StatusCode)
 	}
-	return gr.Candidates[0].Content.Parts[0].Text, nil
+	candidate := gr.Candidates[0]
+	if candidate.FinishReason != "" && candidate.FinishReason != "STOP" {
+		return "", fmt.Errorf("gemini: finish_reason=%s", candidate.FinishReason)
+	}
+	var out strings.Builder
+	for _, part := range candidate.Content.Parts {
+		out.WriteString(part.Text)
+	}
+	return out.String(), nil
 }

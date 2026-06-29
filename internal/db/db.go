@@ -11,6 +11,21 @@ import (
 //go:embed migrations/001_init.sql
 var initSQL string
 
+//go:embed migrations/002_english_diagnostics.sql
+var englishDiagnosticsSQL string
+
+//go:embed migrations/003_curriculum.sql
+var curriculumSQL string
+
+//go:embed migrations/004_chinese.sql
+var chineseSQL string
+
+//go:embed migrations/005_chinese_review_v2.sql
+var chineseReviewV2SQL string
+
+//go:embed migrations/006_piano.sql
+var pianoSQL string
+
 // Open opens (or creates) the SQLite database, runs migrations, and returns
 // a *sql.DB ready to use. WAL mode is enabled for better concurrent reads.
 func Open(path string) (*sql.DB, error) {
@@ -32,16 +47,23 @@ func Open(path string) (*sql.DB, error) {
 }
 
 func migrate(db *sql.DB) error {
-	// Check if already migrated to version 1
-	var version int
-	row := db.QueryRow(`SELECT version FROM schema_migrations WHERE version = 1`)
-	err := row.Scan(&version)
-	if err == nil {
-		return nil // already at v1
-	}
-	// Run the init SQL (idempotent — all statements use IF NOT EXISTS / OR IGNORE)
 	if _, err := db.Exec(initSQL); err != nil {
 		return fmt.Errorf("executing init.sql: %w", err)
+	}
+	if _, err := db.Exec(englishDiagnosticsSQL); err != nil {
+		return fmt.Errorf("executing english diagnostics migration: %w", err)
+	}
+	if _, err := db.Exec(curriculumSQL); err != nil {
+		return fmt.Errorf("executing curriculum migration: %w", err)
+	}
+	if _, err := db.Exec(chineseSQL); err != nil {
+		return fmt.Errorf("executing chinese migration: %w", err)
+	}
+	if _, err := db.Exec(chineseReviewV2SQL); err != nil {
+		return fmt.Errorf("executing chinese review v2 migration: %w", err)
+	}
+	if _, err := db.Exec(pianoSQL); err != nil {
+		return fmt.Errorf("executing piano migration: %w", err)
 	}
 	return nil
 }

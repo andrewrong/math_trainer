@@ -1,5 +1,5 @@
 server:
-  host: "0.0.0.0"   # 0.0.0.0 = 局域网可访问
+  host: "0.0.0.0" # 0.0.0.0 = 局域网可访问
   port: 8080
 
 db:
@@ -8,44 +8,44 @@ db:
 ai:
   # 按顺序尝试，失败则自动切换下一个
   fallback_order:
-    - ollama        # 本地优先（免费、离线）
-    - lmstudio      # 本地备用
-    - openrouter    # 云端聚合（支持多家模型）
+    - openrouter # 云端聚合（支持多家模型）
+    - lmstudio # 本地备用
     - anthropic
     - openai
     - gemini
+    - ollama # 本地优先（免费、离线）
 
   providers:
     anthropic:
-      api_key: ""   # 或 env: ANTHROPIC_API_KEY
+      api_key: "" # 或 env: ANTHROPIC_API_KEY
       model: "claude-haiku-4-5-20251001"
       base_url: "https://api.anthropic.com"
 
     openai:
-      api_key: ""   # 或 env: OPENAI_API_KEY
+      api_key: "" # 或 env: OPENAI_API_KEY
       model: "gpt-4o-mini"
       base_url: "https://api.openai.com/v1"
 
     gemini:
-      api_key: ""   # 或 env: GEMINI_API_KEY
+      api_key: "" # 或 env: GEMINI_API_KEY
       model: "gemini-2.0-flash"
       base_url: "https://generativelanguage.googleapis.com"
 
     ollama:
       base_url: "http://localhost:11434"
-      model: "qwen2.5:7b"         # 文字生成
-      vision_model: "llava:7b"    # 图片识别（留空则跳过 vision）
+      model: "qwen2.5:7b" # 文字生成
+      vision_model: "llava:7b" # 图片识别（留空则跳过 vision）
 
     lmstudio:
       base_url: "http://localhost:1234/v1"
-      model: "loaded-model-name"  # LM Studio 中当前加载的模型名
-      api_key: "lm-studio"        # LM Studio 接受任意非空 key
+      model: "google/gemma-4-26b-a4b" # LM Studio 中当前加载的模型名
+      api_key: "lm-studio" # LM Studio 接受任意非空 key
 
     openrouter:
-      api_key: ""   # 或 env: OPENROUTER_API_KEY，从 openrouter.ai/keys 获取
+      api_key: "" # 或 env: OPENROUTER_API_KEY，从 openrouter.ai/keys 获取
       # 模型示例（完整列表见 openrouter.ai/models）：
       #   anthropic/claude-3-5-haiku
       #   google/gemini-2.0-flash
       #   openai/gpt-4o-mini
       #   meta-llama/llama-3.1-8b-instruct:free
-      model: "anthropic/claude-3-5-haiku"
+      model: "openai/gpt-4.1-mini"

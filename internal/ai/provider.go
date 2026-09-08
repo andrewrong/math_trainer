@@ -40,6 +40,11 @@ type Chain struct {
 	providers []Provider
 }
 
+type TextResult struct {
+	Text     string
+	Provider string
+}
+
 func NewChain(providers []Provider) *Chain {
 	return &Chain{providers: providers}
 }
@@ -54,19 +59,27 @@ func (c *Chain) Available() []string {
 }
 
 func (c *Chain) GenerateText(ctx context.Context, req TextRequest) (string, error) {
+	result, err := c.GenerateTextDetailed(ctx, req)
+	return result.Text, err
+}
+
+// GenerateTextDetailed is used by evidence-backed features that need to retain
+// which configured provider produced a result. Existing callers can continue to
+// use GenerateText unchanged.
+func (c *Chain) GenerateTextDetailed(ctx context.Context, req TextRequest) (TextResult, error) {
 	if len(c.providers) == 0 {
-		return "", errors.New("no AI providers configured")
+		return TextResult{}, errors.New("no AI providers configured")
 	}
 	var errs []error
 	for _, p := range c.providers {
 		result, err := p.GenerateText(ctx, req)
 		if err == nil {
-			return result, nil
+			return TextResult{Text: result, Provider: p.Name()}, nil
 		}
 		log.Printf("[ai] text provider %s failed: %v", p.Name(), err)
 		errs = append(errs, fmt.Errorf("%s: %w", p.Name(), err))
 	}
-	return "", fmt.Errorf("all providers failed: %w", errors.Join(errs...))
+	return TextResult{}, fmt.Errorf("all providers failed: %w", errors.Join(errs...))
 }
 
 func (c *Chain) GenerateWithVision(ctx context.Context, req VisionRequest) (string, error) {

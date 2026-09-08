@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 560" role="img" aria-label="Curriculum learning loop">
+  <defs>
+    <marker id="lp-arrow-blue" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,8 L10,4 z" fill="#1e40af"/>
+    </marker>
+    <marker id="lp-arrow-orange" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,8 L10,4 z" fill="#c2410c"/>
+    </marker>
+    <marker id="lp-arrow-green" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,8 L10,4 z" fill="#047857"/>
+    </marker>
+  </defs>
+  <rect width="980" height="560" rx="22" fill="#ffffff"/>
+
+  <text x="42" y="58" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="900" fill="#1e40af">Learn by moving through the loop</text>
+  <text x="42" y="91" font-family="Inter, Arial, sans-serif" font-size="19" font-weight="700" fill="#64748b">A topic is not finished until she can explain the model and use it in a new problem.</text>
+
+  <rect x="58" y="138" width="170" height="86" rx="18" fill="#fed7aa" stroke="#c2410c" stroke-width="2"/>
+  <text x="143" y="172" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="900" fill="#c2410c" text-anchor="middle">Big Idea</text>
+  <text x="143" y="199" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800" fill="#374151" text-anchor="middle">what is this really about?</text>
+
+  <line x1="238" y1="181" x2="294" y2="181" stroke="#c2410c" stroke-width="4" stroke-linecap="round" marker-end="url(#lp-arrow-orange)"/>
+  <rect x="304" y="138" width="170" height="86" rx="18" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+  <text x="389" y="172" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="900" fill="#1e40af" text-anchor="middle">Visual Model</text>
+  <text x="389" y="199" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800" fill="#374151" text-anchor="middle">draw, split, group, compare</text>
+
+  <line x1="484" y1="181" x2="540" y2="181" stroke="#1e40af" stroke-width="4" stroke-linecap="round" marker-end="url(#lp-arrow-blue)"/>
+  <rect x="550" y="138" width="170" height="86" rx="18" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+  <text x="635" y="172" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="900" fill="#1e40af" text-anchor="middle">Examples</text>
+  <text x="635" y="199" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800" fill="#374151" text-anchor="middle">watch the reasoning</text>
+
+  <line x1="730" y1="181" x2="786" y2="181" stroke="#1e40af" stroke-width="4" stroke-linecap="round" marker-end="url(#lp-arrow-blue)"/>
+  <rect x="796" y="138" width="126" height="86" rx="18" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+  <text x="859" y="172" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="900" fill="#1e40af" text-anchor="middle">Practice</text>
+  <text x="859" y="199" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800" fill="#374151" text-anchor="middle">with help</text>
+
+  <line x1="859" y1="234" x2="859" y2="290" stroke="#1e40af" stroke-width="4" stroke-linecap="round" marker-end="url(#lp-arrow-blue)"/>
+  <rect x="796" y="300" width="126" height="86" rx="18" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+  <text x="859" y="334" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="900" fill="#92400e" text-anchor="middle">Mini Test</text>
+  <text x="859" y="361" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800" fill="#374151" text-anchor="middle">new questions</text>
+
+  <line x1="786" y1="343" x2="730" y2="343" stroke="#b45309" stroke-width="4" stroke-linecap="round" marker-end="url(#lp-arrow-orange)"/>
+  <rect x="550" y="300" width="170" height="86" rx="18" fill="#a7f3d0" stroke="#047857" stroke-width="2"/>
+  <text x="635" y="334" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="900" fill="#047857" text-anchor="middle">Challenge</text>
+  <text x="635" y="361" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800" fill="#374151" text-anchor="middle">same idea, new setting</text>
+
+  <line x1="540" y1="343" x2="484" y2="343" stroke="#047857" stroke-width="4" stroke-linecap="round" marker-end="url(#lp-arrow-green)"/>
+  <rect x="304" y="300" width="170" height="86" rx="18" fill="#f0fdf4" stroke="#047857" stroke-width="2"/>
+  <text x="389" y="334" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="900" fill="#047857" text-anchor="middle">Explain</text>
+  <text x="389" y="361" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800" fill="#374151" text-anchor="middle">say why it works</text>
+
+  <rect x="58" y="300" width="170" height="86" rx="18" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="143" y="334" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="900" fill="#dc2626" text-anchor="middle">Review</text>
+  <text x="143" y="361" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800" fill="#374151" text-anchor="middle">wrong idea goes back</text>
+  <line x1="143" y1="294" x2="143" y2="237" stroke="#dc2626" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 8" marker-end="url(#lp-arrow-orange)"/>
+
+  <rect x="235" y="456" width="510" height="42" rx="21" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <text x="490" y="484" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="900" fill="#1e3a5f" text-anchor="middle">Mastery = correct answer + clear reasoning + transfer to a new problem</text>
+</svg>

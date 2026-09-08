@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 700" role="img" aria-label="Four operations use bar models, place value columns and inverse checks">
+  <rect width="1160" height="700" fill="#ffffff"/>
+  <style>
+    .title{font:900 30px Arial,sans-serif;fill:#1e40af}
+    .sub{font:700 18px Arial,sans-serif;fill:#64748b}
+    .head{font:900 21px Arial,sans-serif;fill:#1e40af}
+    .body{font:700 15px Arial,sans-serif;fill:#64748b}
+    .math{font:900 22px Arial,sans-serif;fill:#1e3a5f}
+    .small{font:800 13px Arial,sans-serif;fill:#64748b}
+    .label{font:900 14px Arial,sans-serif;fill:#374151}
+    .ok{font:900 15px Arial,sans-serif;fill:#047857}
+    .warn{font:900 15px Arial,sans-serif;fill:#dc2626}
+  </style>
+  <defs>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1e40af"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#c2410c"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="42" y="56">Algorithms are place-value shortcuts</text>
+  <text class="sub" x="44" y="88">Model the story first. Then the written method works because each digit keeps its place.</text>
+  <text class="small" x="44" y="114">Algorithm gate: model story → estimate → calculate by place → inverse check</text>
+
+  <rect x="42" y="122" width="1076" height="256" rx="20" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <text class="head" x="68" y="160">Multiplication: split by place, then add partial products</text>
+  <text class="body" x="68" y="184">326 × 24 means 326 × 20 plus 326 × 4.</text>
+  <text class="small" x="68" y="200">Line audit: say what each row means before adding.</text>
+  <rect x="70" y="214" width="162" height="80" rx="16" fill="#fef3c7" stroke="#b45309" stroke-width="3"/>
+  <text class="math" x="151" y="251" text-anchor="middle">326 × 24</text>
+  <text class="small" x="151" y="274" text-anchor="middle">24 = 20 + 4</text>
+  <path d="M244 252 L294 252" stroke="#c2410c" stroke-width="4" marker-end="url(#arrowOrange)"/>
+
+  <g transform="translate(310 204)">
+    <rect x="0" y="0" width="232" height="132" rx="14" fill="#ffffff" stroke="#1e40af" stroke-width="3"/>
+    <text class="label" x="116" y="28" text-anchor="middle">20 means 2 tens</text>
+    <text class="math" x="116" y="64" text-anchor="middle">326×20=6520</text>
+    <text class="small" x="116" y="90" text-anchor="middle">the zero shows the tens place</text>
+    <text class="math" x="116" y="120" text-anchor="middle">326×4=1304</text>
+  </g>
+  <path d="M552 270 L616 270" stroke="#1e40af" stroke-width="4" marker-end="url(#arrowBlue)"/>
+
+  <g transform="translate(636 190)">
+    <rect x="0" y="0" width="170" height="168" rx="16" fill="#dbeafe" stroke="#1e40af" stroke-width="3"/>
+    <text class="label" x="85" y="28" text-anchor="middle">place-value columns</text>
+    <text class="math" x="122" y="64" text-anchor="end">6520</text>
+    <text class="math" x="122" y="98" text-anchor="end">+1304</text>
+    <line x1="40" y1="112" x2="132" y2="112" stroke="#1e3a5f" stroke-width="3"/>
+    <text class="math" x="122" y="146" text-anchor="end">7824</text>
+  </g>
+  <path d="M816 274 L878 274" stroke="#1e40af" stroke-width="4" marker-end="url(#arrowBlue)"/>
+  <rect x="896" y="210" width="174" height="118" rx="16" fill="#a7f3d0" stroke="#047857" stroke-width="3"/>
+  <text class="ok" x="983" y="246" text-anchor="middle">Check size</text>
+  <text class="body" x="983" y="276" text-anchor="middle">estimate about 8000</text>
+  <text class="ok" x="983" y="306" text-anchor="middle">7824 is reasonable</text>
+
+  <g transform="translate(70 358)">
+    <text class="label" x="0" y="0">word problem model first:</text>
+    <rect x="196" y="-18" width="52" height="26" rx="6" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+    <rect x="254" y="-18" width="52" height="26" rx="6" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+    <rect x="312" y="-18" width="52" height="26" rx="6" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+    <text class="small" x="390" y="0">24 groups → multiply</text>
+  </g>
+
+  <rect x="42" y="414" width="1076" height="236" rx="20" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text class="head" x="68" y="452">Division: start with the largest place, then regroup what is left</text>
+  <text class="body" x="68" y="478">918 ÷ 3: the 9 is hundreds.</text>
+  <text class="small" x="360" y="478">Loop: divide → multiply → subtract → bring down; remainder &lt; divisor</text>
+  <g transform="translate(74 508)">
+    <rect x="0" y="0" width="210" height="96" rx="14" fill="#fee2e2" stroke="#dc2626" stroke-width="3"/>
+    <text class="warn" x="105" y="32" text-anchor="middle">wrong shortcut</text>
+    <text class="math" x="105" y="64" text-anchor="middle" fill="#dc2626">36</text>
+    <text class="small" x="105" y="86" text-anchor="middle">lost the hundreds place</text>
+  </g>
+  <path d="M300 556 L338 556" stroke="#c2410c" stroke-width="4" marker-end="url(#arrowOrange)"/>
+  <g transform="translate(360 492)">
+    <rect x="0" y="0" width="330" height="132" rx="14" fill="#dbeafe" stroke="#1e40af" stroke-width="3"/>
+    <text class="label" x="165" y="28" text-anchor="middle">place-value thinking</text>
+    <text class="math" x="165" y="58" text-anchor="middle">9 hundreds ÷ 3</text>
+    <text class="math" x="165" y="86" text-anchor="middle">= 3 hundreds</text>
+    <text class="math" x="165" y="114" text-anchor="middle">18 ones ÷ 3 = 6 ones</text>
+  </g>
+  <path d="M704 556 L744 556" stroke="#1e40af" stroke-width="4" marker-end="url(#arrowBlue)"/>
+  <rect x="762" y="504" width="168" height="110" rx="16" fill="#a7f3d0" stroke="#047857" stroke-width="3"/>
+  <text class="ok" x="846" y="536" text-anchor="middle">correct quotient</text>
+  <text class="math" x="846" y="570" text-anchor="middle" fill="#047857">306</text>
+  <text class="small" x="846" y="594" text-anchor="middle">3 hundreds + 6 ones</text>
+  <path d="M940 556 L974 556" stroke="#1e40af" stroke-width="4" marker-end="url(#arrowBlue)"/>
+  <rect x="992" y="504" width="116" height="110" rx="16" fill="#fef3c7" stroke="#b45309" stroke-width="3"/>
+  <text class="label" x="1050" y="536" text-anchor="middle">inverse check</text>
+  <text class="math" x="1050" y="570" text-anchor="middle">306×3=918</text>
+  <text class="small" x="1050" y="596" text-anchor="middle">division fits</text>
+</svg>

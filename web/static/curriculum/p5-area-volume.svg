@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="560" viewBox="0 0 980 560">
+  <rect width="980" height="560" fill="#ffffff"/>
+  <text x="42" y="62" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" fill="#1e40af">Area and volume formulas come from counting</text>
+  <text x="42" y="94" font-family="Inter, Arial, sans-serif" font-size="17" fill="#64748b">Triangle area is half a rectangle. Cuboid volume is layers of unit cubes.</text>
+  <rect x="46" y="128" width="414" height="352" rx="16" fill="#eff6ff" stroke="#1e3a5f" stroke-width="2"/>
+  <text x="78" y="166" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#1e3a5f">Triangle = half rectangle</text>
+  <rect x="112" y="230" width="260" height="150" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+  <path d="M112 380 L372 380 L112 230 Z" fill="#93c5fd" stroke="#c2410c" stroke-width="4"/>
+  <path d="M112 230 L372 380" stroke="#1e40af" stroke-width="2" stroke-dasharray="8 8"/>
+  <text x="202" y="412" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">base = 10 cm</text>
+  <text x="386" y="312" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151" transform="rotate(-90 386 312)">height = 6 cm</text>
+  <text x="102" y="444" font-family="Inter, Arial, sans-serif" font-size="18" fill="#92400e">10 x 6 / 2 = 30 cm2</text>
+  <rect x="520" y="128" width="414" height="352" rx="16" fill="#fff7ed" stroke="#c2410c" stroke-width="2"/>
+  <text x="552" y="166" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#1e3a5f">Cuboid = layers of cubes</text>
+  <g transform="translate(590 230)" stroke="#1e40af" stroke-width="2">
+    <rect x="0" y="40" width="180" height="100" fill="#dbeafe"/>
+    <path d="M0 40 L54 0 H234 L180 40 Z" fill="#eff6ff"/>
+    <path d="M180 40 L234 0 V100 L180 140 Z" fill="#93c5fd"/>
+    <path d="M60 40 V140M120 40V140M0 90H180M54 0V100M108 0V100M162 0V100M27 20H207M207 20V120"/>
+  </g>
+  <text x="594" y="420" font-family="Inter, Arial, sans-serif" font-size="18" fill="#374151">4 x 3 cubes per layer</text>
+  <text x="594" y="450" font-family="Inter, Arial, sans-serif" font-size="18" fill="#374151">2 layers -> 4 x 3 x 2 = 24 cm3</text>
+</svg>

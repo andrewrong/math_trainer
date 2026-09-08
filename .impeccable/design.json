@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-22T03:24:03Z",
+  "title": "Design System: Learning Compass",
+  "extensions": {
+    "colorMeta": {
+      "compass-blue": {"role":"primary","displayName":"Compass Blue","canonical":"#185fa5","tonalRamp":["oklch(18% .08 250)","oklch(28% .10 250)","oklch(39% .12 250)","oklch(50% .12 250)","oklch(62% .10 250)","oklch(74% .08 250)","oklch(86% .05 250)","oklch(95% .02 250)"]},
+      "signal-blue": {"role":"primary","displayName":"Clear Signal Blue","canonical":"#378ADD","tonalRamp":["oklch(18% .09 250)","oklch(29% .12 250)","oklch(41% .15 250)","oklch(54% .15 250)","oklch(66% .12 250)","oklch(77% .09 250)","oklch(88% .05 250)","oklch(95% .02 250)"]},
+      "quiet-sky": {"role":"neutral","displayName":"Quiet Sky","canonical":"#d6eaf8","tonalRamp":["oklch(18% .025 235)","oklch(29% .03 235)","oklch(41% .035 235)","oklch(54% .04 235)","oklch(66% .04 235)","oklch(77% .035 235)","oklch(88% .025 235)","oklch(95% .015 235)"]},
+      "paper-white": {"role":"neutral","displayName":"Paper White","canonical":"#ffffff","tonalRamp":["oklch(15% 0 0)","oklch(28% 0 0)","oklch(41% 0 0)","oklch(54% 0 0)","oklch(67% 0 0)","oklch(79% 0 0)","oklch(90% 0 0)","oklch(100% 0 0)"]},
+      "study-ink": {"role":"neutral","displayName":"Study Ink","canonical":"#1a1a1a","tonalRamp":["oklch(15% 0 0)","oklch(27% 0 0)","oklch(39% 0 0)","oklch(51% 0 0)","oklch(63% 0 0)","oklch(75% 0 0)","oklch(87% 0 0)","oklch(95% 0 0)"]},
+      "body-muted": {"role":"neutral","displayName":"Body Muted","canonical":"#666666","tonalRamp":["oklch(15% 0 0)","oklch(27% 0 0)","oklch(39% 0 0)","oklch(51% 0 0)","oklch(63% 0 0)","oklch(75% 0 0)","oklch(87% 0 0)","oklch(95% 0 0)"]},
+      "soft-rule": {"role":"neutral","displayName":"Soft Rule","canonical":"#e0e0da","tonalRamp":["oklch(15% .005 100)","oklch(27% .006 100)","oklch(39% .007 100)","oklch(51% .008 100)","oklch(63% .009 100)","oklch(75% .009 100)","oklch(87% .007 100)","oklch(95% .004 100)"]},
+      "input-rule": {"role":"neutral","displayName":"Input Rule","canonical":"#cccccc","tonalRamp":["oklch(15% 0 0)","oklch(27% 0 0)","oklch(39% 0 0)","oklch(51% 0 0)","oklch(63% 0 0)","oklch(75% 0 0)","oklch(87% 0 0)","oklch(95% 0 0)"]},
+      "action-surface": {"role":"primary","displayName":"Action Surface","canonical":"#e6f1fb","tonalRamp":["oklch(15% .02 240)","oklch(27% .025 240)","oklch(39% .03 240)","oklch(51% .035 240)","oklch(63% .035 240)","oklch(75% .03 240)","oklch(87% .02 240)","oklch(95% .01 240)"]},
+      "support-surface": {"role":"primary","displayName":"Support Surface","canonical":"#e8f4fc","tonalRamp":["oklch(15% .018 235)","oklch(27% .023 235)","oklch(39% .028 235)","oklch(51% .03 235)","oklch(63% .03 235)","oklch(75% .026 235)","oklch(87% .018 235)","oklch(95% .009 235)"]},
+      "growth-green": {"role":"secondary","displayName":"Growth Green","canonical":"#1D9E75","tonalRamp":["oklch(15% .07 165)","oklch(27% .10 165)","oklch(39% .12 165)","oklch(51% .13 165)","oklch(63% .12 165)","oklch(75% .09 165)","oklch(87% .05 165)","oklch(95% .02 165)"]},
+      "growth-ink": {"role":"secondary","displayName":"Growth Ink","canonical":"#146c52","tonalRamp":["oklch(15% .06 165)","oklch(27% .08 165)","oklch(39% .10 165)","oklch(51% .11 165)","oklch(63% .10 165)","oklch(75% .08 165)","oklch(87% .045 165)","oklch(95% .018 165)"]},
+      "growth-surface": {"role":"secondary","displayName":"Growth Surface","canonical":"#eaf3de","tonalRamp":["oklch(15% .025 130)","oklch(27% .03 130)","oklch(39% .035 130)","oklch(51% .04 130)","oklch(63% .04 130)","oklch(75% .035 130)","oklch(87% .025 130)","oklch(95% .012 130)"]},
+      "guidance-amber": {"role":"tertiary","displayName":"Warm Guidance","canonical":"#BA7517","tonalRamp":["oklch(15% .07 75)","oklch(27% .10 75)","oklch(39% .12 75)","oklch(51% .13 75)","oklch(63% .12 75)","oklch(75% .09 75)","oklch(87% .05 75)","oklch(95% .02 75)"]},
+      "guidance-surface": {"role":"tertiary","displayName":"Guidance Surface","canonical":"#faeeda","tonalRamp":["oklch(15% .02 85)","oklch(27% .025 85)","oklch(39% .03 85)","oklch(51% .035 85)","oklch(63% .035 85)","oklch(75% .03 85)","oklch(87% .02 85)","oklch(95% .01 85)"]},
+      "correction-red": {"role":"tertiary","displayName":"Gentle Correction","canonical":"#E24B4A","tonalRamp":["oklch(15% .08 25)","oklch(27% .11 25)","oklch(39% .14 25)","oklch(51% .16 25)","oklch(63% .15 25)","oklch(75% .11 25)","oklch(87% .06 25)","oklch(95% .025 25)"]},
+      "correction-ink": {"role":"tertiary","displayName":"Correction Ink","canonical":"#A32D2D","tonalRamp":["oklch(15% .07 25)","oklch(27% .10 25)","oklch(39% .12 25)","oklch(51% .14 25)","oklch(63% .13 25)","oklch(75% .10 25)","oklch(87% .055 25)","oklch(95% .022 25)"]},
+      "correction-surface": {"role":"tertiary","displayName":"Correction Surface","canonical":"#fcebeb","tonalRamp":["oklch(15% .02 25)","oklch(27% .025 25)","oklch(39% .03 25)","oklch(51% .035 25)","oklch(63% .035 25)","oklch(75% .03 25)","oklch(87% .02 25)","oklch(95% .01 25)"]}
+    },
+    "typographyMeta": {
+      "display": {"displayName":"Display","purpose":"Product header and rare page-level identity moments."},
+      "headline": {"displayName":"Headline","purpose":"Major learning concepts and page sections."},
+      "title": {"displayName":"Title","purpose":"Card and section titles."},
+      "body": {"displayName":"Body","purpose":"Learner instructions and explanations read at arm's length."},
+      "label": {"displayName":"Label","purpose":"Navigation, chips, compact controls, and metadata."}
+    },
+    "shadows": [
+      {"name":"shell-ambient","value":"0 5px 15px rgba(24,95,165,.08)","purpose":"Primary navigation container."},
+      {"name":"active-control","value":"0 3px 8px rgba(24,95,165,.2)","purpose":"Currently selected subject."},
+      {"name":"feature-ambient","value":"0 6px 18px rgba(24,95,165,.08)","purpose":"Rare overview or learning-map surface."},
+      {"name":"hover-lift","value":"0 5px 12px rgba(24,95,165,.12)","purpose":"Hoverable route and curriculum cards."}
+    ],
+    "motion": [
+      {"name":"state-quick","value":"180ms ease","purpose":"Navigation hover, colour, transform, and shadow changes."},
+      {"name":"progress-standard","value":"300ms ease","purpose":"Progress-fill width changes."},
+      {"name":"press-feedback","value":"scale(.98)","purpose":"Immediate active response on primary actions."}
+    ],
+    "breakpoints": [
+      {"name":"curriculum-collapse","value":"1020px"},
+      {"name":"map-two-column","value":"760px"},
+      {"name":"navigation-scroll","value":"640px"},
+      {"name":"map-single-column","value":"460px"}
+    ]
+  },
+  "components": [
+    {
+      "name":"Primary Learning Action",
+      "kind":"button",
+      "refersTo":"button-primary",
+      "description":"Full-width action that starts or checks the learner's next task.",
+      "html":"<button class=\"ds-btn-primary\">Start Today’s Training →</button>",
+      "css":".ds-btn-primary{width:100%;padding:13px;border:.5px solid #185fa5;border-radius:8px;background:#e6f1fb;color:#185fa5;font:600 18px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer;transition:background .18s ease,transform .12s ease}.ds-btn-primary:hover{background:#dbeefa}.ds-btn-primary:focus-visible{outline:3px solid rgba(55,138,221,.35);outline-offset:2px}.ds-btn-primary:active{transform:scale(.98)}"
+    },
+    {
+      "name":"Secondary Control",
+      "kind":"button",
+      "refersTo":"button-secondary",
+      "description":"Compact control for levels, filters, and supporting actions.",
+      "html":"<button class=\"ds-btn-secondary\">Review 20 →</button>",
+      "css":".ds-btn-secondary{padding:7px 14px;border:.5px solid #ccc;border-radius:8px;background:#e8f4fc;color:#666;font:800 14px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer;transition:background .18s ease,border-color .18s ease,color .18s ease}.ds-btn-secondary:hover{background:#e6f1fb;border-color:#378ADD;color:#185fa5}.ds-btn-secondary:focus-visible{outline:3px solid rgba(55,138,221,.35);outline-offset:2px}"
+    },
+    {
+      "name":"Active Subject Navigation",
+      "kind":"nav",
+      "refersTo":"navigation-active",
+      "description":"The single solid-blue item that anchors the learner's current section.",
+      "html":"<nav class=\"ds-nav-shell\"><button class=\"ds-nav-item ds-nav-active\">🏠 Home</button><button class=\"ds-nav-item\">⭐ Daily</button><button class=\"ds-nav-item\">📐 Math</button></nav>",
+      "css":".ds-nav-shell{display:flex;gap:8px;padding:8px;border:.5px solid #b8d5ec;border-radius:16px;background:rgba(255,255,255,.62);box-shadow:0 5px 15px rgba(24,95,165,.08)}.ds-nav-item{min-height:46px;padding:9px 12px;border:.5px solid transparent;border-radius:10px;background:transparent;color:#52616b;font:800 14px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer;transition:background .18s ease,color .18s ease,transform .18s ease}.ds-nav-item:hover{background:#e8f4fc;color:#185fa5;transform:translateY(-1px)}.ds-nav-item:focus-visible{outline:3px solid rgba(55,138,221,.35);outline-offset:2px}.ds-nav-active{background:#185fa5;color:#fff;box-shadow:0 3px 8px rgba(24,95,165,.2)}"
+    },
+    {
+      "name":"Study Card",
+      "kind":"card",
+      "refersTo":"card",
+      "description":"Flat paper-like container for a focused unit of learning content.",
+      "html":"<section class=\"ds-card\"><h3>Today</h3><p>Pick one focused task and complete it before moving on.</p></section>",
+      "css":".ds-card{padding:16px;border:.5px solid #e0e0da;border-radius:12px;background:#fff;color:#1a1a1a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.ds-card h3{margin:0 0 8px;font-size:20px;line-height:1.35}.ds-card p{margin:0;color:#666;font-size:18px;line-height:1.6}"
+    },
+    {
+      "name":"Answer Input",
+      "kind":"input",
+      "refersTo":"input",
+      "description":"Large, centred numeric field for focused answer entry.",
+      "html":"<input class=\"ds-answer-input\" inputmode=\"numeric\" aria-label=\"Your answer\" placeholder=\"?\">",
+      "css":".ds-answer-input{width:100px;padding:7px;border:2px solid #ccc;border-radius:8px;background:#fff;color:#1a1a1a;text-align:center;font:400 26px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.ds-answer-input:focus{outline:none;border-color:#378ADD;box-shadow:0 0 0 3px rgba(55,138,221,.18)}.ds-answer-input:disabled{opacity:.45}"
+    },
+    {
+      "name":"Learning Status Chip",
+      "kind":"chip",
+      "refersTo":"status-chip",
+      "description":"Compact, text-backed status for learning, mastery, review, or correction.",
+      "html":"<span class=\"ds-chip ds-chip-learning\">Learning</span> <span class=\"ds-chip ds-chip-secure\">Secure</span> <span class=\"ds-chip ds-chip-review\">Needs review</span>",
+      "css":".ds-chip{display:inline-block;padding:4px 9px;border:.5px solid;border-radius:999px;font:800 14px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.ds-chip-learning{background:#e6f1fb;border-color:#185fa5;color:#185fa5}.ds-chip-secure{background:#eaf3de;border-color:#3b6d11;color:#355f10}.ds-chip-review{background:#faeeda;border-color:#BA7517;color:#633806}"
+    },
+    {
+      "name":"Evidence Feedback Panel",
+      "kind":"custom",
+      "description":"Supportive explanation paired with a semantic state and non-colour cue.",
+      "html":"<div class=\"ds-feedback ds-feedback-guidance\"><strong>△ Check the place value</strong><span>Try lining up the decimal points before subtracting.</span></div>",
+      "css":".ds-feedback{padding:10px 12px;border:.5px solid;border-radius:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.7}.ds-feedback strong{display:block;font-size:17px}.ds-feedback span{display:block;font-size:16px}.ds-feedback-guidance{background:#faeeda;border-color:#BA7517;color:#633806}.ds-feedback-success{background:#eaf3de;border-color:#3b6d11;color:#355f10}.ds-feedback-correction{background:#fcebeb;border-color:#E24B4A;color:#A32D2D}"
+    },
+    {
+      "name":"Curriculum Map Card",
+      "kind":"custom",
+      "description":"Signature route card that combines concept, explanation, and status without game-board decoration.",
+      "html":"<button class=\"ds-map-card\"><span class=\"ds-map-icon\">🔢</span><strong>Whole Numbers</strong><small>Read, compare, and calculate confidently.</small><em>Learning</em></button>",
+      "css":".ds-map-card{min-height:106px;padding:11px;border:.5px solid #b8d5ec;border-radius:12px;background:#fff;color:#163f66;text-align:left;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}.ds-map-card:hover{transform:translateY(-2px);border-color:#378ADD;box-shadow:0 5px 12px rgba(24,95,165,.12)}.ds-map-card:focus-visible{outline:3px solid rgba(55,138,221,.35);outline-offset:2px}.ds-map-icon{display:block;font-size:21px}.ds-map-card strong{display:block;margin-top:5px;font-size:15px;line-height:1.35}.ds-map-card small{display:block;margin-top:3px;color:#5c7280;font-size:13px;line-height:1.45}.ds-map-card em{display:inline-block;margin-top:7px;padding:3px 7px;border-radius:999px;background:#e6f1fb;color:#185fa5;font-size:11px;font-style:normal;font-weight:900}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Calm Study Desk",
+    "overview": "Learning Compass should feel like a well-prepared study desk at home: every tool has a clear place, the page is quiet enough to concentrate, and the next useful action is easy to find. The interface is calm, clear, encouraging, and structured. It supports a child working at arm's length on a desktop or tablet without adopting an infantile or entertainment-first tone.\n\nThe visual system uses a soft sky field to hold white study surfaces, deep blue to signal direction, and semantic green, amber, and red only when learning evidence calls for them. Density is comfortable rather than sparse: information is grouped into compact cards, but generous type sizes and consistent gaps keep the work legible.\n\nAvoid flashy gamification, neon palettes, excessive cartoon decoration, and the compressed feel of an administration dashboard.",
+    "keyCharacteristics": [
+      "Soft sky background with clean paper-like working surfaces.",
+      "Strong, rare blue states that make the active path unmistakable.",
+      "Large system typography designed for reading at arm's length.",
+      "Thin structural borders, restrained ambient shadows, and predictable rounded geometry.",
+      "Semantic feedback that is supportive and never relies on colour alone."
+    ],
+    "rules": [
+      {"name":"The Compass Blue Is Direction Rule","body":"Use deep blue for the active path and the most important action, not as decoration across every card.","section":"colors"},
+      {"name":"The Evidence Colour Rule","body":"Green, amber, and red must describe a real learning state and must always be paired with text, an icon, or another non-colour cue.","section":"colors"},
+      {"name":"The Quiet Field Rule","body":"Keep the sky canvas visible around white working surfaces; do not flood entire screens with saturated colour.","section":"colors"},
+      {"name":"The Read at Arm's Length Rule","body":"Learner-facing instructions stay at 17px or larger; reserve 12–15px text for metadata, chips, and supporting status only.","section":"typography"},
+      {"name":"The One Family Rule","body":"Use the system sans stack across learning surfaces so bilingual text remains coherent; monospace is limited to technical keys or machine-readable values.","section":"typography"},
+      {"name":"The One Reading Axis Rule","body":"On narrow screens, preserve a clear vertical learning sequence. Horizontal scrolling is acceptable for navigation and oversized diagrams, not for ordinary lesson content.","section":"layout"},
+      {"name":"The Comfortable Grid Rule","body":"Prefer a partially filled final row over stretching cards into unusually wide reading blocks.","section":"layout"},
+      {"name":"The Flat by Default Rule","body":"Cards and inputs rest without shadows; add elevation only to communicate shell hierarchy, selection, or hover response.","section":"elevation"},
+      {"name":"The Blue Ambient Rule","body":"Shadows use low-opacity Compass Blue rather than neutral black so depth remains gentle on the sky canvas.","section":"elevation"},
+      {"name":"The Radius Has Rank Rule","body":"Larger containers receive larger corners; do not apply pill geometry to cards or rectangular navigation items.","section":"shapes"}
+    ],
+    "dos": [
+      "Do keep the Quiet Sky canvas visible around Paper White working surfaces.",
+      "Do make one active route or next action unmistakable with Compass Blue.",
+      "Do preserve 17–18px learner-facing text and generous line-height for explanations.",
+      "Do use thin borders and restrained spacing to organise dense learning content.",
+      "Do pair semantic colours with words, icons, or status labels.",
+      "Do collapse multi-column learning layouts into one clear reading axis on narrow screens."
+    ],
+    "donts": [
+      "Don't introduce neon colours, glossy gradients, confetti-like decoration, or game-economy visuals.",
+      "Don't fill every card or button with Compass Blue; its rarity gives it directional authority.",
+      "Don't add heavy black shadows or elevate every surface.",
+      "Don't shrink learner instructions to dashboard-sized metadata text.",
+      "Don't rely on red or green alone to communicate an answer state.",
+      "Don't turn the interface into a dense administration dashboard or an overly childish cartoon world."
+    ]
+  }
+}

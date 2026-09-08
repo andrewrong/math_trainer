@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="560" viewBox="0 0 980 560">
+  <rect width="980" height="560" fill="#ffffff"/>
+  <text x="42" y="62" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" fill="#1e40af">Unknown angles need evidence</text>
+  <text x="42" y="94" font-family="Inter, Arial, sans-serif" font-size="17" fill="#64748b">Name the rule first, then calculate one unknown at a time.</text>
+  <g font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">
+    <rect x="56" y="138" width="260" height="130" rx="14" fill="#eff6ff" stroke="#1e3a5f" stroke-width="2"/>
+    <path d="M96 220 H276" stroke="#1e40af" stroke-width="4"/>
+    <path d="M186 220 L124 170" stroke="#c2410c" stroke-width="4"/>
+    <text x="92" y="250">Straight line: 180 degrees</text>
+    <rect x="360" y="138" width="260" height="130" rx="14" fill="#fff7ed" stroke="#c2410c" stroke-width="2"/>
+    <path d="M490 190 L430 148M490 190 L550 148M490 190 L558 208M490 190 L430 220" stroke="#1e40af" stroke-width="4"/>
+    <text x="412" y="250">Around a point: 360 degrees</text>
+    <rect x="664" y="138" width="260" height="130" rx="14" fill="#ecfdf5" stroke="#047857" stroke-width="2"/>
+    <path d="M710 220 L794 158 L878 220 Z" fill="#a7f3d0" stroke="#047857" stroke-width="4"/>
+    <text x="708" y="250">Triangle sum: 180 degrees</text>
+    <rect x="56" y="318" width="260" height="130" rx="14" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+    <path d="M116 418 L256 338M116 338 L256 418" stroke="#1e40af" stroke-width="4"/>
+    <text x="84" y="432">Opposite angles are equal</text>
+    <rect x="360" y="318" width="260" height="130" rx="14" fill="#eff6ff" stroke="#1e3a5f" stroke-width="2"/>
+    <path d="M430 420 L490 340 L550 420 Z" fill="#dbeafe" stroke="#1e40af" stroke-width="4"/>
+    <path d="M452 392 H528" stroke="#c2410c" stroke-width="3"/>
+    <text x="392" y="432">Isosceles: base angles equal</text>
+    <rect x="664" y="318" width="260" height="130" rx="14" fill="#fff7ed" stroke="#c2410c" stroke-width="2"/>
+    <path d="M724 410 L846 410 L880 340 L758 340 Z" fill="#fed7aa" stroke="#c2410c" stroke-width="4"/>
+    <text x="698" y="432">Parallelogram: use properties</text>
+  </g>
+</svg>

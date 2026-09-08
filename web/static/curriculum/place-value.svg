@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 520" role="img" aria-label="Place value chart for 62,705">
+  <rect width="980" height="520" fill="#ffffff"/>
+  <style>
+    .title{font:800 30px Arial,sans-serif;fill:#1e40af}
+    .sub{font:18px Arial,sans-serif;fill:#64748b}
+    .digit{font:900 42px Arial,sans-serif;fill:#1e3a5f}
+    .place{font:800 16px Arial,sans-serif;fill:#1e40af}
+    .value{font:800 20px Arial,sans-serif;fill:#047857}
+    .note{font:16px Arial,sans-serif;fill:#64748b}
+  </style>
+  <text class="title" x="42" y="58">Place value: each digit has a job</text>
+  <text class="sub" x="44" y="92">Read the place first. Then the digit tells how many of that place.</text>
+
+  <g>
+    <rect x="354" y="112" width="272" height="74" rx="18" fill="#fef3c7" stroke="#b45309" stroke-width="3"/>
+    <text x="490" y="161" text-anchor="middle" font-family="Arial,sans-serif" font-size="42" font-weight="900" fill="#b45309">62,705</text>
+  </g>
+
+  <g>
+    <rect x="54" y="236" width="160" height="142" rx="14" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+    <text class="place" x="134" y="266" text-anchor="middle">ten-thousands</text>
+    <text class="digit" x="134" y="320" text-anchor="middle">6</text>
+    <text class="value" x="134" y="354" text-anchor="middle">60,000</text>
+
+    <rect x="232" y="236" width="160" height="142" rx="14" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+    <text class="place" x="312" y="266" text-anchor="middle">thousands</text>
+    <text class="digit" x="312" y="320" text-anchor="middle">2</text>
+    <text class="value" x="312" y="354" text-anchor="middle">2,000</text>
+
+    <rect x="410" y="236" width="160" height="142" rx="14" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+    <text class="place" x="490" y="266" text-anchor="middle">hundreds</text>
+    <text class="digit" x="490" y="320" text-anchor="middle">7</text>
+    <text class="value" x="490" y="354" text-anchor="middle">700</text>
+
+    <rect x="588" y="236" width="160" height="142" rx="14" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text class="place" x="668" y="266" text-anchor="middle">tens</text>
+    <text class="digit" x="668" y="320" text-anchor="middle">0</text>
+    <text class="value" x="668" y="354" text-anchor="middle">0 tens</text>
+
+    <rect x="766" y="236" width="160" height="142" rx="14" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+    <text class="place" x="846" y="266" text-anchor="middle">ones</text>
+    <text class="digit" x="846" y="320" text-anchor="middle">5</text>
+    <text class="value" x="846" y="354" text-anchor="middle">5</text>
+  </g>
+
+  <text class="note" x="490" y="218" text-anchor="middle">Place-value chart</text>
+
+  <g>
+    <rect x="154" y="416" width="672" height="58" rx="16" fill="#a7f3d0" stroke="#047857" stroke-width="3"/>
+    <text x="490" y="454" text-anchor="middle" font-family="Arial,sans-serif" font-size="26" font-weight="900" fill="#047857">62,705 = 60,000 + 2,000 + 700 + 0 + 5</text>
+  </g>
+  <text class="note" x="224" y="500">The zero matters: it holds the tens place so the 7 stays in hundreds and 5 stays in ones.</text>
+</svg>

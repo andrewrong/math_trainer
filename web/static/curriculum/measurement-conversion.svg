@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 560" role="img" aria-label="Measurement conversion keeps the same amount in the same unit family">
+  <rect width="980" height="560" rx="22" fill="#ffffff"/>
+  <style>
+    .title{font:900 30px Arial,sans-serif;fill:#1e40af}
+    .sub{font:700 18px Arial,sans-serif;fill:#64748b}
+    .head{font:900 22px Arial,sans-serif;fill:#1e3a5f}
+    .body{font:700 15px Arial,sans-serif;fill:#64748b}
+    .label{font:900 15px Arial,sans-serif;fill:#1e3a5f}
+    .bigBlue{font:900 30px Arial,sans-serif;fill:#1e40af}
+    .bigGreen{font:900 28px Arial,sans-serif;fill:#047857}
+    .orange{fill:#c2410c}
+    .green{fill:#047857}
+    .red{fill:#dc2626}
+  </style>
+  <defs>
+    <marker id="arrow-blue" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,8 L10,4 z" fill="#1e40af"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,8 L10,4 z" fill="#047857"/>
+    </marker>
+  </defs>
+
+  <text x="42" y="56" class="title">Measurement conversion keeps the same amount</text>
+  <text x="42" y="88" class="sub">Use the same unit family. Change the unit name, then the number changes.</text>
+
+  <rect x="42" y="122" width="568" height="332" rx="22" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <text x="72" y="166" class="head">Mass example: 3 kg 250 g = ? g</text>
+  <text x="72" y="194" class="body">kg and g are in the same family, so conversion is allowed.</text>
+
+  <g transform="translate(82 222)">
+    <rect x="0" y="0" width="138" height="82" rx="16" fill="#fed7aa" stroke="#c2410c" stroke-width="3"/>
+    <text x="69" y="35" class="orange" font-family="Arial,sans-serif" font-size="29" font-weight="900" text-anchor="middle">3 kg</text>
+    <text x="69" y="62" class="label" text-anchor="middle">larger unit</text>
+
+    <line x1="158" y1="41" x2="258" y2="41" stroke="#1e40af" stroke-width="4" marker-end="url(#arrow-blue)"/>
+    <text x="208" y="20" class="label" text-anchor="middle">1 kg = 1000 g</text>
+
+    <rect x="282" y="0" width="166" height="82" rx="16" fill="#dbeafe" stroke="#1e40af" stroke-width="3"/>
+    <text x="365" y="35" class="bigBlue" text-anchor="middle">3000 g</text>
+    <text x="365" y="62" class="label" text-anchor="middle">same mass</text>
+
+    <text x="224" y="126" class="label" text-anchor="middle">3 kg = 3000 g</text>
+    <text x="48" y="178" class="bigBlue" text-anchor="middle">3000 g</text>
+    <text x="142" y="178" class="label" text-anchor="middle">+</text>
+    <text x="234" y="178" class="bigBlue" text-anchor="middle">250 g</text>
+    <text x="324" y="178" class="label" text-anchor="middle">=</text>
+    <rect x="354" y="142" width="128" height="58" rx="16" fill="#a7f3d0" stroke="#047857" stroke-width="3"/>
+    <text x="418" y="178" class="bigGreen" text-anchor="middle">3250 g</text>
+    <text x="244" y="214" class="bigGreen" text-anchor="middle">3 kg 250 g = 3250 g</text>
+  </g>
+
+  <rect x="644" y="122" width="294" height="332" rx="22" fill="#fff7ed" stroke="#fed7aa" stroke-width="2"/>
+  <text x="674" y="166" class="head">Direction rule</text>
+
+  <g transform="translate(682 202)">
+    <text x="0" y="0" class="label">Same family bridges</text>
+    <g transform="translate(0 24)">
+      <rect x="0" y="0" width="80" height="44" rx="12" fill="#fed7aa" stroke="#c2410c" stroke-width="2"/>
+      <text x="40" y="29" class="label" text-anchor="middle">kg</text>
+      <line x1="88" y1="22" x2="160" y2="22" stroke="#1e40af" stroke-width="4" marker-end="url(#arrow-blue)"/>
+      <rect x="170" y="0" width="80" height="44" rx="12" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+      <text x="210" y="29" class="label" text-anchor="middle">g</text>
+      <text x="125" y="62" class="body" text-anchor="middle">smaller unit, bigger number</text>
+    </g>
+    <g transform="translate(0 116)">
+      <rect x="0" y="0" width="80" height="44" rx="12" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+      <text x="40" y="29" class="label" text-anchor="middle">mL</text>
+      <line x1="170" y1="22" x2="98" y2="22" stroke="#047857" stroke-width="4" marker-end="url(#arrow-green)"/>
+      <rect x="170" y="0" width="80" height="44" rx="12" fill="#a7f3d0" stroke="#047857" stroke-width="2"/>
+      <text x="210" y="29" class="label" text-anchor="middle">L</text>
+      <text x="125" y="62" class="body" text-anchor="middle">larger unit, smaller number</text>
+    </g>
+    <g transform="translate(0 194)">
+      <rect x="0" y="0" width="250" height="64" rx="14" fill="#fee2e2" stroke="#dc2626" stroke-width="3"/>
+      <text x="125" y="20" class="red" font-family="Arial,sans-serif" font-size="14" font-weight="900" text-anchor="middle">Guardrail</text>
+      <text x="125" y="40" class="red" font-family="Arial,sans-serif" font-size="14" font-weight="900" text-anchor="middle">kg cannot become m</text>
+      <text x="125" y="58" class="body" text-anchor="middle">different families</text>
+    </g>
+  </g>
+
+  <rect x="160" y="494" width="660" height="36" rx="18" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+  <text x="490" y="518" font-family="Arial,sans-serif" font-size="17" font-weight="900" fill="#92400e" text-anchor="middle">Do not change the amount. Only change the unit inside the same family.</text>
+</svg>

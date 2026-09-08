@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 700" role="img" aria-label="Angles as turns, protractor reading, 8-point compass turns, and rectangle square properties">
+  <rect width="1260" height="700" fill="#ffffff"/>
+  <style>
+    .title{font:900 30px Arial,sans-serif;fill:#1e40af}
+    .sub{font:700 18px Arial,sans-serif;fill:#64748b}
+    .head{font:900 20px Arial,sans-serif;fill:#1e40af}
+    .body{font:700 15px Arial,sans-serif;fill:#64748b}
+    .label{font:900 14px Arial,sans-serif;fill:#1e3a5f}
+    .small{font:800 13px Arial,sans-serif;fill:#374151}
+    .green{fill:#047857}
+    .orange{fill:#c2410c}
+    .red{fill:#dc2626}
+  </style>
+  <defs>
+    <marker id="angleArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#c2410c"/>
+    </marker>
+    <marker id="blueAngleArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1e40af"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="42" y="54">Angles measure how far one arm turns</text>
+  <text class="sub" x="44" y="86">Measure the turn, read the correct scale, then use compass and shape properties instead of guessing.</text>
+  <text class="small" x="44" y="110">Evidence chain: vertex | 0° scale | 45° steps | shape rules</text>
+  <g transform="translate(930 24)">
+    <rect x="0" y="0" width="288" height="72" rx="16" fill="#fef3c7" stroke="#b45309" stroke-width="3"/>
+    <text class="label orange" x="18" y="28">Job first</text>
+    <text class="small" x="18" y="52">name | measure | draw | turn | property</text>
+  </g>
+
+  <rect x="42" y="120" width="276" height="520" rx="20" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <text class="head" x="66" y="158">1. Angle = turn</text>
+  <text class="body" x="66" y="184">Longer arms do not make</text>
+  <text class="body" x="66" y="204">a bigger angle.</text>
+  <g transform="translate(70 254)">
+    <circle cx="86" cy="128" r="10" fill="#1e3a5f"/>
+    <line x1="86" y1="128" x2="214" y2="128" stroke="#1e3a5f" stroke-width="8" stroke-linecap="round"/>
+    <line x1="86" y1="128" x2="170" y2="44" stroke="#1e3a5f" stroke-width="8" stroke-linecap="round"/>
+    <path d="M130 128 A44 44 0 0 0 117 92" fill="none" stroke="#c2410c" stroke-width="8" marker-end="url(#angleArrow)"/>
+    <path d="M112 128 A24 24 0 0 0 104 110" fill="none" stroke="#fed7aa" stroke-width="9"/>
+    <line x1="86" y1="128" x2="158" y2="128" stroke="#047857" stroke-width="3" stroke-dasharray="8 8"/>
+    <line x1="86" y1="128" x2="128" y2="86" stroke="#047857" stroke-width="3" stroke-dasharray="8 8"/>
+    <text class="label orange" x="147" y="96" text-anchor="middle">turn</text>
+    <text class="small" x="86" y="162" text-anchor="middle">vertex</text>
+  </g>
+  <text class="label green" x="180" y="492" text-anchor="middle">same turn, same angle</text>
+  <text class="small" x="180" y="516" text-anchor="middle">arm length does not decide angle size</text>
+
+  <rect x="342" y="120" width="276" height="520" rx="20" fill="#ffffff" stroke="#93c5fd" stroke-width="2"/>
+  <text class="head" x="366" y="158">2. Read from the correct 0°</text>
+  <text class="body" x="366" y="184">Line up one arm with 0°.</text>
+  <text class="body" x="366" y="204">Read from that same side.</text>
+  <g transform="translate(366 262)">
+    <path d="M0 156 A112 112 0 0 1 224 156" fill="#dbeafe" stroke="#1e40af" stroke-width="4"/>
+    <line x1="0" y1="156" x2="224" y2="156" stroke="#1e40af" stroke-width="4"/>
+    <line x1="112" y1="156" x2="112" y2="30" stroke="#64748b" stroke-width="2" stroke-dasharray="6 8"/>
+    <circle cx="112" cy="156" r="8" fill="#1e3a5f"/>
+    <line x1="112" y1="156" x2="212" y2="156" stroke="#1e3a5f" stroke-width="8" stroke-linecap="round"/>
+    <line x1="112" y1="156" x2="163" y2="66" stroke="#1e3a5f" stroke-width="8" stroke-linecap="round"/>
+    <path d="M154 156 A42 42 0 0 0 135 119" fill="none" stroke="#c2410c" stroke-width="8" marker-end="url(#angleArrow)"/>
+    <text class="label orange" x="164" y="108" text-anchor="middle">60°</text>
+    <text class="small" x="212" y="184" text-anchor="middle">0°</text>
+    <text class="small" x="163" y="50" text-anchor="middle">read here</text>
+    <text class="small" x="112" y="184" text-anchor="middle">centre on vertex</text>
+  </g>
+  <rect x="368" y="524" width="224" height="48" rx="14" fill="#fee2e2" stroke="#dc2626" stroke-width="3"/>
+  <text class="label red" x="480" y="544" text-anchor="middle">Common mistake</text>
+  <text class="small" x="480" y="562" text-anchor="middle">reading from the wrong zero</text>
+
+  <rect x="642" y="120" width="276" height="520" rx="20" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="2"/>
+  <text class="head" x="666" y="158">3. 8-point compass = turns</text>
+  <text class="body" x="666" y="184">Each step is 45°.</text>
+  <text class="body" x="666" y="204">Two steps make a right turn.</text>
+  <g transform="translate(690 260)">
+    <circle cx="90" cy="110" r="92" fill="#ffffff" stroke="#1e40af" stroke-width="4"/>
+    <line x1="90" y1="18" x2="90" y2="202" stroke="#dbeafe" stroke-width="3"/>
+    <line x1="-2" y1="110" x2="182" y2="110" stroke="#dbeafe" stroke-width="3"/>
+    <line x1="25" y1="45" x2="155" y2="175" stroke="#dbeafe" stroke-width="3"/>
+    <line x1="155" y1="45" x2="25" y2="175" stroke="#dbeafe" stroke-width="3"/>
+    <circle cx="90" cy="110" r="8" fill="#1e3a5f"/>
+    <line x1="90" y1="110" x2="90" y2="30" stroke="#1e3a5f" stroke-width="6" stroke-linecap="round"/>
+    <line x1="90" y1="110" x2="162" y2="110" stroke="#1e3a5f" stroke-width="6" stroke-linecap="round"/>
+    <path d="M90 60 A50 50 0 0 1 140 110" fill="none" stroke="#c2410c" stroke-width="7" marker-end="url(#angleArrow)"/>
+    <path d="M136 64 A65 65 0 0 1 90 175" fill="none" stroke="#1e40af" stroke-width="5" marker-end="url(#blueAngleArrow)"/>
+    <text class="label" x="90" y="-2" text-anchor="middle">N</text>
+    <text class="small" x="160" y="36" text-anchor="middle">NE</text>
+    <text class="label" x="196" y="115" text-anchor="middle">E</text>
+    <text class="small" x="160" y="198" text-anchor="middle">SE</text>
+    <text class="label" x="90" y="230" text-anchor="middle">S</text>
+    <text class="small" x="20" y="198" text-anchor="middle">SW</text>
+    <text class="label" x="-16" y="115" text-anchor="middle">W</text>
+    <text class="small" x="20" y="36" text-anchor="middle">NW</text>
+    <text class="label orange" x="133" y="72" text-anchor="middle">90°</text>
+  </g>
+  <text class="label green" x="780" y="506" text-anchor="middle">N→E = 2 jumps = 90°</text>
+  <text class="small" x="780" y="530" text-anchor="middle">Ledger: NE→E→SE→S</text>
+  <text class="small" x="780" y="552" text-anchor="middle">3 jumps × 45° = 135°</text>
+  <text class="small" x="780" y="574" text-anchor="middle">Count gaps, not labels.</text>
+
+  <rect x="942" y="120" width="276" height="520" rx="20" fill="#fff7ed" stroke="#fed7aa" stroke-width="2"/>
+  <text class="head" x="966" y="158">4. Use shape properties</text>
+  <text class="body" x="966" y="184">A sketch may not be exact.</text>
+  <text class="body" x="966" y="204">Rules still work.</text>
+  <g transform="translate(978 250)">
+    <text class="label" x="0" y="-12">Rectangle: 4 right angles</text>
+    <rect x="0" y="0" width="204" height="84" rx="8" fill="#dbeafe" stroke="#1e40af" stroke-width="4"/>
+    <path d="M16 0 L16 16 L0 16" fill="none" stroke="#047857" stroke-width="3"/>
+    <path d="M188 0 L188 16 L204 16" fill="none" stroke="#047857" stroke-width="3"/>
+    <path d="M16 84 L16 68 L0 68" fill="none" stroke="#047857" stroke-width="3"/>
+    <path d="M188 84 L188 68 L204 68" fill="none" stroke="#047857" stroke-width="3"/>
+    <text class="small green" x="102" y="110" text-anchor="middle">Rectangle proof: 4 right angles</text>
+    <text class="small green" x="102" y="130" text-anchor="middle">opposite sides match</text>
+    <text class="label" x="0" y="154">Square: equal sides + right angles</text>
+    <rect x="46" y="170" width="116" height="116" rx="8" fill="#a7f3d0" stroke="#047857" stroke-width="4"/>
+    <g stroke="#1e3a5f" stroke-width="3">
+      <line x1="94" y1="166" x2="110" y2="174"/>
+      <line x1="94" y1="286" x2="110" y2="278"/>
+      <line x1="42" y1="218" x2="50" y2="234"/>
+      <line x1="162" y1="218" x2="170" y2="234"/>
+    </g>
+    <path d="M60 170 L60 184 L46 184" fill="none" stroke="#1e40af" stroke-width="3"/>
+    <text class="small green" x="104" y="322" text-anchor="middle">Square proof: 4 right angles</text>
+    <text class="small green" x="104" y="342" text-anchor="middle">4 equal sides</text>
+  </g>
+  <text class="label orange" x="1080" y="606" text-anchor="middle">Do not trust the look; use properties.</text>
+</svg>

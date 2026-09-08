@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 560" role="img" aria-label="Division means equal groups, sharing, grouping, multiplication check, and remainder">
+  <metadata>remainder must be smaller than divisor</metadata>
+  <rect width="980" height="560" rx="22" fill="#ffffff"/>
+  <style>
+    .title{font:900 30px Arial,sans-serif;fill:#1e40af}
+    .sub{font:700 18px Arial,sans-serif;fill:#64748b}
+    .head{font:900 21px Arial,sans-serif;fill:#1e3a5f}
+    .body{font:700 15px Arial,sans-serif;fill:#64748b}
+    .label{font:900 15px Arial,sans-serif;fill:#1e3a5f}
+    .math{font:900 22px Arial,sans-serif;fill:#047857}
+    .orange{fill:#c2410c}
+    .green{fill:#047857}
+    .red{fill:#dc2626}
+  </style>
+  <defs>
+    <marker id="divArrow" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,8 L10,4 z" fill="#1e40af"/>
+    </marker>
+  </defs>
+
+  <text x="42" y="56" class="title">Division means equal groups</text>
+  <text x="42" y="88" class="sub">If she forgets the formula, rebuild the story: what is shared, what is the group, what is left?</text>
+
+  <rect x="42" y="124" width="422" height="190" rx="20" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <text x="70" y="164" class="head">1. Sharing equally</text>
+  <text x="70" y="190" class="body">24 cookies, 6 children</text>
+  <text x="70" y="216" class="math">24 ÷ 6 = 4</text>
+  <g transform="translate(248 178)">
+    <g fill="#dbeafe" stroke="#1e40af" stroke-width="2">
+      <rect x="0" y="0" width="54" height="44" rx="11"/><rect x="64" y="0" width="54" height="44" rx="11"/><rect x="128" y="0" width="54" height="44" rx="11"/>
+      <rect x="0" y="56" width="54" height="44" rx="11"/><rect x="64" y="56" width="54" height="44" rx="11"/><rect x="128" y="56" width="54" height="44" rx="11"/>
+    </g>
+    <g fill="#fed7aa" stroke="#c2410c" stroke-width="2">
+      <circle cx="17" cy="14" r="6"/><circle cx="37" cy="14" r="6"/><circle cx="17" cy="30" r="6"/><circle cx="37" cy="30" r="6"/>
+      <circle cx="81" cy="14" r="6"/><circle cx="101" cy="14" r="6"/><circle cx="81" cy="30" r="6"/><circle cx="101" cy="30" r="6"/>
+      <circle cx="145" cy="14" r="6"/><circle cx="165" cy="14" r="6"/><circle cx="145" cy="30" r="6"/><circle cx="165" cy="30" r="6"/>
+      <circle cx="17" cy="70" r="6"/><circle cx="37" cy="70" r="6"/><circle cx="17" cy="86" r="6"/><circle cx="37" cy="86" r="6"/>
+      <circle cx="81" cy="70" r="6"/><circle cx="101" cy="70" r="6"/><circle cx="81" cy="86" r="6"/><circle cx="101" cy="86" r="6"/>
+      <circle cx="145" cy="70" r="6"/><circle cx="165" cy="70" r="6"/><circle cx="145" cy="86" r="6"/><circle cx="165" cy="86" r="6"/>
+    </g>
+    <text x="91" y="124" class="label green" text-anchor="middle">4 in each group</text>
+  </g>
+
+  <rect x="516" y="124" width="422" height="190" rx="20" fill="#fff7ed" stroke="#fed7aa" stroke-width="2"/>
+  <text x="544" y="164" class="head">2. Making groups</text>
+  <text x="544" y="190" class="body">24 cookies, 6 in each bag</text>
+  <text x="544" y="216" class="math">24 ÷ 6 = 4</text>
+  <g transform="translate(676 164)">
+    <g fill="#fed7aa" stroke="#c2410c" stroke-width="3">
+      <rect x="0" y="0" width="54" height="76" rx="13"/><rect x="66" y="0" width="54" height="76" rx="13"/>
+      <rect x="132" y="0" width="54" height="76" rx="13"/><rect x="198" y="0" width="54" height="76" rx="13"/>
+    </g>
+    <g fill="#ffffff" stroke="#1e3a5f" stroke-width="2">
+      <circle cx="17" cy="18" r="5"/><circle cx="37" cy="18" r="5"/><circle cx="17" cy="38" r="5"/><circle cx="37" cy="38" r="5"/><circle cx="17" cy="58" r="5"/><circle cx="37" cy="58" r="5"/>
+      <circle cx="83" cy="18" r="5"/><circle cx="103" cy="18" r="5"/><circle cx="83" cy="38" r="5"/><circle cx="103" cy="38" r="5"/><circle cx="83" cy="58" r="5"/><circle cx="103" cy="58" r="5"/>
+      <circle cx="149" cy="18" r="5"/><circle cx="169" cy="18" r="5"/><circle cx="149" cy="38" r="5"/><circle cx="169" cy="38" r="5"/><circle cx="149" cy="58" r="5"/><circle cx="169" cy="58" r="5"/>
+      <circle cx="215" cy="18" r="5"/><circle cx="235" cy="18" r="5"/><circle cx="215" cy="38" r="5"/><circle cx="235" cy="38" r="5"/><circle cx="215" cy="58" r="5"/><circle cx="235" cy="58" r="5"/>
+    </g>
+    <text x="126" y="106" class="label green" text-anchor="middle">4 groups</text>
+  </g>
+
+  <line x1="490" y1="332" x2="490" y2="522" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8 8"/>
+
+  <rect x="64" y="352" width="390" height="144" rx="20" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+  <text x="92" y="390" class="head">3. Rebuild with multiplication</text>
+  <text x="92" y="422" class="orange" font-family="Arial,sans-serif" font-size="24" font-weight="900">6 × ? = 24</text>
+  <line x1="252" y1="416" x2="330" y2="416" stroke="#1e40af" stroke-width="4" marker-end="url(#divArrow)"/>
+  <rect x="342" y="386" width="84" height="58" rx="14" fill="#a7f3d0" stroke="#047857" stroke-width="3"/>
+  <text x="384" y="423" class="math" text-anchor="middle">? = 4</text>
+  <text x="92" y="466" class="math">6 × 4 = 24</text>
+
+  <rect x="536" y="352" width="390" height="144" rx="20" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="2"/>
+  <text x="564" y="390" class="head">4. Remainder check</text>
+  <text x="564" y="420" class="math">38 ÷ 5 = 7 r 3</text>
+  <text x="564" y="450" class="body">7 full groups of 5, then 3 left over</text>
+  <text x="564" y="476" class="math">38 = 5 × 7 + 3</text>
+  <text x="828" y="412" class="red" font-family="Arial,sans-serif" font-size="14" font-weight="900" text-anchor="middle">remainder must be</text>
+  <text x="828" y="432" class="red" font-family="Arial,sans-serif" font-size="14" font-weight="900" text-anchor="middle">smaller than divisor</text>
+
+  <rect x="204" y="510" width="572" height="32" rx="16" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+  <text x="490" y="532" font-family="Arial,sans-serif" font-size="16" font-weight="900" fill="#92400e" text-anchor="middle">Ask: shared amount? group size or number of groups? any leftover?</text>
+</svg>

@@ -16,20 +16,27 @@ import (
 
 	"mathtrainer/internal/ai"
 	"mathtrainer/internal/model"
+	"mathtrainer/internal/pronunciation"
 )
 
 type EnglishHandler struct {
-	db *sql.DB
-	ai *ai.Chain
+	db             *sql.DB
+	ai             *ai.Chain
+	pronunciations *pronunciation.Service
 }
 
 func NewEnglish(db *sql.DB, chain *ai.Chain) *EnglishHandler {
-	return &EnglishHandler{db: db, ai: chain}
+	return &EnglishHandler{db: db, ai: chain, pronunciations: pronunciation.New(db)}
 }
 
 func (h *EnglishHandler) Register(r gin.IRouter) {
 	r.GET("/english/weeks", h.listWeeks)
 	r.GET("/english/weeks/:weekId", h.getWeek)
+	r.PATCH("/english/weeks/:weekId", h.renameWeek)
+	r.PATCH("/english/weeks/:weekId/words", h.updateWeekWords)
+	r.POST("/english/pronunciations/lookup", h.lookupPronunciations)
+	r.PUT("/english/pronunciations/:word", h.savePronunciation)
+	r.POST("/english/pronunciations/audio", h.speakEnglish)
 	r.POST("/english/weeks/generate/text", h.generateFromText)
 	r.POST("/english/weeks/generate/image", h.generateFromImage)
 	r.PUT("/english/weeks/:weekId/spell", h.updateSpell)
@@ -37,6 +44,48 @@ func (h *EnglishHandler) Register(r gin.IRouter) {
 	r.GET("/english/diagnostics", h.listDiagnostics)
 	r.GET("/english/diagnostics/latest", h.latestDiagnostic)
 	r.POST("/english/diagnostics", h.saveDiagnostic)
+}
+
+func (h *EnglishHandler) lookupPronunciations(c *gin.Context) {
+	var req model.LookupEnglishPronunciationsReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.APIError{Error: err.Error()})
+		return
+	}
+	records, err := h.pronunciations.LookupOrGenerate(c, req.Words)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"pronunciations": records})
+}
+
+func (h *EnglishHandler) savePronunciation(c *gin.Context) {
+	var req model.SaveEnglishPronunciationReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.APIError{Error: err.Error()})
+		return
+	}
+	record, err := h.pronunciations.SaveParentVerified(c, c.Param("word"), req.IPA)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.APIError{Error: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, record)
+}
+
+func (h *EnglishHandler) speakEnglish(c *gin.Context) {
+	var req model.EnglishSpeechReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.APIError{Error: err.Error()})
+		return
+	}
+	url, cached, err := h.pronunciations.SynthesizeBritishSpeech(c, req.Text)
+	if err != nil {
+		c.JSON(http.StatusServiceUnavailable, model.APIError{Error: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"url": url, "cached": cached, "locale": "en-GB", "source": "macos_tts"})
 }
 
 // ─── List weeks ───────────────────────────────────────────────────────────────
@@ -89,6 +138,70 @@ func (h *EnglishHandler) getWeek(c *gin.Context) {
 		c.JSON(http.StatusNotFound, model.APIError{Error: "week not found"})
 		return
 	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, week)
+}
+
+// renameWeek changes the learner-facing title without changing the stable
+// week ID, so word cards, spelling progress, and stories retain their links.
+func (h *EnglishHandler) renameWeek(c *gin.Context) {
+	var req model.RenameEnglishWeekReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.APIError{Error: err.Error()})
+		return
+	}
+	label := strings.TrimSpace(req.Label)
+	if label == "" {
+		c.JSON(http.StatusBadRequest, model.APIError{Error: "name is required"})
+		return
+	}
+	result, err := h.db.ExecContext(c, `UPDATE english_weeks SET label=? WHERE week_id=?`, label, c.Param("weekId"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	if changed, _ := result.RowsAffected(); changed == 0 {
+		c.JSON(http.StatusNotFound, model.APIError{Error: "week not found"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"weekId": c.Param("weekId"), "label": label})
+}
+
+// updateWeekWords refreshes generated study content but retains the stable
+// week ID and label. Spell scores remain only for words that stay in the list.
+func (h *EnglishHandler) updateWeekWords(c *gin.Context) {
+	var req model.UpdateEnglishWeekWordsReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.APIError{Error: err.Error()})
+		return
+	}
+	words := cleanWordList(req.Words)
+	if len(words) == 0 || len(words) > 20 {
+		c.JSON(http.StatusBadRequest, model.APIError{Error: "enter between 1 and 20 distinct words"})
+		return
+	}
+	weekID := c.Param("weekId")
+	if _, err := h.loadWeek(c, weekID); err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, model.APIError{Error: "week not found"})
+		return
+	} else if err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	content, err := h.generateWeekContent(c.Request.Context(), words)
+	if err != nil {
+		log.Printf("[english] refresh week %s failed: %v", weekID, err)
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	if err := h.replaceWeekContent(c, weekID, content); err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	week, err := h.loadWeek(c, weekID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
 		return
@@ -532,7 +645,13 @@ func cleanWordList(words []string) []string {
 	return out
 }
 
-func (h *EnglishHandler) generateWeekData(ctx context.Context, words []string) (*model.WeekData, error) {
+type generatedEnglishWeekContent struct {
+	Words  []model.WordEntry
+	Story  string
+	Blanks []model.BlankEntry
+}
+
+func (h *EnglishHandler) generateWeekContent(ctx context.Context, words []string) (*generatedEnglishWeekContent, error) {
 	prompt := fmt.Sprintf(`You are helping a Grade 3-4 student (age 8-10) learn their weekly vocabulary words.
 
 Given these %d words: %s
@@ -601,15 +720,22 @@ Rules:
 	if err := json.Unmarshal([]byte(jsonStr), &generated); err != nil {
 		return nil, fmt.Errorf("parse AI response: %w", err)
 	}
+	return &generatedEnglishWeekContent{Words: generated.Words, Story: generated.Story, Blanks: generated.Blanks}, nil
+}
 
+func (h *EnglishHandler) generateWeekData(ctx context.Context, words []string) (*model.WeekData, error) {
+	content, err := h.generateWeekContent(ctx, words)
+	if err != nil {
+		return nil, err
+	}
 	weekID := weekIDFromNow()
 	week := &model.WeekData{
 		WeekID:      weekID,
 		Label:       weekLabelFromNow(),
 		CreatedAt:   time.Now().UTC(),
-		Words:       generated.Words,
-		Story:       generated.Story,
-		Blanks:      generated.Blanks,
+		Words:       content.Words,
+		Story:       content.Story,
+		Blanks:      content.Blanks,
 		SpellScores: map[string]model.SpellScore{},
 	}
 
@@ -620,22 +746,62 @@ Rules:
 	return week, nil
 }
 
+func (h *EnglishHandler) replaceWeekContent(ctx context.Context, weekID string, content *generatedEnglishWeekContent) error {
+	wordsJSON, err := json.Marshal(content.Words)
+	if err != nil {
+		return err
+	}
+	blanksJSON, err := json.Marshal(content.Blanks)
+	if err != nil {
+		return err
+	}
+	tx, err := h.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if _, err := tx.ExecContext(ctx, `UPDATE english_weeks SET words_json=?,story=?,blanks_json=? WHERE week_id=?`, string(wordsJSON), content.Story, string(blanksJSON), weekID); err != nil {
+		return err
+	}
+	placeholders := strings.TrimRight(strings.Repeat("?,", len(content.Words)), ",")
+	args := make([]any, 0, len(content.Words)+1)
+	args = append(args, weekID)
+	for _, word := range content.Words {
+		args = append(args, word.Word)
+	}
+	if _, err := tx.ExecContext(ctx, `DELETE FROM spell_scores WHERE week_id=? AND word NOT IN (`+placeholders+`)`, args...); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
 // ─── DB helpers ───────────────────────────────────────────────────────────────
 
 func (h *EnglishHandler) saveWeek(w *model.WeekData) error {
 	wordsJSON, _ := json.Marshal(w.Words)
 	blanksJSON, _ := json.Marshal(w.Blanks)
-	_, err := h.db.Exec(`
-		INSERT INTO english_weeks(week_id, label, created_at, words_json, story, blanks_json)
-		VALUES(?,?,?,?,?,?)
-		ON CONFLICT(week_id) DO UPDATE SET
-			label=excluded.label,
-			words_json=excluded.words_json,
-			story=excluded.story,
-			blanks_json=excluded.blanks_json`,
-		w.WeekID, w.Label, w.CreatedAt.Format(time.RFC3339),
-		string(wordsJSON), w.Story, string(blanksJSON))
-	return err
+	baseID, baseLabel := w.WeekID, w.Label
+	for setNumber := 1; setNumber <= 1000; setNumber++ {
+		weekID, label := baseID, baseLabel
+		if setNumber > 1 {
+			weekID = fmt.Sprintf("%s-%d", baseID, setNumber)
+			label = fmt.Sprintf("%s · Set %d", baseLabel, setNumber)
+		}
+		res, err := h.db.Exec(`
+			INSERT INTO english_weeks(week_id, label, created_at, words_json, story, blanks_json)
+			VALUES(?,?,?,?,?,?)
+			ON CONFLICT(week_id) DO NOTHING`,
+			weekID, label, w.CreatedAt.Format(time.RFC3339),
+			string(wordsJSON), w.Story, string(blanksJSON))
+		if err != nil {
+			return err
+		}
+		if inserted, _ := res.RowsAffected(); inserted == 1 {
+			w.WeekID, w.Label = weekID, label
+			return nil
+		}
+	}
+	return fmt.Errorf("could not allocate a distinct English vocabulary set for %s", baseLabel)
 }
 
 func (h *EnglishHandler) loadWeek(ctx context.Context, weekID string) (*model.WeekData, error) {

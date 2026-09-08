@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 820" role="img" aria-label="Area and perimeter of composite figures: decision gate, area routes, perimeter ledger, and equal-area trap">
+  <rect width="980" height="820" fill="#ffffff"/>
+  <style>
+    .title{font:800 30px Arial,sans-serif;fill:#1e40af}
+    .sub{font:18px Arial,sans-serif;fill:#64748b}
+    .head{font:800 20px Arial,sans-serif;fill:#1e40af}
+    .body{font:15px Arial,sans-serif;fill:#64748b}
+    .small{font:800 13px Arial,sans-serif;fill:#374151}
+    .label{font:800 15px Arial,sans-serif;fill:#374151}
+    .math{font:800 20px Arial,sans-serif;fill:#1e3a5f}
+    .green{fill:#047857}
+    .orange{fill:#c2410c}
+    .blue{fill:#1e40af}
+    .red{fill:#dc2626}
+  </style>
+  <defs>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#1e40af"/></marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#047857"/></marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#c2410c"/></marker>
+    <pattern id="unitGrid" width="26" height="26" patternUnits="userSpaceOnUse">
+      <rect width="26" height="26" fill="#dbeafe"/>
+      <path d="M26 0H0v26" fill="none" stroke="#60a5fa" stroke-width="1"/>
+    </pattern>
+    <pattern id="unitGridGreen" width="26" height="26" patternUnits="userSpaceOnUse">
+      <rect width="26" height="26" fill="#a7f3d0"/>
+      <path d="M26 0H0v26" fill="none" stroke="#34d399" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <text class="title" x="34" y="48">Area covers inside. Perimeter walks outside.</text>
+  <text class="sub" x="36" y="78">Split lines help area, but perimeter only counts the outside boundary.</text>
+  <text class="small" x="36" y="104">Workflow: decide measure -> missing sides first -> split/subtract for area or outside-walk ledger for perimeter -> check units</text>
+
+  <g transform="translate(36 124)">
+    <rect x="0" y="0" width="908" height="42" rx="14" fill="#fef3c7" stroke="#b45309" stroke-width="3"/>
+    <text class="small orange" x="22" y="27">Decision first</text>
+    <text class="small" x="156" y="27">Ask: What is being measured?</text>
+    <text class="small green" x="442" y="27">cover inside = area</text>
+    <text class="small orange" x="682" y="27">walk outside = perimeter</text>
+  </g>
+
+  <g transform="translate(36 206)">
+    <text class="head" x="0" y="0">AREA route: count inside squares</text>
+    <text class="body" x="0" y="26">Same L-shape, two safe ways.</text>
+    <text class="small green" x="0" y="50">area unit: square cm (cm²)</text>
+
+    <g transform="translate(8 78)">
+      <path d="M0 0H156V156H78V104H0Z" fill="url(#unitGrid)" stroke="#1e3a5f" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M78 104H156" stroke="#dc2626" stroke-width="4" stroke-dasharray="8 8"/>
+      <rect x="0" y="0" width="156" height="104" fill="none" stroke="#1e40af" stroke-width="3"/>
+      <rect x="78" y="104" width="78" height="52" fill="url(#unitGridGreen)" stroke="#047857" stroke-width="3"/>
+      <text class="label" x="78" y="55" text-anchor="middle">6 x 4</text>
+      <text class="label green" x="117" y="135" text-anchor="middle">3 x 2</text>
+      <text class="small red" x="118" y="98" text-anchor="middle">split line helps area</text>
+    </g>
+    <path d="M188 154H268" fill="none" stroke="#047857" stroke-width="3" marker-end="url(#arrowGreen)"/>
+    <rect x="270" y="110" width="180" height="92" rx="14" fill="#a7f3d0" stroke="#047857" stroke-width="3"/>
+    <text class="math green" x="360" y="145" text-anchor="middle">6 x 4 + 3 x 2 = 30</text>
+    <text class="small" x="360" y="174" text-anchor="middle">split and add inside parts</text>
+
+    <g transform="translate(8 286)">
+      <rect x="0" y="0" width="156" height="156" fill="#dbeafe" stroke="#1e40af" stroke-width="3" stroke-dasharray="7 7"/>
+      <path d="M0 0H156V156H78V104H0Z" fill="url(#unitGrid)" stroke="#1e3a5f" stroke-width="4" stroke-linejoin="round"/>
+      <rect x="0" y="104" width="78" height="52" fill="#fee2e2" stroke="#dc2626" stroke-width="4" stroke-dasharray="8 8"/>
+      <text class="label blue" x="78" y="-12" text-anchor="middle">whole: 6 x 6</text>
+      <text class="label red" x="39" y="134" text-anchor="middle">cut-out 3 x 2</text>
+    </g>
+    <path d="M188 362H268" fill="none" stroke="#1e40af" stroke-width="3" marker-end="url(#arrowBlue)"/>
+    <rect x="270" y="318" width="190" height="92" rx="14" fill="#dbeafe" stroke="#1e40af" stroke-width="3"/>
+    <text class="math blue" x="365" y="353" text-anchor="middle">6 x 6 - 3 x 2 = 30</text>
+    <text class="small" x="365" y="382" text-anchor="middle">subtract the missing part</text>
+  </g>
+
+  <g transform="translate(548 206)">
+    <text class="head" x="0" y="0">PERIMETER route: walk the outside</text>
+    <text class="body" x="0" y="26">Outside-walk ledger: walk outside, list each side once.</text>
+    <text class="small orange" x="0" y="50">perimeter unit: cm</text>
+    <g transform="translate(54 88)">
+      <path d="M0 0H180V180H90V120H0Z" fill="#fef3c7" stroke="#c2410c" stroke-width="8" stroke-linejoin="round"/>
+      <path d="M90 120H180" stroke="#dc2626" stroke-width="6" stroke-dasharray="10 8"/>
+      <text class="small red" x="136" y="112" text-anchor="middle">inside split line = no</text>
+      <text class="label orange" x="90" y="-14" text-anchor="middle">6</text>
+      <text class="label orange" x="198" y="90" text-anchor="start">6</text>
+      <text class="label orange" x="135" y="207" text-anchor="middle">3</text>
+      <text class="label orange" x="77" y="154" text-anchor="end">2</text>
+      <text class="label orange" x="45" y="148" text-anchor="middle">3</text>
+      <text class="label orange" x="-18" y="62" text-anchor="end">4</text>
+      <path d="M-8 -10H188V188H84V112H-8Z" fill="none" stroke="#c2410c" stroke-width="2" stroke-dasharray="7 8"/>
+    </g>
+    <rect x="18" y="324" width="330" height="84" rx="14" fill="#fed7aa" stroke="#c2410c" stroke-width="3"/>
+    <text class="math orange" x="183" y="356" text-anchor="middle">6 + 6 + 3 + 2 + 3 + 4 = 24</text>
+    <text class="small" x="183" y="384" text-anchor="middle">Do not count the inside split line.</text>
+  </g>
+
+  <line x1="36" y1="652" x2="944" y2="652" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8 8"/>
+  <text class="head" x="44" y="684">Same area can have different perimeter.</text>
+  <text class="body" x="44" y="710">same 24 squares: 6 x 4 has perimeter 20 cm.</text>
+  <text class="body" x="44" y="736">8 x 3 has perimeter 22 cm. Shape matters for fencing.</text>
+  <g transform="translate(598 672)">
+    <rect x="0" y="0" width="96" height="64" fill="#dbeafe" stroke="#1e40af" stroke-width="3"/>
+    <text class="small" x="48" y="39" text-anchor="middle">6 x 4</text>
+    <text class="small orange" x="48" y="83" text-anchor="middle">perimeter 20 cm</text>
+    <rect x="180" y="0" width="128" height="48" fill="#dbeafe" stroke="#1e40af" stroke-width="3"/>
+    <text class="small" x="244" y="32" text-anchor="middle">8 x 3</text>
+    <text class="small orange" x="244" y="83" text-anchor="middle">perimeter 22 cm</text>
+  </g>
+</svg>

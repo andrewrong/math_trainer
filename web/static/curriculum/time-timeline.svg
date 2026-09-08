@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 620" role="img" aria-label="Time duration timelines crossing noon and midnight">
+  <rect width="980" height="620" fill="#ffffff"/>
+  <style>
+    .title{font:800 30px Arial,sans-serif;fill:#1e40af}
+    .sub{font:18px Arial,sans-serif;fill:#64748b}
+    .head{font:800 22px Arial,sans-serif;fill:#1e40af}
+    .body{font:16px Arial,sans-serif;fill:#64748b}
+    .label{font:800 15px Arial,sans-serif;fill:#1e3a5f}
+    .small{font:800 14px Arial,sans-serif;fill:#374151}
+    .green{fill:#047857}
+    .orange{fill:#c2410c}
+    .red{fill:#dc2626}
+  </style>
+  <defs>
+    <marker id="timeArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1e40af"/>
+    </marker>
+    <marker id="timeOrangeArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#c2410c"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="40" y="58">Time duration: jump along a timeline</text>
+  <text class="sub" x="42" y="92">Use the gate: missing part, direction, unit, boundary. Noon changes am to pm; midnight starts a new day.</text>
+
+  <text class="head" x="58" y="140">1. Same duration, different boundary</text>
+  <text class="body" x="58" y="166">Use +1 hour, then +30 minutes.</text>
+
+  <g transform="translate(82 208)">
+    <text class="label" x="0" y="7">Daytime</text>
+    <line x1="96" y1="0" x2="760" y2="0" stroke="#64748b" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="96" cy="0" r="12" fill="#fed7aa" stroke="#c2410c" stroke-width="3"/>
+    <circle cx="376" cy="0" r="12" fill="#fef3c7" stroke="#b45309" stroke-width="3"/>
+    <circle cx="526" cy="0" r="12" fill="#a7f3d0" stroke="#047857" stroke-width="3"/>
+    <line x1="118" y1="-26" x2="348" y2="-26" stroke="#1e40af" stroke-width="4" marker-end="url(#timeArrow)"/>
+    <line x1="398" y1="-26" x2="500" y2="-26" stroke="#1e40af" stroke-width="4" marker-end="url(#timeArrow)"/>
+    <text class="small" x="232" y="-42" text-anchor="middle">+1 h</text>
+    <text class="small" x="448" y="-42" text-anchor="middle">+30 min</text>
+    <text class="label orange" x="96" y="36" text-anchor="middle">11:00 am</text>
+    <text class="label" x="376" y="36" text-anchor="middle">12:00 pm</text>
+    <text class="label green" x="526" y="36" text-anchor="middle">12:30 pm</text>
+    <rect x="622" y="-42" width="148" height="52" rx="14" fill="#a7f3d0" stroke="#047857" stroke-width="3"/>
+    <text class="label green" x="696" y="-18" text-anchor="middle">finish</text>
+    <text class="small" x="696" y="2" text-anchor="middle">12:30 pm</text>
+
+    <text class="label" x="0" y="130">Night</text>
+    <line x1="96" y1="124" x2="760" y2="124" stroke="#64748b" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="96" cy="124" r="12" fill="#fed7aa" stroke="#c2410c" stroke-width="3"/>
+    <circle cx="376" cy="124" r="12" fill="#fee2e2" stroke="#dc2626" stroke-width="3"/>
+    <circle cx="526" cy="124" r="12" fill="#a7f3d0" stroke="#047857" stroke-width="3"/>
+    <line x1="118" y1="98" x2="348" y2="98" stroke="#1e40af" stroke-width="4" marker-end="url(#timeArrow)"/>
+    <line x1="398" y1="98" x2="500" y2="98" stroke="#1e40af" stroke-width="4" marker-end="url(#timeArrow)"/>
+    <text class="small" x="232" y="82" text-anchor="middle">+1 h</text>
+    <text class="small" x="448" y="82" text-anchor="middle">+30 min</text>
+    <text class="label orange" x="96" y="160" text-anchor="middle">11:00 pm</text>
+    <text class="label red" x="376" y="160" text-anchor="middle">12:00 am</text>
+    <text class="label green" x="526" y="160" text-anchor="middle">12:30 am</text>
+    <rect x="622" y="82" width="148" height="64" rx="14" fill="#a7f3d0" stroke="#047857" stroke-width="3"/>
+    <text class="label green" x="696" y="108" text-anchor="middle">finish</text>
+    <text class="small" x="696" y="128" text-anchor="middle">next day</text>
+  </g>
+
+  <line x1="64" y1="420" x2="916" y2="420" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8 8"/>
+
+  <text class="head" x="72" y="462">2. Time gate + 24-hour check</text>
+  <g transform="translate(72 486)">
+    <rect x="0" y="0" width="228" height="72" rx="16" fill="#eff6ff" stroke="#93c5fd" stroke-width="3"/>
+    <text class="label" x="114" y="25" text-anchor="middle">missing part decides direction</text>
+    <text class="small" x="114" y="47" text-anchor="middle">finish: forward | start: backward</text>
+    <text class="small" x="114" y="66" text-anchor="middle">duration: measure the gap</text>
+  </g>
+  <g transform="translate(342 486)">
+    <rect x="0" y="0" width="188" height="64" rx="16" fill="#fef3c7" stroke="#b45309" stroke-width="3"/>
+    <text class="label" x="94" y="27" text-anchor="middle">11:00 pm = 23:00</text>
+    <text class="small" x="94" y="49" text-anchor="middle">pm, so add 12</text>
+    <line x1="204" y1="32" x2="298" y2="32" stroke="#c2410c" stroke-width="4" marker-end="url(#timeOrangeArrow)"/>
+    <rect x="316" y="0" width="218" height="64" rx="16" fill="#a7f3d0" stroke="#047857" stroke-width="3"/>
+    <text class="label green" x="425" y="27" text-anchor="middle">23:00 + 1:30 = 00:30</text>
+    <text class="small" x="425" y="49" text-anchor="middle">midnight resets to 00:00</text>
+  </g>
+
+  <rect x="72" y="574" width="448" height="32" rx="12" fill="#fee2e2" stroke="#dc2626" stroke-width="3"/>
+  <text class="small red" x="296" y="596" text-anchor="middle">Common mistake: 12 pm is noon; 12 am is midnight</text>
+</svg>

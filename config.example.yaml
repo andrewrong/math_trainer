@@ -5,6 +5,18 @@ server:
 db:
   path: "./math_trainer.db"
 
+reading:
+  content_dir: "./resources/reading"
+  # Optional directories scanned for PDF/EPUB evidence sources.
+  library_dirs: []
+  ocr:
+    # andrewrong/ocr-service on the same macOS host.
+    # The client prefers /v1/ocr/image and falls back to /ocr/image on HTTP 404.
+    base_url: "http://127.0.0.1:18100"
+    engine: "auto" # auto, paddle, glm, or qwen
+    api_key: "" # only needed when the service is behind an authenticated proxy
+    timeout_seconds: 900 # allows full scanned PDFs to use OCR fallback
+
 ai:
   # 按顺序尝试，失败则自动切换下一个
   fallback_order:

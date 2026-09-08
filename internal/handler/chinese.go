@@ -55,6 +55,7 @@ func (h *ChineseHandler) listWeeks(c *gin.Context) {
 	rows.Close()
 	for i := range weeks {
 		weeks[i].Items = h.loadItems(c, weeks[i].WeekID)
+		h.attachChineseStats(c, weeks[i].Items)
 	}
 	c.JSON(http.StatusOK, gin.H{"weeks": weeks})
 }
@@ -108,15 +109,8 @@ func (h *ChineseHandler) createWeek(c *gin.Context) {
 }
 
 func (h *ChineseHandler) reviewDue(c *gin.Context) {
-	items := h.loadRecentItems(c, 80)
-	stats := h.loadChineseStats(c)
-	for i := range items {
-		if st, ok := stats[items[i].Character]; ok {
-			items[i].WrongCount = st.WrongCount
-			items[i].ReviewCount = st.ReviewCount
-			items[i].LastReviewedAt = st.LastReviewedAt
-		}
-	}
+	items := h.loadReviewItems(c, 80)
+	h.attachChineseStats(c, items)
 	sortChineseDue(items)
 	if len(items) > 20 {
 		items = items[:20]
@@ -129,6 +123,13 @@ func (h *ChineseHandler) updateReview(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.APIError{Error: err.Error()})
 		return
+	}
+	if req.Item != nil {
+		req.Item.Character = req.Character
+		if err := h.saveChineseReviewCatalog(c, *req.Item); err != nil {
+			c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+			return
+		}
 	}
 	pinyinWrong, recognitionWrong := 0, 0
 	if !req.Correct {
@@ -168,6 +169,24 @@ func (h *ChineseHandler) updateReview(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, model.OKResponse{OK: true})
+}
+
+func (h *ChineseHandler) saveChineseReviewCatalog(ctx context.Context, item model.ChineseItem) error {
+	words, _ := json.Marshal(item.Words)
+	_, err := h.db.ExecContext(ctx, `
+		INSERT INTO chinese_review_catalog(character,pinyin,tone,meaning,words_json,example_sentence,pinyin_hint,shape_hint,updated_at)
+		VALUES(?,?,?,?,?,?,?,?,datetime('now'))
+		ON CONFLICT(character) DO UPDATE SET
+			pinyin=excluded.pinyin,
+			tone=excluded.tone,
+			meaning=excluded.meaning,
+			words_json=excluded.words_json,
+			example_sentence=excluded.example_sentence,
+			pinyin_hint=excluded.pinyin_hint,
+			shape_hint=excluded.shape_hint,
+			updated_at=datetime('now')`,
+		item.Character, item.Pinyin, item.Tone, item.Meaning, string(words), item.ExampleSentence, item.PinyinHint, item.ShapeHint)
+	return err
 }
 
 func (h *ChineseHandler) reviewRounds(c *gin.Context) {
@@ -245,7 +264,7 @@ func (h *ChineseHandler) saveReviewRound(c *gin.Context) {
 }
 
 func (h *ChineseHandler) wrongs(c *gin.Context) {
-	items := h.loadRecentItems(c, 10000)
+	items := h.loadReviewItems(c, 10000)
 	h.attachChineseStats(c, items)
 	out := []model.ChineseItem{}
 	for _, it := range items {
@@ -258,7 +277,7 @@ func (h *ChineseHandler) wrongs(c *gin.Context) {
 }
 
 func (h *ChineseHandler) wrongReview(c *gin.Context) {
-	items := h.loadRecentItems(c, 10000)
+	items := h.loadReviewItems(c, 10000)
 	h.attachChineseStats(c, items)
 	out := []model.ChineseItem{}
 	for _, it := range items {
@@ -315,6 +334,32 @@ func (h *ChineseHandler) loadRecentItems(ctx context.Context, limit int) []model
 	return out
 }
 
+func (h *ChineseHandler) loadReviewItems(ctx context.Context, limit int) []model.ChineseItem {
+	items := h.loadRecentItems(ctx, limit)
+	seen := map[string]bool{}
+	for _, item := range items {
+		seen[item.Character] = true
+	}
+	rows, err := h.db.QueryContext(ctx, `
+		SELECT character,pinyin,tone,meaning,words_json,example_sentence,pinyin_hint,shape_hint
+		FROM chinese_review_catalog ORDER BY updated_at DESC LIMIT ?`, limit)
+	if err != nil {
+		return items
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item model.ChineseItem
+		var words string
+		if err := rows.Scan(&item.Character, &item.Pinyin, &item.Tone, &item.Meaning, &words, &item.ExampleSentence, &item.PinyinHint, &item.ShapeHint); err != nil || seen[item.Character] {
+			continue
+		}
+		_ = json.Unmarshal([]byte(words), &item.Words)
+		seen[item.Character] = true
+		items = append(items, item)
+	}
+	return items
+}
+
 type chineseStat struct {
 	WrongCount       int
 	ReviewCount      int
@@ -323,6 +368,8 @@ type chineseStat struct {
 	MeaningWrong     int
 	WordWrong        int
 	SentenceWrong    int
+	ToneWrong        int
+	WritingWrong     int
 	LastReviewedAt   string
 }
 
@@ -359,6 +406,10 @@ func (h *ChineseHandler) loadChineseStats(ctx context.Context) map[string]chines
 		}
 		st := out[ch]
 		switch kind {
+		case "tone":
+			st.ToneWrong += n
+		case "writing":
+			st.WritingWrong += n
 		case "meaning":
 			st.MeaningWrong += n
 		case "word":
@@ -382,6 +433,8 @@ func (h *ChineseHandler) attachChineseStats(ctx context.Context, items []model.C
 			items[i].MeaningWrong = st.MeaningWrong
 			items[i].WordWrong = st.WordWrong
 			items[i].SentenceWrong = st.SentenceWrong
+			items[i].ToneWrong = st.ToneWrong
+			items[i].WritingWrong = st.WritingWrong
 			items[i].LastReviewedAt = st.LastReviewedAt
 			items[i].WeakKind = weakestChineseKind(st)
 		}
@@ -456,7 +509,13 @@ func weakestChineseKind(st chineseStat) string {
 		best, name = st.WordWrong, "组词"
 	}
 	if st.SentenceWrong > best {
-		name = "句子"
+		best, name = st.SentenceWrong, "句子"
+	}
+	if st.ToneWrong > best {
+		best, name = st.ToneWrong, "声调"
+	}
+	if st.WritingWrong > best {
+		name = "写字"
 	}
 	return name
 }

@@ -115,6 +115,40 @@ type UpdateSpellReq struct {
 	Wrong   int    `json:"wrong"`
 }
 
+// RenameEnglishWeekReq changes only the learner-facing label. WeekID remains
+// the stable key used by practice history and saved stories.
+type RenameEnglishWeekReq struct {
+	Label string `json:"label" binding:"required,max=80"`
+}
+
+// UpdateEnglishWeekWordsReq replaces a saved vocabulary list while keeping its
+// stable week ID and learner-facing name.
+type UpdateEnglishWeekWordsReq struct {
+	Words []string `json:"words" binding:"required,min=1,max=20"`
+}
+
+// EnglishPronunciation keeps British IPA separate from the audio renderer.
+// Generated records are deliberately distinct from a parent-confirmed entry.
+type EnglishPronunciation struct {
+	Word     string `json:"word"`
+	Locale   string `json:"locale"`
+	IPA      string `json:"ipa"`
+	Source   string `json:"source"`
+	Verified bool   `json:"verified"`
+}
+
+type LookupEnglishPronunciationsReq struct {
+	Words []string `json:"words" binding:"required,min=1,max=100"`
+}
+
+type SaveEnglishPronunciationReq struct {
+	IPA string `json:"ipa" binding:"required,max=80"`
+}
+
+type EnglishSpeechReq struct {
+	Text string `json:"text" binding:"required,max=200"`
+}
+
 type SentenceCheckReq struct {
 	Word     string `json:"word"     binding:"required"`
 	Sentence string `json:"sentence" binding:"required"`
@@ -138,6 +172,43 @@ type SaveEnglishDiagnosticReq struct {
 	Report     json.RawMessage `json:"report" binding:"required"`
 }
 
+// ─── English Curriculum ─────────────────────────────────────────────────────
+
+type EnglishCurriculumUnit struct {
+	UnitID    string                     `json:"unitId"`
+	Grade     string                     `json:"grade"`
+	Book      string                     `json:"book"`
+	UnitNo    int                        `json:"unitNo"`
+	Title     string                     `json:"title"`
+	PageStart int                        `json:"pageStart"`
+	SortOrder int                        `json:"sortOrder"`
+	Progress  *EnglishCurriculumProgress `json:"progress,omitempty"`
+}
+
+type EnglishCurriculumProgress struct {
+	UnitID          string `json:"unitId"`
+	Status          string `json:"status"`
+	ReadingScore    int    `json:"readingScore"`
+	VocabularyScore int    `json:"vocabularyScore"`
+	LanguageScore   int    `json:"languageScore"`
+	WritingScore    int    `json:"writingScore"`
+	UpdatedAt       string `json:"updatedAt"`
+}
+
+type UpdateEnglishCurriculumProgressReq struct {
+	Status          string `json:"status" binding:"required"`
+	ReadingScore    int    `json:"readingScore"`
+	VocabularyScore int    `json:"vocabularyScore"`
+	LanguageScore   int    `json:"languageScore"`
+	WritingScore    int    `json:"writingScore"`
+}
+
+type EnglishCurriculumImportReq struct {
+	Grade string `json:"grade" binding:"required"`
+	Book  string `json:"book"  binding:"required"`
+	Lines string `json:"lines" binding:"required"`
+}
+
 // ─── Chinese ─────────────────────────────────────────────────────────────────
 
 type ChineseItem struct {
@@ -157,6 +228,8 @@ type ChineseItem struct {
 	MeaningWrong     int      `json:"meaningWrong,omitempty"`
 	WordWrong        int      `json:"wordWrong,omitempty"`
 	SentenceWrong    int      `json:"sentenceWrong,omitempty"`
+	ToneWrong        int      `json:"toneWrong,omitempty"`
+	WritingWrong     int      `json:"writingWrong,omitempty"`
 	WeakKind         string   `json:"weakKind,omitempty"`
 	LastReviewedAt   string   `json:"lastReviewedAt,omitempty"`
 }
@@ -174,9 +247,10 @@ type CreateChineseWeekReq struct {
 }
 
 type UpdateChineseReviewReq struct {
-	Character string `json:"character" binding:"required"`
-	Kind      string `json:"kind" binding:"required"`
-	Correct   bool   `json:"correct"`
+	Character string       `json:"character" binding:"required"`
+	Kind      string       `json:"kind" binding:"required"`
+	Correct   bool         `json:"correct"`
+	Item      *ChineseItem `json:"item"`
 }
 
 type SaveChineseReviewRoundReq struct {

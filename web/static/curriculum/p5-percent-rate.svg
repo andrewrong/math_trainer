@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="560" viewBox="0 0 980 560">
+  <rect width="980" height="560" fill="#ffffff"/>
+  <text x="42" y="62" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" fill="#1e40af">Percentage and rate both need a clear base</text>
+  <text x="42" y="94" font-family="Inter, Arial, sans-serif" font-size="17" fill="#64748b">Ask first: 100% of what? Or per one what?</text>
+  <rect x="42" y="130" width="432" height="350" rx="16" fill="#eff6ff" stroke="#1e3a5f" stroke-width="2"/>
+  <text x="72" y="166" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#1e3a5f">Percent grid</text>
+  <g transform="translate(74 202)">
+    <rect width="200" height="200" fill="#ffffff" stroke="#1e40af" stroke-width="2"/>
+    <g fill="#93c5fd">
+      <rect x="0" y="0" width="200" height="80"/>
+      <rect x="0" y="80" width="140" height="20"/>
+    </g>
+    <g stroke="#dbeafe" stroke-width="1">
+      <path d="M20 0V200M40 0V200M60 0V200M80 0V200M100 0V200M120 0V200M140 0V200M160 0V200M180 0V200"/>
+      <path d="M0 20H200M0 40H200M0 60H200M0 80H200M0 100H200M0 120H200M0 140H200M0 160H200M0 180H200"/>
+    </g>
+  </g>
+  <text x="306" y="252" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#1e40af">47%</text>
+  <text x="306" y="284" font-family="Inter, Arial, sans-serif" font-size="16" fill="#374151">47 out of 100</text>
+  <text x="306" y="316" font-family="Inter, Arial, sans-serif" font-size="16" fill="#374151">100% = the whole</text>
+  <text x="78" y="438" font-family="Inter, Arial, sans-serif" font-size="17" fill="#92400e">15% of $80 = 10% + 5% = $8 + $4 = $12</text>
+  <rect x="522" y="130" width="416" height="350" rx="16" fill="#fff7ed" stroke="#c2410c" stroke-width="2"/>
+  <text x="552" y="166" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#1e3a5f">Rate per one unit</text>
+  <rect x="570" y="214" width="130" height="70" rx="12" fill="#fed7aa" stroke="#c2410c" stroke-width="2"/>
+  <text x="604" y="258" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="#c2410c">$18</text>
+  <path d="M712 249 H780" stroke="#1e3a5f" stroke-width="3" marker-end="url(#arrow)"/>
+  <rect x="792" y="214" width="110" height="70" rx="12" fill="#a7f3d0" stroke="#047857" stroke-width="2"/>
+  <text x="817" y="258" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="#047857">3 books</text>
+  <text x="594" y="342" font-family="Inter, Arial, sans-serif" font-size="20" fill="#374151">$18 ÷ 3 = $6 per book</text>
+  <text x="594" y="386" font-family="Inter, Arial, sans-serif" font-size="18" fill="#64748b">Rate = total ÷ units</text>
+  <text x="594" y="418" font-family="Inter, Arial, sans-serif" font-size="18" fill="#64748b">Total = rate x units</text>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#1e3a5f"/></marker>
+  </defs>
+</svg>

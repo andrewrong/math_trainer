@@ -26,6 +26,24 @@ var chineseReviewV2SQL string
 //go:embed migrations/006_piano.sql
 var pianoSQL string
 
+//go:embed migrations/007_english_curriculum.sql
+var englishCurriculumSQL string
+
+//go:embed migrations/008_learning_plan.sql
+var learningPlanSQL string
+
+//go:embed migrations/009_reading_journal.sql
+var readingJournalSQL string
+
+//go:embed migrations/010_chinese_review_catalog.sql
+var chineseReviewCatalogSQL string
+
+//go:embed migrations/011_english_pronunciations.sql
+var englishPronunciationsSQL string
+
+//go:embed migrations/012_english_pronunciation_sources.sql
+var englishPronunciationSourcesSQL string
+
 // Open opens (or creates) the SQLite database, runs migrations, and returns
 // a *sql.DB ready to use. WAL mode is enabled for better concurrent reads.
 func Open(path string) (*sql.DB, error) {
@@ -64,6 +82,24 @@ func migrate(db *sql.DB) error {
 	}
 	if _, err := db.Exec(pianoSQL); err != nil {
 		return fmt.Errorf("executing piano migration: %w", err)
+	}
+	if _, err := db.Exec(englishCurriculumSQL); err != nil {
+		return fmt.Errorf("executing english curriculum migration: %w", err)
+	}
+	if _, err := db.Exec(learningPlanSQL); err != nil {
+		return fmt.Errorf("executing learning plan migration: %w", err)
+	}
+	if _, err := db.Exec(readingJournalSQL); err != nil {
+		return fmt.Errorf("executing reading journal migration: %w", err)
+	}
+	if _, err := db.Exec(chineseReviewCatalogSQL); err != nil {
+		return fmt.Errorf("executing Chinese review catalog migration: %w", err)
+	}
+	if _, err := db.Exec(englishPronunciationsSQL); err != nil {
+		return fmt.Errorf("executing English pronunciations migration: %w", err)
+	}
+	if _, err := db.Exec(englishPronunciationSourcesSQL); err != nil {
+		return fmt.Errorf("executing English pronunciation sources migration: %w", err)
 	}
 	return nil
 }

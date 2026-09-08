@@ -8,9 +8,10 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig   `mapstructure:"server"`
-	DB       DBConfig       `mapstructure:"db"`
-	AI       AIConfig       `mapstructure:"ai"`
+	Server  ServerConfig  `mapstructure:"server"`
+	DB      DBConfig      `mapstructure:"db"`
+	AI      AIConfig      `mapstructure:"ai"`
+	Reading ReadingConfig `mapstructure:"reading"`
 }
 
 type ServerConfig struct {
@@ -27,7 +28,7 @@ type DBConfig struct {
 }
 
 type AIConfig struct {
-	FallbackOrder []string             `mapstructure:"fallback_order"`
+	FallbackOrder []string              `mapstructure:"fallback_order"`
 	Providers     map[string]AIProvider `mapstructure:"providers"`
 }
 
@@ -38,6 +39,19 @@ type AIProvider struct {
 	BaseURL     string `mapstructure:"base_url"`
 }
 
+type ReadingConfig struct {
+	ContentDir  string    `mapstructure:"content_dir"`
+	LibraryDirs []string  `mapstructure:"library_dirs"`
+	OCR         OCRConfig `mapstructure:"ocr"`
+}
+
+type OCRConfig struct {
+	BaseURL string `mapstructure:"base_url"`
+	Engine  string `mapstructure:"engine"`
+	APIKey  string `mapstructure:"api_key"`
+	Timeout int    `mapstructure:"timeout_seconds"`
+}
+
 func Load(path string) (*Config, error) {
 	v := viper.New()
 
@@ -45,6 +59,11 @@ func Load(path string) (*Config, error) {
 	v.SetDefault("server.host", "0.0.0.0")
 	v.SetDefault("server.port", 8080)
 	v.SetDefault("db.path", "./math_trainer.db")
+	v.SetDefault("reading.content_dir", "./resources/reading")
+	v.SetDefault("reading.library_dirs", []string{})
+	v.SetDefault("reading.ocr.base_url", "http://127.0.0.1:18100")
+	v.SetDefault("reading.ocr.engine", "auto")
+	v.SetDefault("reading.ocr.timeout_seconds", 900)
 	v.SetDefault("ai.fallback_order", []string{"ollama", "anthropic", "openai", "gemini"})
 
 	// Config file

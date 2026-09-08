@@ -67,10 +67,12 @@ func main() {
 	api := r.Group("/api/v1")
 	handler.NewMath(database).Register(api)
 	handler.NewEnglish(database, aiChain).Register(api)
+	handler.NewEnglishCurriculum(database).Register(api)
 	handler.NewCurriculum(database, aiChain).Register(api)
 	handler.NewChinese(database, aiChain).Register(api)
 	handler.NewTTS().Register(api)
 	handler.NewPiano(database).Register(api)
+	handler.NewReading(database, aiChain, cfg.Reading).Register(api)
 
 	// Health check
 	api.GET("/health", func(c *gin.Context) {

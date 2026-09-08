@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 560" role="img" aria-label="Line symmetry by matching equal distances on a grid">
+  <rect width="980" height="560" fill="#ffffff"/>
+  <style>
+    .title{font:800 30px Arial,sans-serif;fill:#1e40af}
+    .sub{font:18px Arial,sans-serif;fill:#64748b}
+    .head{font:800 22px Arial,sans-serif;fill:#1e40af}
+    .body{font:16px Arial,sans-serif;fill:#64748b}
+    .label{font:800 15px Arial,sans-serif;fill:#1e3a5f}
+    .small{font:800 14px Arial,sans-serif;fill:#374151}
+    .green{fill:#047857}
+    .red{fill:#dc2626}
+  </style>
+  <defs>
+    <pattern id="symGrid" width="38" height="38" patternUnits="userSpaceOnUse">
+      <rect width="38" height="38" fill="#ffffff"/>
+      <path d="M38 0H0v38" fill="none" stroke="#dbeafe" stroke-width="1.5"/>
+    </pattern>
+    <marker id="symArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1e40af"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="40" y="58">Line symmetry: copy the distance, reverse the side</text>
+  <text class="sub" x="42" y="92">A matching point must be the same number of squares from the mirror line.</text>
+  <text class="small" x="42" y="116">Anchor workflow: mark points → mirror points → connect same order → check details</text>
+
+  <text class="head" x="60" y="140">1. Count from the mirror</text>
+  <text class="body" x="60" y="166">Point A is 3 squares left, so A' is 3 squares right.</text>
+
+  <g transform="translate(72 190)">
+    <rect x="0" y="0" width="418" height="266" rx="14" fill="url(#symGrid)" stroke="#1e40af" stroke-width="3"/>
+    <line x1="209" y1="0" x2="209" y2="266" stroke="#dc2626" stroke-width="5" stroke-dasharray="10 8"/>
+    <text class="small red" x="209" y="290" text-anchor="middle">mirror line</text>
+
+    <polygon points="95,57 57,133 133,209 171,95" fill="#fed7aa" stroke="#c2410c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="323,57 361,133 285,209 247,95" fill="#a7f3d0" stroke="#047857" stroke-width="4" stroke-linejoin="round"/>
+    <circle cx="95" cy="57" r="7" fill="#c2410c"/>
+    <circle cx="323" cy="57" r="7" fill="#047857"/>
+    <circle cx="57" cy="133" r="7" fill="#c2410c"/>
+    <circle cx="361" cy="133" r="7" fill="#047857"/>
+    <text class="label" x="95" y="35" text-anchor="middle">A</text>
+    <text class="label green" x="323" y="35" text-anchor="middle">A'</text>
+    <text class="label" x="57" y="113" text-anchor="middle">B</text>
+    <text class="label green" x="361" y="113" text-anchor="middle">B'</text>
+    <line x1="95" y1="57" x2="209" y2="57" stroke="#c2410c" stroke-width="3" stroke-dasharray="6 6"/>
+    <line x1="209" y1="57" x2="323" y2="57" stroke="#047857" stroke-width="3" stroke-dasharray="6 6"/>
+    <text class="label" x="152" y="45" text-anchor="middle">3 squares</text>
+    <text class="label green" x="266" y="45" text-anchor="middle">3 squares</text>
+    <line x1="57" y1="133" x2="209" y2="133" stroke="#c2410c" stroke-width="3" stroke-dasharray="6 6"/>
+    <line x1="209" y1="133" x2="361" y2="133" stroke="#047857" stroke-width="3" stroke-dasharray="6 6"/>
+    <text class="label" x="133" y="122" text-anchor="middle">4 squares</text>
+    <text class="label green" x="285" y="122" text-anchor="middle">4 squares</text>
+  </g>
+
+  <line x1="526" y1="288" x2="620" y2="288" stroke="#1e40af" stroke-width="4" marker-end="url(#symArrow)"/>
+  <text class="small" x="573" y="268" text-anchor="middle">fold test</text>
+
+  <text class="head" x="654" y="140">2. Fold mentally</text>
+  <text class="body" x="654" y="166">If folded halves match exactly, it is symmetric.</text>
+
+  <g transform="translate(662 210)">
+    <rect x="0" y="0" width="236" height="210" rx="16" fill="#fef3c7" stroke="#b45309" stroke-width="3"/>
+    <path d="M118 18V192" stroke="#dc2626" stroke-width="4" stroke-dasharray="9 8"/>
+    <path d="M52 48L28 105L72 166L118 94L164 166L208 105L184 48Z" fill="#ddd6fe" stroke="#6d28d9" stroke-width="4" stroke-linejoin="round"/>
+    <circle cx="76" cy="104" r="9" fill="#3b82f6" stroke="#1e3a5f" stroke-width="3"/>
+    <circle cx="160" cy="104" r="9" fill="#3b82f6" stroke="#1e3a5f" stroke-width="3"/>
+    <line x1="76" y1="104" x2="118" y2="104" stroke="#1e40af" stroke-width="2" stroke-dasharray="5 5"/>
+    <line x1="118" y1="104" x2="160" y2="104" stroke="#1e40af" stroke-width="2" stroke-dasharray="5 5"/>
+    <text class="label" x="118" y="198" text-anchor="middle">matching halves</text>
+  </g>
+
+  <rect x="606" y="452" width="340" height="62" rx="16" fill="#a7f3d0" stroke="#047857" stroke-width="3"/>
+  <text class="label green" x="776" y="478" text-anchor="middle">Rule: same distance, opposite side.</text>
+  <text class="small" x="776" y="500" text-anchor="middle">Check outline first, then inner details.</text>
+</svg>

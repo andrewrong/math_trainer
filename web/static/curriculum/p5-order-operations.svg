@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="560" viewBox="0 0 980 560">
+  <rect width="980" height="560" fill="#ffffff"/>
+  <text x="42" y="62" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" fill="#1e40af">P5 order of operations: read the structure first</text>
+  <text x="42" y="94" font-family="Inter, Arial, sans-serif" font-size="17" fill="#64748b">Large numbers need two checks: place-value shifts and operation priority.</text>
+  <rect x="42" y="130" width="420" height="340" rx="16" fill="#eff6ff" stroke="#1e3a5f" stroke-width="2"/>
+  <text x="72" y="166" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#1e3a5f">Place-value shift</text>
+  <rect x="82" y="206" width="86" height="58" rx="10" fill="#fed7aa" stroke="#c2410c" stroke-width="2"/>
+  <text x="106" y="242" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#c2410c">7,305</text>
+  <path d="M178 235 H282" stroke="#1e3a5f" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="202" y="220" font-family="Inter, Arial, sans-serif" font-size="15" fill="#64748b">x 100</text>
+  <rect x="292" y="206" width="128" height="58" rx="10" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+  <text x="318" y="242" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#1e40af">730,500</text>
+  <text x="78" y="315" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">Say what moved:</text>
+  <text x="78" y="344" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">7 thousands -> 7 hundred-thousands</text>
+  <text x="78" y="373" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">3 hundreds -> 3 ten-thousands</text>
+  <text x="78" y="402" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">0 tens still holds a place</text>
+  <rect x="520" y="130" width="418" height="340" rx="16" fill="#fff7ed" stroke="#c2410c" stroke-width="2"/>
+  <text x="550" y="166" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#1e3a5f">Priority ladder</text>
+  <g font-family="Inter, Arial, sans-serif" font-size="18">
+    <rect x="562" y="204" width="320" height="46" rx="10" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+    <text x="586" y="234" fill="#374151">1. Brackets first</text>
+    <rect x="562" y="270" width="320" height="46" rx="10" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+    <text x="586" y="300" fill="#374151">2. Multiply / divide left to right</text>
+    <rect x="562" y="336" width="320" height="46" rx="10" fill="#a7f3d0" stroke="#047857" stroke-width="2"/>
+    <text x="586" y="366" fill="#374151">3. Add / subtract left to right</text>
+  </g>
+  <text x="570" y="425" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#047857">6 + 4 x 8 = 38</text>
+  <text x="570" y="454" font-family="Inter, Arial, sans-serif" font-size="16" fill="#64748b">4 x 8 happens before 6 + ___.</text>
+  <text x="250" y="520" font-family="Inter, Arial, sans-serif" font-size="18" fill="#92400e">Estimate first. Then calculate. Then check whether the size makes sense.</text>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#1e3a5f"/></marker>
+  </defs>
+</svg>

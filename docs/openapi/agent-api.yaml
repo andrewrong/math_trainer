@@ -1,0 +1,155 @@
+openapi: 3.1.0
+info:
+  title: Learning Compass Agent API
+  version: 1.0.0
+  description: Token-protected interface for a trusted AI control plane.
+servers:
+  - url: http://macmini:8080/api/agent/v1
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      summary: Verify the authenticated Agent API is available.
+      responses:
+        '200': { description: Service status }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '503': { $ref: '#/components/responses/Disabled' }
+  /capabilities:
+    get:
+      summary: Discover grouped learning operations for this server.
+      responses:
+        '200':
+          description: Capability index
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CapabilityIndex' }
+  /math/sessions:
+    get: { summary: List maths practice records, responses: { '200': { description: Practice records } } }
+    post:
+      summary: Save a maths practice record.
+      requestBody: { $ref: '#/components/requestBodies/JsonRecord' }
+      responses: { '200': { description: Saved record id } }
+  /math/wrongs:
+    get: { summary: List saved maths mistakes, responses: { '200': { description: Mistakes } } }
+    put:
+      summary: Increment or decrement a maths mistake record.
+      requestBody: { $ref: '#/components/requestBodies/JsonRecord' }
+      responses: { '200': { description: Updated } }
+  /english/weeks:
+    get: { summary: List English vocabulary weeks, responses: { '200': { description: Weeks } } }
+  /english/weeks/{weekId}:
+    get:
+      summary: Get an English vocabulary week and its learning evidence.
+      parameters: [{ $ref: '#/components/parameters/WeekId' }]
+      responses: { '200': { description: Week }, '404': { description: Week not found } }
+  /english/weeks/{weekId}/friday-spelling:
+    put:
+      summary: Replace the parent-confirmed Friday paper spelling mistakes for a week.
+      parameters: [{ $ref: '#/components/parameters/WeekId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [words]
+              properties:
+                words: { type: array, items: { type: string } }
+      responses: { '200': { description: Updated Friday mistakes } }
+  /chinese/weeks:
+    get: { summary: List Chinese learning weeks, responses: { '200': { description: Weeks } } }
+    post:
+      summary: Create a Chinese learning week.
+      requestBody: { $ref: '#/components/requestBodies/JsonRecord' }
+      responses: { '200': { description: Created week } }
+  /curriculum/topics:
+    get: { summary: List maths curriculum topics, responses: { '200': { description: Topics } } }
+  /learning-plan/main-lesson:
+    get: { summary: Read the current main lesson, responses: { '200': { description: Main lesson } } }
+    put:
+      summary: Set main lesson mode or pin a P4 topic.
+      requestBody: { $ref: '#/components/requestBodies/JsonRecord' }
+      responses: { '200': { description: Updated main lesson } }
+  /reading/books:
+    get: { summary: List tracked books, responses: { '200': { description: Books } } }
+    post:
+      summary: Add a tracked book.
+      requestBody: { $ref: '#/components/requestBodies/JsonRecord' }
+      responses: { '200': { description: Created book } }
+  /reading/sessions:
+    post:
+      summary: Save a reading session.
+      requestBody: { $ref: '#/components/requestBodies/JsonRecord' }
+      responses: { '200': { description: Created session } }
+  /piano/weeks:
+    get: { summary: List Piano assignment weeks, responses: { '200': { description: Piano weeks } } }
+    post:
+      summary: Create a parent-confirmed weekly Piano practice plan.
+      requestBody: { $ref: '#/components/requestBodies/JsonRecord' }
+      responses: { '201': { description: Created week } }
+  /piano/weeks/{weekId}:
+    get:
+      summary: Get one Piano week with tasks, original source assets, and feedback.
+      parameters: [{ $ref: '#/components/parameters/WeekId' }]
+      responses: { '200': { description: Piano week }, '404': { description: Week not found } }
+  /piano/weeks/{weekId}/tasks:
+    post:
+      summary: Add a teacher-assigned Piano task; valid kinds are technique, piece, sight-reading, and theory.
+      parameters: [{ $ref: '#/components/parameters/WeekId' }]
+      requestBody: { $ref: '#/components/requestBodies/JsonRecord' }
+      responses: { '201': { description: Created task } }
+  /piano/weeks/{weekId}/assets:
+    post:
+      summary: Attach an original teacher PDF or photo. OCR output is advisory text only and requires parent confirmation.
+      parameters: [{ $ref: '#/components/parameters/WeekId' }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+      responses: { '201': { description: Stored source asset and optional OCR suggestion } }
+  /piano/weeks/{weekId}/sessions:
+    post:
+      summary: Record a focused Piano practice reflection. A stuck task becomes the next focus.
+      parameters: [{ $ref: '#/components/parameters/WeekId' }]
+      requestBody: { $ref: '#/components/requestBodies/JsonRecord' }
+      responses: { '201': { description: Saved session } }
+  /piano/today:
+    get:
+      summary: Get the current 30-minute Piano practice plan without interpreting notation.
+      responses: { '200': { description: Piano plan } }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer }
+  parameters:
+    WeekId: { name: weekId, in: path, required: true, schema: { type: string } }
+  requestBodies:
+    JsonRecord:
+      required: true
+      content:
+        application/json:
+          schema: { type: object, additionalProperties: true }
+  responses:
+    Unauthorized: { description: Missing or invalid bearer token }
+    Disabled: { description: Agent API token is not configured }
+  schemas:
+    CapabilityIndex:
+      type: object
+      required: [version, authentication, capabilities]
+      properties:
+        version: { type: string }
+        authentication: { type: string, const: Bearer token }
+        capabilities:
+          type: array
+          items:
+            type: object
+            required: [name, description, operations]
+            properties:
+              name: { type: string }
+              description: { type: string }
+              operations: { type: array, items: { type: string } }

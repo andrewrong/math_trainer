@@ -1,0 +1,36 @@
+[tools]
+go = "1.24.11"
+node = "24.19.0"
+
+[tasks.build]
+description = "Build the Learning Compass server"
+run = "make build"
+
+[tasks.dev]
+description = "Build and run Learning Compass with the local configuration"
+run = "make build && ./bin/math_trainer -config config.yaml -log server.log"
+
+[tasks.test]
+description = "Run all Go tests"
+run = "make test"
+
+[tasks.check]
+description = "Run the browser-independent frontend checks"
+run = '''
+for check in scripts/check_*.js; do
+  node "$check"
+done
+'''
+
+[tasks.verify]
+description = "Run backend tests and frontend checks"
+run = '''
+make test
+for check in scripts/check_*.js; do
+  node "$check"
+done
+'''
+
+[tasks.setup]
+description = "Install tool versions, create local config if needed, and build"
+run = "mise install && make setup"

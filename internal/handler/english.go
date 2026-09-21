@@ -40,6 +40,7 @@ func (h *EnglishHandler) Register(r gin.IRouter) {
 	r.POST("/english/weeks/generate/text", h.generateFromText)
 	r.POST("/english/weeks/generate/image", h.generateFromImage)
 	r.PUT("/english/weeks/:weekId/spell", h.updateSpell)
+	r.PUT("/english/weeks/:weekId/friday-spelling", h.updateFridaySpelling)
 	r.POST("/english/sentence-check", h.checkSentence)
 	r.GET("/english/diagnostics", h.listDiagnostics)
 	r.GET("/english/diagnostics/latest", h.latestDiagnostic)
@@ -122,6 +123,7 @@ func (h *EnglishHandler) listWeeks(c *gin.Context) {
 	// Now safe to query spell scores — outer rows are closed
 	for i := range summaries {
 		summaries[i].SpellScores = h.loadSpellScores(c, summaries[i].WeekID)
+		summaries[i].FridayMistakes = h.loadFridayMistakes(c, summaries[i].WeekID)
 	}
 	if summaries == nil {
 		summaries = []model.WeekSummary{}
@@ -291,6 +293,68 @@ func (h *EnglishHandler) updateSpell(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, model.OKResponse{OK: true})
+}
+
+// updateFridaySpelling replaces the parent-confirmed paper-test mistakes for a
+// week. A parent can submit an empty list once every word has been reviewed.
+func (h *EnglishHandler) updateFridaySpelling(c *gin.Context) {
+	weekID := c.Param("weekId")
+	var req model.UpdateFridaySpellingReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, model.APIError{Error: err.Error()})
+		return
+	}
+	week, err := h.loadWeek(c, weekID)
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, model.APIError{Error: "week not found"})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	allowed := make(map[string]string, len(week.Words))
+	for _, item := range week.Words {
+		word := strings.TrimSpace(item.Word)
+		if word != "" {
+			allowed[strings.ToLower(word)] = word
+		}
+	}
+	mistakes := make([]string, 0, len(req.Mistakes))
+	seen := map[string]bool{}
+	for _, raw := range req.Mistakes {
+		key := strings.ToLower(strings.TrimSpace(raw))
+		word, ok := allowed[key]
+		if !ok {
+			c.JSON(http.StatusBadRequest, model.APIError{Error: "each Friday mistake must belong to this vocabulary list"})
+			return
+		}
+		if !seen[key] {
+			seen[key] = true
+			mistakes = append(mistakes, word)
+		}
+	}
+	tx, err := h.db.BeginTx(c, nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	defer tx.Rollback()
+	if _, err := tx.ExecContext(c, `DELETE FROM english_friday_spelling_mistakes WHERE week_id=?`, weekID); err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	for _, word := range mistakes {
+		if _, err := tx.ExecContext(c, `INSERT INTO english_friday_spelling_mistakes(week_id,word) VALUES(?,?)`, weekID, word); err != nil {
+			c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+			return
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"ok": true, "mistakes": mistakes})
 }
 
 // ─── Sentence grammar check ───────────────────────────────────────────────────
@@ -772,6 +836,9 @@ func (h *EnglishHandler) replaceWeekContent(ctx context.Context, weekID string, 
 	if _, err := tx.ExecContext(ctx, `DELETE FROM spell_scores WHERE week_id=? AND word NOT IN (`+placeholders+`)`, args...); err != nil {
 		return err
 	}
+	if _, err := tx.ExecContext(ctx, `DELETE FROM english_friday_spelling_mistakes WHERE week_id=? AND word NOT IN (`+placeholders+`)`, args...); err != nil {
+		return err
+	}
 	return tx.Commit()
 }
 
@@ -818,6 +885,7 @@ func (h *EnglishHandler) loadWeek(ctx context.Context, weekID string) (*model.We
 	json.Unmarshal([]byte(wordsJSON), &w.Words)
 	json.Unmarshal([]byte(blanksJSON), &w.Blanks)
 	w.SpellScores = h.loadSpellScores(ctx, weekID)
+	w.FridayMistakes = h.loadFridayMistakes(ctx, weekID)
 	return &w, nil
 }
 
@@ -836,6 +904,22 @@ func (h *EnglishHandler) loadSpellScores(ctx context.Context, weekID string) map
 		}
 	}
 	return scores
+}
+
+func (h *EnglishHandler) loadFridayMistakes(ctx context.Context, weekID string) []string {
+	words := []string{}
+	rows, err := h.db.QueryContext(ctx, `SELECT word FROM english_friday_spelling_mistakes WHERE week_id=? ORDER BY updated_at, word`, weekID)
+	if err != nil {
+		return words
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var word string
+		if rows.Scan(&word) == nil {
+			words = append(words, word)
+		}
+	}
+	return words
 }
 
 // ─── Time helpers ─────────────────────────────────────────────────────────────

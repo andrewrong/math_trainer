@@ -48,3 +48,23 @@ func TestChineseStaticReviewCatalogAppearsInWrongs(t *testing.T) {
 		t.Fatalf("wrongs status=%d body=%s", wrongs.Code, wrongs.Body.String())
 	}
 }
+
+func TestChineseWeekRejectsItemsWithoutPronunciationMetadata(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	database, err := appdb.Open(filepath.Join(t.TempDir(), "chinese-metadata.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer database.Close()
+	router := gin.New()
+	NewChinese(database, nil).Register(router.Group("/api/v1"))
+
+	created := readingJSONRequest(t, router, http.MethodPost, "/api/v1/chinese/weeks", `{"label":"Week 1","items":[{"character":"给"}]}`)
+	if created.Code != http.StatusUnprocessableEntity {
+		t.Fatalf("week with missing pinyin status=%d body=%s", created.Code, created.Body.String())
+	}
+	weeks := readingJSONRequest(t, router, http.MethodGet, "/api/v1/chinese/weeks", "")
+	if strings.Contains(weeks.Body.String(), "Week 1") {
+		t.Fatalf("incomplete week was persisted: %s", weeks.Body.String())
+	}
+}

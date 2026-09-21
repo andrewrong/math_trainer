@@ -8,10 +8,11 @@ import (
 )
 
 type Config struct {
-	Server  ServerConfig  `mapstructure:"server"`
-	DB      DBConfig      `mapstructure:"db"`
-	AI      AIConfig      `mapstructure:"ai"`
-	Reading ReadingConfig `mapstructure:"reading"`
+	Server     ServerConfig     `mapstructure:"server"`
+	DB         DBConfig         `mapstructure:"db"`
+	AI         AIConfig         `mapstructure:"ai"`
+	Reading    ReadingConfig    `mapstructure:"reading"`
+	Automation AutomationConfig `mapstructure:"automation"`
 }
 
 type ServerConfig struct {
@@ -52,6 +53,13 @@ type OCRConfig struct {
 	Timeout int    `mapstructure:"timeout_seconds"`
 }
 
+// AutomationConfig protects the agent-facing API. It intentionally uses one
+// shared bearer token for a trusted, local AI control plane; it is not a
+// substitute for user accounts or internet-facing authentication.
+type AutomationConfig struct {
+	APIToken string `mapstructure:"api_token"`
+}
+
 func Load(path string) (*Config, error) {
 	v := viper.New()
 
@@ -64,6 +72,7 @@ func Load(path string) (*Config, error) {
 	v.SetDefault("reading.ocr.base_url", "http://127.0.0.1:18100")
 	v.SetDefault("reading.ocr.engine", "auto")
 	v.SetDefault("reading.ocr.timeout_seconds", 900)
+	v.SetDefault("automation.api_token", "")
 	v.SetDefault("ai.fallback_order", []string{"ollama", "anthropic", "openai", "gemini"})
 
 	// Config file
@@ -96,6 +105,9 @@ func Load(path string) (*Config, error) {
 		if val := v.GetString(pair.env); val != "" {
 			v.Set(pair.key, val)
 		}
+	}
+	if val := v.GetString("LEARNING_COMPASS_API_TOKEN"); val != "" {
+		v.Set("automation.api_token", val)
 	}
 
 	var cfg Config

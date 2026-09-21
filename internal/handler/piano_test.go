@@ -1,62 +1,85 @@
 package handler
 
 import (
-	"database/sql"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/mattn/go-sqlite3"
+	"mathtrainer/internal/config"
+	appdb "mathtrainer/internal/db"
 )
 
-func TestPianoAssignmentsCanBeSavedAndListed(t *testing.T) {
-	db := newPianoTestDB(t)
-	r := gin.New()
-	api := r.Group("/api/v1")
-	NewPiano(db).Register(api)
+func newPianoTestRouter(t *testing.T) *gin.Engine {
+	t.Helper()
+	gin.SetMode(gin.TestMode)
+	database, err := appdb.Open(filepath.Join(t.TempDir(), "piano.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = database.Close() })
+	router := gin.New()
+	NewPiano(database, config.ReadingConfig{ContentDir: filepath.Join(t.TempDir(), "sources")}).Register(router.Group("/api/v1"))
+	return router
+}
 
-	body := `{"title":"Minuet","section":"p. 12","goal":"right hand","dueDate":"2026-06-30","status":"Hands Separate"}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/piano/assignments", strings.NewReader(body))
+func pianoJSON(t *testing.T, router http.Handler, method, path, body string) *httptest.ResponseRecorder {
+	t.Helper()
+	req := httptest.NewRequest(method, path, strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	if w.Code != http.StatusOK {
-		t.Fatalf("POST status=%d body=%s", w.Code, w.Body.String())
-	}
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+	return rec
+}
 
-	req = httptest.NewRequest(http.MethodGet, "/api/v1/piano/assignments", nil)
-	w = httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	if w.Code != http.StatusOK {
-		t.Fatalf("GET status=%d body=%s", w.Code, w.Body.String())
+func TestPianoWeeklyPlanPrioritisesStuckTask(t *testing.T) {
+	router := newPianoTestRouter(t)
+	created := pianoJSON(t, router, http.MethodPost, "/api/v1/piano/weeks", `{"label":"Week of 21 Sep","lessonDate":"2026-09-21","teacherNote":"Keep the left hand even."}`)
+	if created.Code != http.StatusCreated {
+		t.Fatalf("create week status=%d body=%s", created.Code, created.Body.String())
 	}
-	if !strings.Contains(w.Body.String(), "Minuet") {
-		t.Fatalf("saved assignment missing from response: %s", w.Body.String())
+	var week struct {
+		ID int64 `json:"id"`
+	}
+	if err := json.Unmarshal(created.Body.Bytes(), &week); err != nil {
+		t.Fatal(err)
+	}
+	task := pianoJSON(t, router, http.MethodPost, "/api/v1/piano/weeks/1/tasks", `{"kind":"piece","title":"Minuet","rangeLabel":"p. 8, bars 1-16","goal":"Keep the pulse steady","priority":2,"status":"active"}`)
+	if task.Code != http.StatusCreated {
+		t.Fatalf("add task status=%d body=%s", task.Code, task.Body.String())
+	}
+	var savedTask struct {
+		ID int64 `json:"id"`
+	}
+	if err := json.Unmarshal(task.Body.Bytes(), &savedTask); err != nil {
+		t.Fatal(err)
+	}
+	saved := pianoJSON(t, router, http.MethodPost, "/api/v1/piano/weeks/1/sessions", `{"taskId":`+jsonNumber(savedTask.ID)+`,"minutes":30,"selfStatus":"stuck","difficultyNote":"The left hand loses the pulse."}`)
+	if saved.Code != http.StatusCreated {
+		t.Fatalf("save session status=%d body=%s", saved.Code, saved.Body.String())
+	}
+	today := pianoJSON(t, router, http.MethodGet, "/api/v1/piano/today", "")
+	if today.Code != http.StatusOK || !strings.Contains(today.Body.String(), `"title":"Minuet"`) || !strings.Contains(today.Body.String(), `"priority":3`) {
+		t.Fatalf("today status=%d body=%s", today.Code, today.Body.String())
 	}
 }
 
-func newPianoTestDB(t *testing.T) *sql.DB {
-	t.Helper()
-	db, err := sql.Open("sqlite3", ":memory:")
-	if err != nil {
-		t.Fatal(err)
+func TestPianoRejectsInvalidTeacherTask(t *testing.T) {
+	router := newPianoTestRouter(t)
+	badWeek := pianoJSON(t, router, http.MethodPost, "/api/v1/piano/weeks", `{}`)
+	if badWeek.Code != http.StatusBadRequest {
+		t.Fatalf("empty week status=%d body=%s", badWeek.Code, badWeek.Body.String())
 	}
-	t.Cleanup(func() { db.Close() })
-	_, err = db.Exec(`
-CREATE TABLE piano_assignments (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	title TEXT NOT NULL,
-	section TEXT,
-	goal TEXT,
-	due_date TEXT,
-	status TEXT NOT NULL DEFAULT 'Not Started',
-	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);`)
-	if err != nil {
-		t.Fatal(err)
+	pianoJSON(t, router, http.MethodPost, "/api/v1/piano/weeks", `{"label":"Week"}`)
+	badTask := pianoJSON(t, router, http.MethodPost, "/api/v1/piano/weeks/1/tasks", `{"kind":"made-up","title":"No"}`)
+	if badTask.Code != http.StatusBadRequest {
+		t.Fatalf("invalid task status=%d body=%s", badTask.Code, badTask.Body.String())
 	}
-	return db
+	reflection := pianoJSON(t, router, http.MethodPost, "/api/v1/piano/weeks/1/sessions", `{"minutes":25,"selfStatus":"practising","difficultyNote":"I need to add the task after class."}`)
+	if reflection.Code != http.StatusCreated {
+		t.Fatalf("reflection without task status=%d body=%s", reflection.Code, reflection.Body.String())
+	}
 }

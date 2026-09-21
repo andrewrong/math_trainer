@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
 	"io"
@@ -12,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"mathtrainer/internal/ai"
+	"mathtrainer/internal/automation"
 	"mathtrainer/internal/config"
 	"mathtrainer/internal/db"
 	"mathtrainer/internal/handler"
@@ -63,20 +65,24 @@ func main() {
 		c.Next()
 	})
 
-	// API routes
+	// Local browser API. It intentionally remains unauthenticated for the
+	// family's existing LAN-based application.
 	api := r.Group("/api/v1")
-	handler.NewMath(database).Register(api)
-	handler.NewEnglish(database, aiChain).Register(api)
-	handler.NewEnglishCurriculum(database).Register(api)
-	handler.NewCurriculum(database, aiChain).Register(api)
-	handler.NewChinese(database, aiChain).Register(api)
-	handler.NewTTS().Register(api)
-	handler.NewPiano(database).Register(api)
-	handler.NewReading(database, aiChain, cfg.Reading).Register(api)
+	registerLearningRoutes(api, database, aiChain, cfg.Reading)
+	api.GET("/health", healthHandler(aiChain, false))
 
-	// Health check
-	api.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"ok": true, "ai": aiChain.Available()})
+	// Agent API is an authenticated mirror of the learning record interface.
+	// Keeping its own prefix lets a control plane evolve independently from the
+	// browser without duplicating domain logic in new handlers.
+	agentAPI := r.Group("/api/agent/v1", middleware.AutomationToken(cfg.Automation.APIToken))
+	registerLearningRoutes(agentAPI, database, aiChain, cfg.Reading)
+	agentAPI.GET("/health", healthHandler(aiChain, true))
+	agentAPI.GET("/capabilities", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"version":        "2026-09-20",
+			"authentication": "Bearer token",
+			"capabilities":   automation.Capabilities(),
+		})
 	})
 
 	// Serve frontend — all non-API routes serve web/index.html
@@ -138,5 +144,22 @@ func main() {
 	fmt.Printf("\n  Math Trainer running on http://%s\n\n", addr)
 	if err := r.Run(addr); err != nil {
 		log.Fatalf("server: %v", err)
+	}
+}
+
+func registerLearningRoutes(r gin.IRouter, database *sql.DB, aiChain *ai.Chain, reading config.ReadingConfig) {
+	handler.NewMath(database).Register(r)
+	handler.NewEnglish(database, aiChain).Register(r)
+	handler.NewEnglishCurriculum(database).Register(r)
+	handler.NewCurriculum(database, aiChain).Register(r)
+	handler.NewChinese(database, aiChain).Register(r)
+	handler.NewTTS().Register(r)
+	handler.NewPiano(database, reading).Register(r)
+	handler.NewReading(database, aiChain, reading).Register(r)
+}
+
+func healthHandler(aiChain *ai.Chain, agent bool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"ok": true, "ai": aiChain.Available(), "agentAPI": agent})
 	}
 }

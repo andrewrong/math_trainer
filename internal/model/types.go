@@ -87,22 +87,24 @@ type SpellScore struct {
 }
 
 type WeekData struct {
-	WeekID      string                `json:"weekId"`
-	Label       string                `json:"label"`
-	CreatedAt   time.Time             `json:"createdAt"`
-	Words       []WordEntry           `json:"words"`
-	Story       string                `json:"story"`
-	Blanks      []BlankEntry          `json:"blanks"`
-	SpellScores map[string]SpellScore `json:"spellScores"`
+	WeekID         string                `json:"weekId"`
+	Label          string                `json:"label"`
+	CreatedAt      time.Time             `json:"createdAt"`
+	Words          []WordEntry           `json:"words"`
+	Story          string                `json:"story"`
+	Blanks         []BlankEntry          `json:"blanks"`
+	SpellScores    map[string]SpellScore `json:"spellScores"`
+	FridayMistakes []string              `json:"fridayMistakes"`
 }
 
 type WeekSummary struct {
-	WeekID      string                `json:"weekId"`
-	Label       string                `json:"label"`
-	CreatedAt   time.Time             `json:"createdAt"`
-	WordCount   int                   `json:"wordCount"`
-	Words       []string              `json:"words"`
-	SpellScores map[string]SpellScore `json:"spellScores"`
+	WeekID         string                `json:"weekId"`
+	Label          string                `json:"label"`
+	CreatedAt      time.Time             `json:"createdAt"`
+	WordCount      int                   `json:"wordCount"`
+	Words          []string              `json:"words"`
+	SpellScores    map[string]SpellScore `json:"spellScores"`
+	FridayMistakes []string              `json:"fridayMistakes"`
 }
 
 type GenerateTextReq struct {
@@ -113,6 +115,12 @@ type UpdateSpellReq struct {
 	Word    string `json:"word"    binding:"required"`
 	Correct int    `json:"correct"`
 	Wrong   int    `json:"wrong"`
+}
+
+// UpdateFridaySpellingReq is parent-entered evidence from a paper spelling test.
+// It deliberately records only the words which still need further practice.
+type UpdateFridaySpellingReq struct {
+	Mistakes []string `json:"mistakes" binding:"max=20"`
 }
 
 // RenameEnglishWeekReq changes only the learner-facing label. WeekID remains
@@ -261,46 +269,69 @@ type SaveChineseReviewRoundReq struct {
 	Wrong    int `json:"wrong"`
 }
 
-// ─── Piano ───────────────────────────────────────────────────────────────────
+// ─── Piano homework companion ────────────────────────────────────────────────
 
-type PianoAssignment struct {
+type PianoWeek struct {
+	ID          int64           `json:"id"`
+	Label       string          `json:"label"`
+	LessonDate  string          `json:"lessonDate"`
+	TeacherNote string          `json:"teacherNote"`
+	CreatedAt   string          `json:"createdAt"`
+	Tasks       []PianoTask     `json:"tasks,omitempty"`
+	Assets      []PianoAsset    `json:"assets,omitempty"`
+	Feedback    []PianoFeedback `json:"feedback,omitempty"`
+}
+type PianoTask struct {
+	ID         int64  `json:"id"`
+	WeekID     int64  `json:"weekId"`
+	Kind       string `json:"kind"`
+	Title      string `json:"title"`
+	RangeLabel string `json:"rangeLabel"`
+	Goal       string `json:"goal"`
+	Priority   int    `json:"priority"`
+	Status     string `json:"status"`
+}
+type PianoAsset struct {
+	ID           int64  `json:"id"`
+	WeekID       int64  `json:"weekId"`
+	TaskID       int64  `json:"taskId,omitempty"`
+	Kind         string `json:"kind"`
+	OriginalName string `json:"originalName"`
+	MimeType     string `json:"mimeType"`
+	OCRText      string `json:"ocrText,omitempty"`
+	CreatedAt    string `json:"createdAt"`
+}
+type PianoFeedback struct {
 	ID        int64  `json:"id"`
-	Title     string `json:"title"`
-	Section   string `json:"section"`
-	Goal      string `json:"goal"`
-	DueDate   string `json:"dueDate"`
-	Status    string `json:"status"`
-	CreatedAt string `json:"createdAt,omitempty"`
-	UpdatedAt string `json:"updatedAt,omitempty"`
+	WeekID    int64  `json:"weekId"`
+	TaskID    int64  `json:"taskId,omitempty"`
+	AssetID   int64  `json:"assetId,omitempty"`
+	Note      string `json:"note"`
+	CreatedAt string `json:"createdAt"`
 }
-
-type SavePianoAssignmentReq struct {
-	Title   string `json:"title" binding:"required"`
-	Section string `json:"section"`
-	Goal    string `json:"goal"`
-	DueDate string `json:"dueDate"`
-	Status  string `json:"status"`
+type CreatePianoWeekReq struct {
+	Label       string `json:"label" binding:"required,max=100"`
+	LessonDate  string `json:"lessonDate"`
+	TeacherNote string `json:"teacherNote"`
 }
-
-type PianoPracticeSession struct {
-	ID          int64  `json:"id"`
-	PracticedAt string `json:"practicedAt"`
-	Minutes     int    `json:"minutes"`
-	Content     string `json:"content"`
-	Stuck       string `json:"stuck"`
-	Note        string `json:"note"`
+type SavePianoTaskReq struct {
+	Kind       string `json:"kind" binding:"required,oneof=technique piece sight-reading theory"`
+	Title      string `json:"title" binding:"required,max=160"`
+	RangeLabel string `json:"rangeLabel"`
+	Goal       string `json:"goal"`
+	Priority   int    `json:"priority"`
+	Status     string `json:"status"`
 }
-
-type SavePianoPracticeReq struct {
-	Minutes int    `json:"minutes"`
-	Content string `json:"content"`
-	Stuck   string `json:"stuck"`
+type SavePianoSessionReq struct {
+	TaskID         int64  `json:"taskId"`
+	Minutes        int    `json:"minutes"`
+	SelfStatus     string `json:"selfStatus" binding:"required,oneof=smooth practising stuck"`
+	DifficultyNote string `json:"difficultyNote"`
+}
+type SavePianoFeedbackReq struct {
+	TaskID  int64  `json:"taskId"`
+	AssetID int64  `json:"assetId"`
 	Note    string `json:"note"`
-}
-
-type UpdatePianoSkillReq struct {
-	Skill   string `json:"skill" binding:"required"`
-	Correct bool   `json:"correct"`
 }
 
 // ─── Curriculum ──────────────────────────────────────────────────────────────

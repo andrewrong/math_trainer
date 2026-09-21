@@ -6,7 +6,10 @@
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Math Practice Helper</title>
+<title>Learning Compass</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="/static/app-shell.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#d6eaf8;color:#1a1a1a;font-size:16px;}
@@ -362,6 +365,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .week-rename-status{flex-basis:100%;min-height:18px;font-size:13px;color:#A32D2D;}.week-rename-status.ok{color:#146c52;}
 .week-editor{margin-top:12px;padding-top:14px;border-top:0.5px solid #e0e0da;}
 .week-editor-head{display:flex;align-items:start;justify-content:space-between;gap:12px;margin-bottom:12px;}.week-editor-title{font-size:16px;font-weight:750;color:#1a1a1a;}.week-editor-note{margin-top:3px;font-size:13px;line-height:1.5;color:#666;}
+.friday-check{margin-top:14px;padding-top:14px;border-top:0.5px solid #e0e0da;}.friday-check-head{display:flex;align-items:start;justify-content:space-between;gap:12px;margin-bottom:12px;}.friday-check-title{font-size:16px;font-weight:800;color:#1a1a1a;}.friday-check-copy{margin-top:3px;font-size:14px;line-height:1.5;color:#53606a;}.friday-check-list{display:grid;gap:6px;}.friday-check-row{display:flex;align-items:center;gap:10px;min-height:46px;padding:8px 10px;border:1px solid #e0e0da;border-radius:8px;background:#fff;cursor:pointer;}.friday-check-row:has(input:checked){border-color:#d88484;background:#fcebeb;}.friday-check-row input{width:18px;height:18px;accent-color:#A32D2D;}.friday-check-word{font-size:16px;font-weight:800;color:#1a1a1a;}.friday-check-state{margin-left:auto;font-size:13px;font-weight:750;color:#146c52;}.friday-check-row:has(input:checked) .friday-check-state{color:#A32D2D;}.friday-check-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}.friday-check-save,.friday-check-cancel,.friday-check-clear{min-height:42px;padding:8px 14px;border-radius:8px;font:inherit;font-size:14px;font-weight:750;cursor:pointer;}.friday-check-save{border:1px solid #185fa5;background:#185fa5;color:#fff;}.friday-check-save:disabled{background:#e8f4fc;border-color:#b5d2ec;color:#666;cursor:wait;}.friday-check-clear,.friday-check-cancel{border:1px solid #aaa;background:#fff;color:#555;}.friday-check-clear:hover,.friday-check-cancel:hover{background:#f5f5f2;}.friday-check-status{min-height:18px;margin-top:8px;font-size:13px;color:#A32D2D;}.friday-check-status.ok{color:#146c52;}.friday-review-note{display:flex;align-items:center;gap:8px;margin:10px 0 2px;padding:9px 10px;border:1px solid #e1b2b2;border-radius:8px;background:#fcebeb;color:#A32D2D;font-size:14px;font-weight:750;}
 .week-editor-list{display:grid;gap:7px;}.week-editor-row{display:flex;align-items:center;gap:8px;}.week-editor-input{min-height:42px;flex:1;padding:8px 10px;border:1px solid #aaa;border-radius:8px;background:#fff;color:#1a1a1a;font:inherit;font-size:15px;}.week-editor-input:focus-visible{outline:3px solid rgba(55,138,221,.28);outline-offset:2px;border-color:#378ADD;}
 .week-editor-remove,.week-editor-add,.week-editor-save,.week-editor-cancel{min-height:42px;margin:0;padding:8px 14px;border-radius:8px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;}.week-editor-remove{border:1px solid #c66b6b;background:#fff;color:#A32D2D;}.week-editor-remove:hover{background:#fcebeb;}.week-editor-add{margin-top:10px;border:1px solid #185fa5;background:#fff;color:#185fa5;}.week-editor-add:hover{background:#e6f1fb;}.week-editor-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}.week-editor-save{border:1px solid #185fa5;background:#185fa5;color:#fff;}.week-editor-save:hover{filter:brightness(.9)}.week-editor-save:disabled,.week-editor-add:disabled{background:#e8f4fc;border-color:#b5d2ec;color:#666;cursor:wait;}.week-editor-cancel{border:1px solid #aaa;background:#fff;color:#555;}.week-editor-cancel:hover{background:#f5f5f2;}.week-editor-status{min-height:20px;margin-top:8px;font-size:13px;color:#A32D2D;}.week-editor-status.ok{color:#146c52;}
 .wc-pron-source{display:inline-block;margin-left:5px;font-size:12px;font-weight:700;color:#637887;}
@@ -953,26 +957,10 @@ body{font-size:18px;}
 .zh-writing-feedback{max-width:620px;margin:14px auto 0;padding:11px 13px;border-radius:10px;font-size:17px;line-height:1.55;text-align:left;}
 .zh-writing-feedback.ok{background:#eaf3de;color:#355f10;}.zh-writing-feedback.warn{background:#faeeda;color:#633806;}
 .zh-focus-shell>.method-mini,.zh-writing-stage>.method-mini,.zh-tone-quiz-wrap .method-mini,.zh-writing-stage>.start-btn{font-size:17px;line-height:1.55;}
+.piano-page{max-width:980px;margin:0 auto;padding:8px 20px 36px}.piano-head{display:flex;justify-content:space-between;gap:16px;align-items:end;margin:8px 0 20px}.piano-head h1{font-size:32px;letter-spacing:-.03em}.piano-head p{color:#53606a;font-size:17px;line-height:1.55;max-width:650px}.piano-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.piano-panel{background:#fff;border:1px solid #e0e0da;border-radius:12px;padding:18px}.piano-panel h2{font-size:20px;margin-bottom:8px}.piano-form{display:grid;gap:10px}.piano-form input,.piano-form textarea,.piano-form select{width:100%;min-height:44px;border:1px solid #ccc;border-radius:8px;padding:9px 11px;font:inherit;font-size:16px}.piano-form textarea{min-height:72px;resize:vertical}.piano-plan{display:grid;gap:9px;margin-top:12px}.piano-step{padding:12px;border:1px solid #d6eaf8;border-radius:10px;background:#f7fbff}.piano-step strong{display:block;color:#185fa5}.piano-task{display:block;padding:11px 0;border-top:1px solid #e0e0da;color:inherit;text-decoration:none}.piano-task:first-child{border-top:0}.piano-task small{display:block;color:#53606a}.piano-task[href]:hover{color:#185fa5}.piano-empty{padding:22px 0;color:#53606a;line-height:1.55}@media(max-width:760px){.piano-grid{grid-template-columns:1fr}.piano-head{display:block}.piano-head p{margin-top:8px}}
 .zh-save-error{display:block;margin-top:9px;padding-top:9px;border-top:0.5px solid currentColor;}
 .zh-save-error button{margin-left:8px;border:0.5px solid currentColor;border-radius:8px;background:#fff;padding:5px 9px;color:inherit;font:inherit;font-size:14px;font-weight:800;cursor:pointer;}
 @media(max-width:760px){.zh-focus-head,.zh-writing-picker-head,.zh-writing-start-row{grid-template-columns:1fr}.zh-focus-action{width:100%}.zh-tone-map,.zh-writing-method{grid-template-columns:1fr}.zh-tone-map{gap:0}.zh-tone-guide+.zh-tone-guide{border-top:0.5px solid #e0e0da}.zh-writing-actions{grid-template-columns:1fr}.zh-writing-start-row .start-btn{width:100%;min-width:0}.zh-focus-shell,.zh-writing-stage{padding:17px}}
-.piano-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;}
-.piano-form{display:grid;grid-template-columns:1fr;gap:8px;}
-.piano-form input,.piano-form textarea,.piano-form select{width:100%;border:0.5px solid #ccc;border-radius:8px;padding:9px 11px;font-size:15px;font-family:inherit;background:#fff;}
-.piano-form textarea{min-height:80px;resize:vertical;line-height:1.6;}
-.piano-piece{background:#fff;border:0.5px solid #e0e0da;border-radius:10px;padding:10px;margin-top:8px;}
-.piano-piece-title{font-size:17px;font-weight:900;color:#1a1a1a;}
-.piano-staff{background:#f9f9f7;border:0.5px solid #e0e0da;border-radius:12px;padding:14px;margin:10px 0;text-align:center;}
-.piano-note{font-size:52px;font-weight:900;color:#185fa5;line-height:1.1;}
-.piano-keyboard{display:flex;justify-content:center;gap:3px;margin:10px 0;flex-wrap:wrap;}
-.piano-key{width:34px;height:86px;border:1px solid #aaa;border-radius:0 0 6px 6px;background:#fff;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-size:12px;font-weight:900;color:#555;}
-.piano-key.on{background:#e6f1fb;border-color:#185fa5;color:#185fa5;}
-.piano-rhythm{margin:12px 0;color:#1a1a1a;}
-.piano-rhythm-name{font-size:18px;font-weight:900;color:#185fa5;margin-top:6px;}
-.piano-choice-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px;}
-.piano-choice{width:100%;text-align:left;background:#fff;border:0.5px solid #ccc;border-radius:10px;padding:11px 13px;font-size:17px;color:#333;cursor:pointer;}
-.piano-choice.correct{background:#eaf3de;border-color:#3b6d11;color:#355f10;font-weight:900;}
-.piano-choice.wrong{background:#fcebeb;border-color:#E24B4A;color:#A32D2D;font-weight:900;}
 /* Reading Journal — Open Book Desk */
 .reading-page{max-width:1180px;margin:0 auto;padding:4px 20px 40px;}
 .reading-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end;margin:0 0 24px;}
@@ -1123,14 +1111,12 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 <canvas id="fw-canvas"></canvas>
 <div class="app">
 <div class="nav-shell">
-  <button class="brand-button" onclick="navigate('#/home')" aria-label="Learning Compass home">Learning Compass</button>
+  <div class="brand-lockup"><span class="brand-mark" aria-hidden="true"><i class="ri-compass-3-line"></i></span><button class="brand-button" onclick="navigate('#/home')" aria-label="Learning Compass home">Learning Compass</button></div>
   <nav class="subject-bar" aria-label="Primary navigation">
-    <button class="subj on" id="nav-today" onclick="navigate('#/home')">Today</button>
-    <button class="subj" id="nav-learn" onclick="navigate('#/learn')">Learn</button>
-    <button class="subj" id="nav-reading" onclick="navigate('#/reading')">Reading</button>
-    <button class="subj" id="nav-review" onclick="navigate('#/review')">Review</button>
-    <button class="subj" id="nav-progress" onclick="navigate('#/progress')">Progress</button>
-    <button class="subj parent-entry" id="nav-parent" onclick="navigate('#/parent')">Parent</button>
+    <button class="subj on" id="nav-today" onclick="navigate('#/home')"><i class="ri-calendar-check-line" aria-hidden="true"></i><span class="nav-label">Today</span></button>
+    <button class="subj" id="nav-learn" onclick="navigate('#/learn')"><i class="ri-apps-2-line" aria-hidden="true"></i><span class="nav-label">Subjects</span></button>
+    <button class="subj" id="nav-reading" onclick="navigate('#/reading')"><i class="ph ph-book-open-text" aria-hidden="true"></i><span class="nav-label">Reading</span></button>
+    <button class="subj parent-entry" id="nav-parent" onclick="navigate('#/parent')"><i class="ri-settings-3-line" aria-hidden="true"></i><span class="nav-label">Parent</span></button>
   </nav>
 </div>
 <main class="main-panel">
@@ -1152,28 +1138,25 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <div class="math-tab-options"><div class="tab" onclick="go('wrongs',this)">Mistakes</div><div class="tab" onclick="go('history',this)">History</div></div>
   </div>
 </div>
+<div class="activity-shell" id="activity-shell" aria-label="Activity navigation"></div>
 
 <div class="sec on" id="sec-home">
   <div class="today-page" id="today-page"><div class="generating"><span class="spin"></span>Preparing today’s learning plan...</div></div>
 </div>
 
 <div class="sec" id="sec-learn">
-  <div class="hub-page">
-    <header class="hub-head"><h1 class="hub-title">Learn</h1><p class="hub-sub">Choose a subject when you want to explore beyond today’s guided session.</p></header>
-    <div class="hub-groups">
-      <section class="hub-group"><h2>School focus</h2><p>Follow the current Primary 4 curriculum and lesson sequence.</p><div class="hub-links">
-        <button class="hub-link" onclick="navigate('#/curriculum')"><span><span class="hub-link-title">P4 Mathematics</span><span class="hub-link-sub">Concept lessons, models, practice, and mastery checks</span></span><span class="hub-link-arrow">→</span></button>
-        <button class="hub-link" id="subj-engcurr" onclick="navigate('#/english-curriculum')"><span><span class="hub-link-title">English Curriculum</span><span class="hub-link-sub">Reading, vocabulary, language, speaking, and writing</span></span><span class="hub-link-arrow">→</span></button>
-      </div></section>
-      <section class="hub-group"><h2>Practice areas</h2><p>Open a focused tool for extra independent practice.</p><div class="hub-links">
-        <button class="hub-link" onclick="navigate('#/math/add')"><span><span class="hub-link-title">Math Practice</span><span class="hub-link-sub">Operations, concepts, and practice challenges</span></span><span class="hub-link-arrow">→</span></button>
-        <button class="hub-link" onclick="navigate('#/english/vocab')"><span><span class="hub-link-title">English Vocabulary</span><span class="hub-link-sub">Weekly words, stories, spelling, and usage</span></span><span class="hub-link-arrow">→</span></button>
-        <button class="hub-link" onclick="navigate('#/chinese/tone')"><span><span class="hub-link-title">Chinese</span><span class="hub-link-sub">Tone 2·3·4, writing recall, core characters, and pinyin</span></span><span class="hub-link-arrow">→</span></button>
-        <button class="hub-link" onclick="navigate('#/piano')"><span><span class="hub-link-title">Piano</span><span class="hub-link-sub">Practice log, note reading, rhythm, and homework</span></span><span class="hub-link-arrow">→</span></button>
-      </div></section>
+  <div class="learner-shell">
+    <header class="learner-shell-head"><h1>Subjects</h1><p>Choose one subject when you want extra practice. Each subject starts with one clear next step.</p></header>
+    <div class="subject-grid" id="subject-grid">
+      <section class="subject-card"><div class="subject-card-top"><span class="subject-icon" aria-hidden="true"><i class="ri-calculator-line"></i></span><div><h2>Math</h2><p>Build P4 understanding, then practise it.</p></div></div><button class="subject-continue" id="subject-math-continue" onclick="navigate('#/curriculum')"><span class="subject-continue-copy"><small>Continue</small><strong>Open your main lesson</strong></span><i class="ri-arrow-right-line" aria-hidden="true"></i></button><details class="subject-more"><summary>More practice <i class="ri-arrow-down-s-line" aria-hidden="true"></i></summary><div class="subject-links"><button onclick="navigate('#/math/challenge')"><i class="ri-flashlight-line" aria-hidden="true"></i>Speed 40</button><button onclick="navigate('#/math/add')"><i class="ri-add-circle-line" aria-hidden="true"></i>Number practice</button><button onclick="navigate('#/math/wrongs')"><i class="ri-refresh-line" aria-hidden="true"></i>Review mistakes</button></div></details></section>
+      <section class="subject-card"><div class="subject-card-top"><span class="subject-icon" aria-hidden="true"><i class="ph ph-books"></i></span><div><h2>English</h2><p>Weekly words, language, reading, and writing.</p></div></div><button class="subject-continue" onclick="navigate('#/english/vocab')"><span class="subject-continue-copy"><small>Continue</small><strong>Practise this week’s words</strong></span><i class="ri-arrow-right-line" aria-hidden="true"></i></button><details class="subject-more"><summary>More practice <i class="ri-arrow-down-s-line" aria-hidden="true"></i></summary><div class="subject-links"><button onclick="navigate('#/english-curriculum')"><i class="ri-book-2-line" aria-hidden="true"></i>English curriculum</button><button onclick="navigate('#/english/vocab')"><i class="ri-spell-check-line" aria-hidden="true"></i>Vocabulary and spelling</button></div></details></section>
+      <section class="subject-card"><div class="subject-card-top"><span class="subject-icon" aria-hidden="true"><i class="ph ph-translate"></i></span><div><h2>Chinese</h2><p>Listen carefully, recognise confidently, write from memory.</p></div></div><button class="subject-continue" onclick="navigate('#/chinese/tone')"><span class="subject-continue-copy"><small>Continue</small><strong>Tone Focus · 2, 3, and 4</strong></span><i class="ri-arrow-right-line" aria-hidden="true"></i></button><details class="subject-more"><summary>More practice <i class="ri-arrow-down-s-line" aria-hidden="true"></i></summary><div class="subject-links"><button onclick="navigate('#/chinese/writing')"><i class="ri-pencil-line" aria-hidden="true"></i>Write from memory</button><button onclick="navigate('#/chinese/core')"><i class="ri-character-recognition-line" aria-hidden="true"></i>Core characters</button><button onclick="navigate('#/chinese/review')"><i class="ri-refresh-line" aria-hidden="true"></i>Character review</button></div></details></section>
+      <section class="subject-card"><div class="subject-card-top"><span class="subject-icon" aria-hidden="true"><i class="ph ph-music-notes"></i></span><div><h2>Piano</h2><p>Teacher-led practice, made clear at home.</p></div></div><button class="subject-continue" onclick="navigate('#/piano')"><span class="subject-continue-copy"><small>Continue</small><strong>Open this week’s practice</strong></span><i class="ri-arrow-right-line" aria-hidden="true"></i></button><details class="subject-more"><summary>For Parent <i class="ri-arrow-down-s-line" aria-hidden="true"></i></summary><div class="subject-links"><button onclick="navigate('#/piano')"><i class="ri-file-add-line" aria-hidden="true"></i>Add teacher assignment</button></div></details></section>
     </div>
   </div>
 </div>
+
+<div class="sec" id="sec-piano"><div class="piano-page" id="piano-page"><div class="generating"><span class="spin"></span>Preparing piano practice...</div></div></div>
 
 <div class="sec" id="sec-review">
   <div class="hub-page">
@@ -1215,12 +1198,12 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
       <section class="hub-group parent-focus-group" id="parent-main-lesson"><div class="lesson-setting-loading"><span class="generating"><span class="spin"></span>Loading weekly focus...</span></div></section>
       <section class="hub-group parent-pron-library" id="parent-pronunciation-library"><h2>British pronunciation library</h2><p>Word cards use local UK IPA and a cached British Mac voice. Confirm a special or school-preferred IPA here.</p><div class="lesson-setting-loading"><span class="generating"><span class="spin"></span>Loading vocabulary…</span></div></section>
       <section class="hub-group"><h2>Learning evidence</h2><p>Check current progress before changing the weekly focus.</p><div class="hub-links">
-        <button class="hub-link" onclick="navigate('#/progress')"><span><span class="hub-link-title">Open Progress</span><span class="hub-link-sub">See recent strengths, needs, and curriculum readiness</span></span><span class="hub-link-arrow">→</span></button>
-        <button class="hub-link" onclick="navigate('#/curriculum')"><span><span class="hub-link-title">Curriculum Mastery</span><span class="hub-link-sub">Review every P4 topic and its learning evidence</span></span><span class="hub-link-arrow">→</span></button>
+        <button class="hub-link" onclick="navigate('#/parent/progress')"><span><span class="hub-link-title">Open Progress</span><span class="hub-link-sub">See recent strengths, needs, and curriculum readiness</span></span><span class="hub-link-arrow">→</span></button>
+        <button class="hub-link" onclick="navigate('#/parent/curriculum')"><span><span class="hub-link-title">Curriculum Mastery</span><span class="hub-link-sub">Review every P4 topic and its learning evidence</span></span><span class="hub-link-arrow">→</span></button>
       </div></section>
       <section class="hub-group"><h2>Checks and planning</h2><p>Use diagnostics sparingly, then turn results into a short teaching plan.</p><div class="hub-links">
-        <button class="hub-link" onclick="navigate('#/diagnostic')"><span><span class="hub-link-title">Math Diagnostic</span><span class="hub-link-sub">Find prerequisite gaps before adding more practice</span></span><span class="hub-link-arrow">→</span></button>
-        <button class="hub-link" onclick="navigate('#/english/diagnostic')"><span><span class="hub-link-title">English Diagnostic</span><span class="hub-link-sub">Check comprehension and writing support needs</span></span><span class="hub-link-arrow">→</span></button>
+        <button class="hub-link" onclick="navigate('#/parent/math-diagnostic')"><span><span class="hub-link-title">Math Diagnostic</span><span class="hub-link-sub">Find prerequisite gaps before adding more practice</span></span><span class="hub-link-arrow">→</span></button>
+        <button class="hub-link" onclick="navigate('#/parent/english-diagnostic')"><span><span class="hub-link-title">English Diagnostic</span><span class="hub-link-sub">Check comprehension and writing support needs</span></span><span class="hub-link-arrow">→</span></button>
       </div><div class="parent-note">Local-first: learning records stay on this Mac mini. A parent PIN can be added later if the view needs stronger separation. · 数据默认保存在本机。</div></section>
     </div>
   </div>
@@ -1264,7 +1247,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
           <div class="progress-bar"><div class="progress-fill" id="add-prog-fill" style="width:0%"></div></div>
         </div>
         <div class="q-disp" id="add-q">—</div>
-        <input class="ans-in" type="number" id="add-ans" placeholder="?" onkeydown="if(event.key==='Enter')chk('add')">
+        <input class="ans-in" type="number" id="add-ans" placeholder="?" onkeydown="handleMathEnter(event,'add')">
         <div class="tip" id="add-tip"></div>
         <div class="fb" id="add-fb"></div>
         <button class="confirm-btn" onclick="chk('add')">Check Answer ✓</button>
@@ -1420,7 +1403,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
         <div class="progress-bar"><div class="progress-fill" id="mul-prog-fill" style="width:0%"></div></div>
       </div>
       <div class="q-disp" id="mul-q">—</div>
-      <input class="ans-in" type="number" id="mul-ans" placeholder="?" onkeydown="if(event.key==='Enter')chk('mul')">
+      <input class="ans-in" type="number" id="mul-ans" placeholder="?" onkeydown="handleMathEnter(event,'mul')">
       <div class="tip" id="mul-tip"></div>
       <div class="fb" id="mul-fb"></div>
       <button class="confirm-btn" onclick="chk('mul')">Check Answer ✓</button>
@@ -1496,7 +1479,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
         </div>
         <div class="paper-note">Work it out on paper, enter final answer</div>
         <div class="big-q" id="v-q">—</div>
-        <input class="ans-in" type="number" id="v-ans" placeholder="?" onkeydown="if(event.key==='Enter')chk('v')" style="font-size:28px;width:120px;">
+        <input class="ans-in" type="number" id="v-ans" placeholder="?" onkeydown="handleMathEnter(event,'v')" style="font-size:28px;width:120px;">
         <div class="tip" id="v-tip"></div>
         <div class="fb" id="v-fb"></div>
         <button class="confirm-btn" onclick="chk('v')">Check Answer ✓</button>
@@ -1591,9 +1574,9 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 <div class="sec" id="sec-challenge">
   <div class="card">
     <div class="card-title">Speed 40 · Add/Sub Mental Math</div>
-    <div class="method-mini">A focused set of 20 addition and subtraction questions. Every answer is in the 20–40 range, so the goal is fast, accurate mental calculation.</div>
+    <div class="method-mini">A focused set of 40 addition and subtraction questions. Every answer is in the 20–40 range, so the goal is fast, accurate mental calculation.</div>
     <div class="eg">Use friendly tens: 18 + 7 → 20 + 5; 34 − 8 → 30 − 4.</div>
-    <div id="add-speed-start-wrap" style="margin-top:12px;"><button class="start-btn" onclick="startSpeed40()">Start Speed 40 · 20 Questions →</button></div>
+    <div id="add-speed-start-wrap" style="margin-top:12px;"><button class="start-btn" onclick="startSpeed40()">Start Speed 40 · 40 Questions →</button></div>
   </div>
   <div id="add-speed-quiz" style="display:none;">
     <div class="quiz-box">
@@ -1603,34 +1586,35 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
       </div>
       <div class="ch-timer-wrap"><div id="add-speed-timer-fill"></div></div>
       <div class="q-disp" id="add-speed-q">—</div>
-      <input class="ans-in" type="number" id="add-speed-ans" placeholder="?" onkeydown="if(event.key==='Enter')checkSpeed40()">
+      <input class="ans-in" type="number" id="add-speed-ans" placeholder="?" onkeydown="handleSpeed40Enter(event)">
       <div class="tip" id="add-speed-tip"></div>
       <div class="fb" id="add-speed-fb"></div>
       <button class="confirm-btn" id="add-speed-check-btn" onclick="checkSpeed40()">Check Answer ✓</button>
       <button class="next-btn" id="add-speed-next-btn" style="display:none;" onclick="nextSpeed40Question()">Next →</button>
+      <div class="enter-hint" id="add-speed-enter-hint"><i class="ri-corner-down-left-line" aria-hidden="true"></i>Press Enter to check</div>
     </div>
   </div>
   <div id="add-speed-result" style="display:none;"></div>
   <div class="card" style="margin-bottom:.75rem;">
     <div class="card-title">Times Tables Challenge</div>
-    <div class="method-mini">Race through all times tables (2×2 to 9×9, 64 questions). Any wrong answer or answer taking over 15 seconds is saved as a weak spot — practice those next time to focus on what needs work!</div>
+    <div class="method-mini">A daily set of 20 multiplication questions. The facts missed most often are placed first, then the rest keeps your tables fresh. A wrong answer or one taking over 15 seconds is saved for extra practice.</div>
   </div>
   <div id="ch-weak-stats" class="ch-weak-stats"></div>
   <div id="ch-start-wrap">
-    <button class="start-btn" onclick="startChallenge(false)">Start Full Challenge (64 Questions) →</button>
+    <button class="start-btn" onclick="startChallenge(false)">Start Daily Challenge (20 Questions) →</button>
     <div id="ch-weak-btn-wrap" style="margin-top:8px;display:none;">
-      <button class="start-btn" style="border-color:#E24B4A;background:#fcebeb;color:#A32D2D;" onclick="startChallenge(true)">Practice Weak Spots (<span id="ch-weak-count">0</span> Questions) →</button>
+      <button class="start-btn" style="border-color:#E24B4A;background:#fcebeb;color:#A32D2D;" onclick="startChallenge(true)">Practice Weak Spots · <span id="ch-weak-count">0</span> saved facts →</button>
     </div>
   </div>
   <div id="ch-quiz" style="display:none;">
     <div class="quiz-box">
       <div class="progress-wrap">
-        <div class="progress-info"><span id="ch-prog-txt">Question 1 / 64</span><span id="ch-prog-cor" style="color:#1D9E75;">0 Correct</span></div>
+        <div class="progress-info"><span id="ch-prog-txt">Question 1 / 20</span><span id="ch-prog-cor" style="color:#1D9E75;">0 Correct</span></div>
         <div class="progress-bar"><div class="progress-fill" id="ch-prog-fill" style="width:0%"></div></div>
       </div>
       <div class="ch-timer-wrap"><div id="ch-timer-fill"></div></div>
       <div class="q-disp" id="ch-q">—</div>
-      <input class="ans-in" type="number" id="ch-ans" placeholder="?" onkeydown="if(event.key==='Enter')chkChallenge()">
+      <input class="ans-in" type="number" id="ch-ans" placeholder="?" onkeydown="handleChallengeEnter(event)">
       <div class="fb" id="ch-fb"></div>
       <div class="tip" id="ch-tip" style="display:none;text-align:left;line-height:1.9;"></div>
       <button class="confirm-btn" onclick="chkChallenge()">Check Answer ✓</button>
@@ -1790,7 +1774,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
       <div id="study-type" style="display:none;text-align:center;padding:1rem 0;">
         <div id="study-prog2" style="font-size:12px;color:#888;margin-bottom:12px;"></div>
         <div style="font-size:22px;font-weight:600;color:#aaa;letter-spacing:6px;margin-bottom:16px;" id="study-hidden"></div>
-        <input class="spell-in" type="text" id="study-ans" placeholder="spell it" autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter')checkStudy()">
+        <input class="spell-in" type="text" id="study-ans" placeholder="spell it" autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="handleEnglishWordEnter(event,'study')">
         <div class="fb" id="study-fb" style="margin-top:8px;min-height:20px;"></div>
         <div class="phonics-hint" id="study-phonics-hint" style="display:none;margin-top:8px;"></div>
         <button class="confirm-btn" id="study-check-btn" style="margin-top:10px;" onclick="checkStudy()">Check ✓</button>
@@ -1813,7 +1797,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
         <div style="margin:12px 0 8px;">
           <button class="hear-btn" onclick="speakCurrentWord()">🔊 Hear the Word</button>
         </div>
-        <input class="spell-in" type="text" id="spell-ans" placeholder="spell it" autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter')checkSpelling()">
+        <input class="spell-in" type="text" id="spell-ans" placeholder="spell it" autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="handleEnglishWordEnter(event,'spell')">
         <div class="phonics-hint" id="spell-phonics-hint" style="display:none;"></div>
         <div class="fb" id="spell-fb"></div>
         <button class="confirm-btn" id="spell-check-btn" onclick="checkSpelling()">Check ✓</button>
@@ -1948,58 +1932,6 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   </div>
 </div>
 
-<div class="sec" id="sec-piano">
-  <div class="piano-grid">
-    <div class="card">
-      <div class="card-title">Today Practice</div>
-      <div class="method-mini">15-20 minutes: note reading, rhythm, teacher homework, then one short note about what was hard.</div>
-      <div class="piano-form">
-        <input id="piano-practice-content" placeholder="What did you practise?">
-        <input id="piano-practice-minutes" type="number" min="0" max="180" value="20" placeholder="Minutes">
-        <textarea id="piano-practice-stuck" placeholder="What was tricky today?"></textarea>
-        <textarea id="piano-practice-note" placeholder="Parent note / next practice focus"></textarea>
-      </div>
-      <button class="start-btn" style="margin-top:10px;" onclick="savePianoPractice()">Save Practice →</button>
-      <div id="piano-practice-msg" class="method-mini"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Homework / Pieces</div>
-      <div class="piano-form">
-        <input id="piano-piece-title" placeholder="Piece or homework">
-        <input id="piano-piece-section" placeholder="Page / bars / section">
-        <input id="piano-piece-goal" placeholder="Goal: right hand, rhythm, dynamics...">
-        <input id="piano-piece-due" type="date">
-        <select id="piano-piece-status">
-          <option>Not Started</option>
-          <option>Hands Separate</option>
-          <option>Slow Together</option>
-          <option>Smooth</option>
-          <option>Ready for Teacher</option>
-        </select>
-      </div>
-      <button class="start-btn" style="margin-top:10px;" onclick="savePianoAssignment()">Add Homework →</button>
-      <div id="piano-assignment-list"></div>
-    </div>
-  </div>
-  <div class="piano-grid">
-    <div class="card">
-      <div class="card-title">Note Reading</div>
-      <div class="method-mini">Read the staff slowly. Answer, then read the explanation before next question.</div>
-      <button class="start-btn" onclick="startPianoNoteQuiz()">Start Note Reading →</button>
-      <div id="piano-note-quiz" style="display:none;margin-top:10px;"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Rhythm Practice</div>
-      <div class="method-mini">Count beats first. Clap later. No auto-skip.</div>
-      <button class="start-btn" onclick="startPianoRhythmQuiz()">Start Rhythm →</button>
-      <div id="piano-rhythm-quiz" style="display:none;margin-top:10px;"></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-title">Recent Practice</div>
-    <div id="piano-session-list" class="method-mini">No practice yet.</div>
-  </div>
-</div>
 </main>
 </div>
 
@@ -2117,7 +2049,7 @@ function todayTasks(mode){
   const reviewCount=todayReviewCount();
   const focus=mainLessonPreference.resolvedTopic||MAIN_LESSON_FALLBACK.resolvedTopic;
   const lesson={id:'lesson',type:'Main Lesson',title:mainLessonDisplayTitle(focus),reason:mainLessonPreference.reason||'Chosen as this week’s P4 focus.',minutes:mode==='quick'?6:10,meta:mode==='quick'?'6 min':'10 min'};
-  const fluency={id:'fluency',type:'Fluency Practice',title:'Speed 40',reason:'20 mental addition and subtraction questions with answers from 20 to 40.',minutes:mode==='quick'?4:8,meta:mode==='quick'?'20 questions · 4 min focus':'20 questions · 8 min'};
+  const fluency={id:'fluency',type:'Fluency Practice',title:'Speed 40',reason:'40 mental addition and subtraction questions with answers from 20 to 40.',minutes:mode==='quick'?6:10,meta:mode==='quick'?'40 questions · 6 min focus':'40 questions · 10 min'};
   const review=reviewCount
     ?{id:'review',type:'Needs Review',title:`${reviewCount} math ${reviewCount===1?'mistake':'mistakes'} to revisit`,reason:'Chosen from saved wrong answers so the same misunderstanding gets another clear attempt.',minutes:mode==='quick'?6:7,meta:mode==='quick'?'6 min':'7 min',review:true}
     :{id:'review',type:'Needs Review',title:'Mixed review',reason:'No saved math mistakes are waiting, so keep current skills warm with a short mixed set.',minutes:mode==='quick'?6:7,meta:mode==='quick'?'6 min':'7 min',review:true};
@@ -3657,204 +3589,6 @@ function answerChineseWriting(correct){
 }
 
 function nextChineseWriting(){stopChineseWritingAudio();chineseWriting.idx++;chineseWriting.revealed=false;chineseWriting.locked=false;chineseWriting.lastCorrect=false;chineseWriting.audioPlayed=false;chineseWriting.audioAvailable=null;renderChineseWritingPrompt();}
-
-/* ===== Piano ===== */
-let pianoReady=false;
-let pianoAssignments=[];
-let pianoSessions=[];
-let pianoQuiz={deck:[],idx:0,correct:0,containerId:'',locked:false};
-const PIANO_NOTES=[
-  {clef:'Treble',note:'C4',letter:'C',octave:4,staffStep:-2,skill:'treble notes',explain:'Middle C sits on a small ledger line below the treble staff.'},
-  {clef:'Treble',note:'D4',letter:'D',octave:4,staffStep:-1,skill:'treble notes',explain:'D is just below the first treble line.'},
-  {clef:'Treble',note:'E4',letter:'E',octave:4,staffStep:0,skill:'treble notes',explain:'Treble lines are E G B D F. The first line is E.'},
-  {clef:'Treble',note:'F4',letter:'F',octave:4,staffStep:1,skill:'treble notes',explain:'Treble spaces are F A C E. The first space is F.'},
-  {clef:'Treble',note:'G4',letter:'G',octave:4,staffStep:2,skill:'treble notes',explain:'Treble lines are E G B D F. The second line is G.'},
-  {clef:'Treble',note:'A4',letter:'A',octave:4,staffStep:3,skill:'treble notes',explain:'Treble spaces are F A C E. The second space is A.'},
-  {clef:'Treble',note:'B4',letter:'B',octave:4,staffStep:4,skill:'treble notes',explain:'Treble lines are E G B D F. The third line is B.'},
-  {clef:'Treble',note:'C5',letter:'C',octave:5,staffStep:5,skill:'treble notes',explain:'Treble spaces are F A C E. The third space is C.'},
-  {clef:'Treble',note:'D5',letter:'D',octave:5,staffStep:6,skill:'treble notes',explain:'Treble lines are E G B D F. The fourth line is D.'},
-  {clef:'Bass',note:'C3',letter:'C',octave:3,staffStep:3,skill:'bass notes',explain:'Bass spaces are A C E G. The second space is C.'},
-  {clef:'Bass',note:'D3',letter:'D',octave:3,staffStep:4,skill:'bass notes',explain:'Bass lines are G B D F A. The third line is D.'},
-  {clef:'Bass',note:'E3',letter:'E',octave:3,staffStep:5,skill:'bass notes',explain:'Bass spaces are A C E G. The third space is E.'},
-  {clef:'Bass',note:'F3',letter:'F',octave:3,staffStep:6,skill:'bass notes',explain:'Bass lines are G B D F A. The fourth line is F.'},
-  {clef:'Bass',note:'G3',letter:'G',octave:3,staffStep:7,skill:'bass notes',explain:'Bass spaces are A C E G. The fourth space is G.'},
-  {clef:'Bass',note:'A3',letter:'A',octave:3,staffStep:8,skill:'bass notes',explain:'Bass lines are G B D F A. The fifth line is A.'},
-  {clef:'Bass',note:'B3',letter:'B',octave:3,staffStep:9,skill:'bass notes',explain:'B sits just above the bass staff.'},
-  {clef:'Bass',note:'C4',letter:'C',octave:4,staffStep:10,skill:'bass notes',explain:'Middle C sits on a small ledger line above the bass staff.'}
-];
-const PIANO_RHYTHMS=[
-  {skill:'rhythm values',shape:'quarter',name:'quarter note',answer:'1 beat',explain:'A quarter note gets 1 beat in 4/4.'},
-  {skill:'rhythm values',shape:'half',name:'half note',answer:'2 beats',explain:'A half note holds for 2 beats.'},
-  {skill:'rhythm values',shape:'whole',name:'whole note',answer:'4 beats',explain:'A whole note holds for 4 beats.'},
-  {skill:'rhythm values',shape:'eighth-pair',name:'two eighth notes',answer:'two eighth notes = 1 beat',explain:'Two eighth notes share one beat: 1-and.'},
-  {skill:'rests',shape:'quarter-rest',name:'quarter rest',answer:'quarter rest = 1 silent beat',explain:'A quarter rest means one beat of silence.'},
-  {skill:'rests',shape:'half-rest',name:'half rest',answer:'half rest = 2 silent beats',explain:'A half rest means two silent beats.'}
-];
-async function initPianoModule(){
-  if(pianoReady)return;
-  pianoReady=true;
-  await loadPianoData();
-}
-async function loadPianoData(){
-  const [a,s]=await Promise.all([
-    apiFetch('GET','/piano/assignments').catch(()=>({assignments:[]})),
-    apiFetch('GET','/piano/practice-sessions').catch(()=>({sessions:[]}))
-  ]);
-  pianoAssignments=a.assignments||[];
-  pianoSessions=s.sessions||[];
-  renderPianoAssignments();
-  renderPianoSessions();
-}
-async function savePianoAssignment(){
-  const title=document.getElementById('piano-piece-title').value.trim();
-  if(!title)return;
-  await apiFetch('POST','/piano/assignments',{
-    title,
-    section:document.getElementById('piano-piece-section').value.trim(),
-    goal:document.getElementById('piano-piece-goal').value.trim(),
-    dueDate:document.getElementById('piano-piece-due').value,
-    status:document.getElementById('piano-piece-status').value
-  });
-  ['piano-piece-title','piano-piece-section','piano-piece-goal','piano-piece-due'].forEach(id=>document.getElementById(id).value='');
-  await loadPianoData();
-}
-async function updatePianoAssignment(id){
-  const a=pianoAssignments.find(x=>x.id===id);if(!a)return;
-  a.status=document.getElementById('piano-status-'+id).value;
-  await apiFetch('PUT','/piano/assignments/'+id,a);
-  await loadPianoData();
-}
-function renderPianoAssignments(){
-  const el=document.getElementById('piano-assignment-list');if(!el)return;
-  if(!pianoAssignments.length){el.innerHTML='<div class="empty">No homework yet.</div>';return;}
-  el.innerHTML=pianoAssignments.map(a=>`
-    <div class="piano-piece">
-      <div class="piano-piece-title">${escHTML(a.title)}</div>
-      <div class="method-mini">${escHTML(a.section||'')} ${a.goal?'· '+escHTML(a.goal):''} ${a.dueDate?'· due '+escHTML(a.dueDate):''}</div>
-      <select id="piano-status-${a.id}" onchange="updatePianoAssignment(${a.id})">
-        ${['Not Started','Hands Separate','Slow Together','Smooth','Ready for Teacher'].map(s=>`<option ${a.status===s?'selected':''}>${s}</option>`).join('')}
-      </select>
-    </div>`).join('');
-}
-async function savePianoPractice(){
-  const msg=document.getElementById('piano-practice-msg');
-  const minutes=Number(document.getElementById('piano-practice-minutes').value||0);
-  const content=document.getElementById('piano-practice-content').value.trim();
-  await apiFetch('POST','/piano/practice-sessions',{
-    minutes,
-    content,
-    stuck:document.getElementById('piano-practice-stuck').value.trim(),
-    note:document.getElementById('piano-practice-note').value.trim()
-  });
-  msg.textContent=`Saved: ${minutes} minutes. Next time, start from the tricky part.`;
-  ['piano-practice-content','piano-practice-stuck','piano-practice-note'].forEach(id=>document.getElementById(id).value='');
-  await loadPianoData();
-}
-function renderPianoSessions(){
-  const el=document.getElementById('piano-session-list');if(!el)return;
-  if(!pianoSessions.length){el.textContent='No practice yet.';return;}
-  el.innerHTML=pianoSessions.slice(0,7).map(s=>`<div class="piano-piece"><b>${s.minutes} min</b> · ${escHTML(s.content||'practice')}<br>${escHTML(s.stuck||'')}</div>`).join('');
-}
-function startPianoNoteQuiz(){
-  const notes=shuffle(PIANO_NOTES).slice(0,6).map(q=>makePianoNoteQuestion(q,'staff-note'));
-  const keys=shuffle(PIANO_NOTES).slice(0,4).map(q=>makePianoNoteQuestion(q,'note-key'));
-  const deck=shuffle([...notes,...keys]).slice(0,8);
-  startPianoQuiz(deck,'piano-note-quiz');
-}
-function makePianoNoteQuestion(q,type){
-  const options=shuffle([q.letter,...shuffle(['C','D','E','F','G','A','B'].filter(x=>x!==q.letter)).slice(0,3)]);
-  return {...q,type,correct:q.letter,options};
-}
-function startPianoRhythmQuiz(){
-  const deck=shuffle(PIANO_RHYTHMS).map(q=>({...q,type:'rhythm',correct:q.answer,options:shuffle([q.answer,...shuffle(PIANO_RHYTHMS.map(r=>r.answer).filter(x=>x!==q.answer)).slice(0,3)])}));
-  startPianoQuiz(deck,'piano-rhythm-quiz');
-}
-function startPianoQuiz(deck,containerId){
-  pianoQuiz={deck,idx:0,correct:0,containerId,locked:false};
-  document.getElementById(containerId).style.display='block';
-  loadPianoQuestion();
-}
-function renderPianoStaff(q){
-  const top=38,gap=18,left=44,right=300;
-  const y=top+(8-q.staffStep)*(gap/2);
-  const ledger=[];
-  if(q.staffStep<0){
-    for(let s=-2;s<=q.staffStep;s-=2){
-      const ly=top+(8-s)*(gap/2);
-      ledger.push(`<line x1="150" y1="${ly}" x2="210" y2="${ly}" stroke="#111" stroke-width="2"/>`);
-    }
-  }
-  if(q.staffStep>8){
-    for(let s=10;s<=q.staffStep;s+=2){
-      const ly=top+(8-s)*(gap/2);
-      ledger.push(`<line x1="150" y1="${ly}" x2="210" y2="${ly}" stroke="#111" stroke-width="2"/>`);
-    }
-  }
-  return `<svg viewBox="0 0 340 150" width="100%" height="150" role="img" aria-label="${escHTML(q.clef)} staff note">
-    ${[0,1,2,3,4].map(i=>`<line x1="${left}" y1="${top+i*gap}" x2="${right}" y2="${top+i*gap}" stroke="#222" stroke-width="1.5"/>`).join('')}
-    <text x="62" y="92" font-size="42" font-weight="800" fill="#185fa5">${q.clef==='Treble'?'𝄞':'𝄢'}</text>
-    ${ledger.join('')}
-    <ellipse cx="180" cy="${y}" rx="14" ry="10" fill="#111" transform="rotate(-18 180 ${y})"/>
-    <line x1="193" y1="${y}" x2="193" y2="${y-48}" stroke="#111" stroke-width="3"/>
-  </svg>`;
-}
-function renderPianoKeyboard(q){
-  return `<div class="method-mini" style="font-weight:900;">Find ${escHTML(q.letter)} on the keyboard.</div>
-    <div class="piano-keyboard">${['C','D','E','F','G','A','B'].map((k,i)=>`<div class="piano-key"><span>${i===0?'C':''}</span></div>`).join('')}</div>
-    <div class="method-mini">Use the pattern of black keys. C starts before the group of two black keys.</div>`;
-}
-function renderPianoRhythm(q){
-  const staff=[0,1,2,3,4].map(i=>`<line x1="40" y1="${44+i*14}" x2="260" y2="${44+i*14}" stroke="#ddd" stroke-width="1"/>`).join('');
-  const shapes={
-    quarter:'<ellipse cx="145" cy="84" rx="12" ry="9" fill="#111" transform="rotate(-18 145 84)"/><line x1="156" y1="83" x2="156" y2="34" stroke="#111" stroke-width="3"/>',
-    half:'<ellipse cx="145" cy="84" rx="13" ry="9" fill="#fff" stroke="#111" stroke-width="3" transform="rotate(-18 145 84)"/><line x1="157" y1="83" x2="157" y2="34" stroke="#111" stroke-width="3"/>',
-    whole:'<ellipse cx="150" cy="84" rx="18" ry="10" fill="#fff" stroke="#111" stroke-width="3"/>',
-    'eighth-pair':'<ellipse cx="125" cy="88" rx="10" ry="8" fill="#111" transform="rotate(-18 125 88)"/><line x1="135" y1="87" x2="135" y2="36" stroke="#111" stroke-width="3"/><ellipse cx="175" cy="88" rx="10" ry="8" fill="#111" transform="rotate(-18 175 88)"/><line x1="185" y1="87" x2="185" y2="36" stroke="#111" stroke-width="3"/><line x1="135" y1="36" x2="185" y2="36" stroke="#111" stroke-width="7"/>',
-    'quarter-rest':'<path d="M150 38 L136 62 L158 62 L142 88 L160 104" fill="none" stroke="#111" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>',
-    'half-rest':'<line x1="110" y1="72" x2="190" y2="72" stroke="#111" stroke-width="2"/><rect x="132" y="58" width="36" height="14" fill="#111"/>'
-  };
-  return `<div class="piano-rhythm">
-    <svg viewBox="0 0 300 130" width="100%" height="130" role="img" aria-label="${escHTML(q.name)}">
-      ${staff}${shapes[q.shape]||''}
-    </svg>
-    <div class="piano-rhythm-name">${escHTML(q.name)}</div>
-  </div>`;
-}
-function loadPianoQuestion(){
-  const q=pianoQuiz.deck[pianoQuiz.idx];
-  const el=document.getElementById(pianoQuiz.containerId);
-  if(!q){el.innerHTML=quizResultCardHTML({label:'Piano Practice Complete',rate:pct(pianoQuiz.correct,pianoQuiz.deck.length),total:pianoQuiz.deck.length,correct:pianoQuiz.correct,message:'Keep short daily practice. Start tomorrow from the tricky part.'});return;}
-  pianoQuiz.locked=false;
-  const visual=q.type==='rhythm'?renderPianoRhythm(q):
-    q.type==='note-key'?renderPianoKeyboard(q):
-    renderPianoStaff(q);
-  el.innerHTML=`<div class="zh-quiz-card">
-    <div class="progress-info"><span>Question ${pianoQuiz.idx+1} / ${pianoQuiz.deck.length}</span><span>${pianoQuiz.correct} Correct</span></div>
-    <div class="piano-staff">${visual}</div>
-    <div class="method-mini">${q.type==='rhythm'?'How many beats / how do we count it?':q.type==='note-key'?'Which note should she find?':'What note is this?'}</div>
-    <div class="piano-choice-grid">${q.options.map(o=>`<button class="piano-choice" onclick="answerPiano(${jsArg(o)},this)">${escHTML(o)}</button>`).join('')}</div>
-    <div class="zh-feedback" id="piano-feedback"></div>
-    <button class="next-btn" id="piano-next" style="display:none;width:100%;margin-top:10px;" onclick="nextPianoQuestion()">Next →</button>
-  </div>`;
-}
-function answerPiano(choice,btn){
-  if(pianoQuiz.locked)return;
-  pianoQuiz.locked=true;
-  const q=pianoQuiz.deck[pianoQuiz.idx];
-  const ok=isMatch(choice,q.correct);
-  if(ok)pianoQuiz.correct++;
-  document.querySelectorAll(`#${pianoQuiz.containerId} .piano-choice`).forEach(b=>{
-    if(isMatch(b.textContent,q.correct))b.classList.add('correct');
-    else if(b===btn)b.classList.add('wrong');
-    b.disabled=true;
-  });
-  const fb=document.getElementById('piano-feedback');
-  fb.className='zh-feedback '+(ok?'ok':'warn');
-  fb.innerHTML=(ok?'<b>Correct.</b> ':'<b>Look here.</b> ')+escHTML(q.explain);
-  apiFetch('PUT','/piano/skill-stats',{skill:q.skill,correct:ok}).catch(e=>console.warn('piano skill:',e));
-  document.getElementById('piano-next').style.display='block';
-}
-function nextPianoQuestion(){pianoQuiz.idx++;loadPianoQuestion();}
 
 function quizUpdateProgress(ids,state){
   document.getElementById(ids.prog).textContent=`Question ${state.idx+1} / ${state.deck.length}`;
@@ -6525,7 +6259,7 @@ function loadDiagnosticQuestion(){
     input.id='diag-number-input';
     input.inputMode='decimal';
     input.placeholder='?';
-    input.onkeydown=e=>{if(e.key==='Enter')checkDiagnostic();};
+    input.onkeydown=e=>handlePracticeEnter(e,()=>diagSt.locked?nextDiagnostic():checkDiagnostic());
     box.appendChild(input);
     setTimeout(()=>input.focus(),50);
   }
@@ -6937,6 +6671,15 @@ function escHTML(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<'
 function jsArg(s){return escHTML(JSON.stringify(String(s??'')));}
 function labelCase(s){return String(s).replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase());}
 
+/* ===== Piano homework companion ===== */
+let pianoState={week:null,plan:null};
+async function initPianoModule(){try{const p=await apiFetch('GET','/piano/today');pianoState.plan=p.plan||null;if(p.weekId)pianoState.week=(await apiFetch('GET','/piano/weeks/'+p.weekId)).week;renderPiano();}catch(e){document.getElementById('piano-page').innerHTML='<div class="piano-empty">Could not load Piano. '+escHTML(e.message)+'</div>';}}
+function renderPiano(){const el=document.getElementById('piano-page'),w=pianoState.week,plan=pianoState.plan;if(!w){el.innerHTML=`<header class="piano-head"><div><h1>Piano</h1><p>Start from your teacher’s assignment. Photos and PDFs stay as the original reference; this tracker never redraws the score.</p></div></header><section class="piano-panel"><h2>Add this week’s teacher assignment</h2><div class="piano-form"><input id="piano-week-label" placeholder="e.g. Week of 21 Sep · Minuet"><input id="piano-lesson-date" type="date"><textarea id="piano-teacher-note" placeholder="Teacher’s main instruction"></textarea><button class="start-btn" onclick="createPianoWeek()">Create weekly practice plan</button></div></section>`;return}const tasks=(w.tasks||[]).map(t=>`<div class="piano-task"><b>${escHTML(t.title)}</b> <small>${escHTML(t.kind)}${t.rangeLabel?' · '+escHTML(t.rangeLabel):''}</small><div>${escHTML(t.goal||'Teacher-set practice')}</div></div>`).join('')||'<div class="piano-empty">Add the first teacher task below.</div>';const sources=(w.assets||[]).map(a=>`<a class="piano-task" href="${API}/piano/assets/${a.id}" target="_blank" rel="noopener"><b>${escHTML(a.originalName)}</b><small>Open original ${a.mimeType==='application/pdf'?'PDF':'photo'}</small></a>`).join('')||'<div class="piano-empty">No source attached yet.</div>';const focus=plan?.focus;el.innerHTML=`<header class="piano-head"><div><h1>${escHTML(w.label)}</h1><p>${escHTML(w.teacherNote||'Follow your teacher’s priority. Work slowly, then leave one helpful note for next time.')}</p></div><button class="lbtn" onclick="initPianoModule()">Refresh</button></header><div class="piano-grid"><section class="piano-panel"><h2>Today’s 30-minute practice</h2><div class="piano-plan"><div class="piano-step"><strong>Warm up · 5 min</strong>${escHTML(plan?.warmup||'Choose the teacher-set technique.')}</div><div class="piano-step"><strong>Focus · 20 min</strong>${focus?`<b>${escHTML(focus.title)}</b>${focus.rangeLabel?' · '+escHTML(focus.rangeLabel):''}<br>${escHTML(focus.goal||'Work in small, careful sections.')}`:'Choose one active task below.'}</div><div class="piano-step"><strong>Reflect · 5 min</strong>${escHTML(plan?.reflect||'Leave one useful note for next time.')}</div></div><div class="piano-form" style="margin-top:14px"><select id="piano-status"><option value="smooth">Smooth today</option><option value="practising">Still practising</option><option value="stuck">I got stuck</option></select><textarea id="piano-note" placeholder="What was tricky? One short sentence is enough."></textarea><button class="start-btn" onclick="savePianoSession(${w.id},${focus?.id||0})">Finish practice</button></div></section><section class="piano-panel"><h2>This week’s teacher work</h2>${tasks}<h3 style="margin-top:18px">Original teacher materials</h3>${sources}<details style="margin-top:14px"><summary>Add task or source file</summary><div class="piano-form" style="margin-top:12px"><select id="piano-kind"><option value="piece">Piece</option><option value="technique">Technique</option><option value="sight-reading">Sight-reading</option><option value="theory">Theory</option></select><input id="piano-task-title" placeholder="Piece or exercise title"><input id="piano-range" placeholder="Page / bars / section"><input id="piano-goal" placeholder="Teacher’s goal"><button class="lbtn" onclick="addPianoTask(${w.id})">Add teacher task</button><input id="piano-file" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"><button class="lbtn" onclick="uploadPianoSource(${w.id})">Attach score or teacher note</button><small>OCR may suggest text after upload. Please confirm it against the original; notation is never interpreted.</small></div></details></section></div>`}
+async function createPianoWeek(){const label=document.getElementById('piano-week-label').value.trim();if(!label)return;await apiFetch('POST','/piano/weeks',{label,lessonDate:document.getElementById('piano-lesson-date').value,teacherNote:document.getElementById('piano-teacher-note').value.trim()});initPianoModule()}
+async function addPianoTask(id){const title=document.getElementById('piano-task-title').value.trim();if(!title)return;await apiFetch('POST','/piano/weeks/'+id+'/tasks',{kind:document.getElementById('piano-kind').value,title,rangeLabel:document.getElementById('piano-range').value.trim(),goal:document.getElementById('piano-goal').value.trim(),priority:2,status:'active'});pianoState.week=(await apiFetch('GET','/piano/weeks/'+id)).week;renderPiano()}
+async function savePianoSession(id,taskId){await apiFetch('POST','/piano/weeks/'+id+'/sessions',{taskId,minutes:30,selfStatus:document.getElementById('piano-status').value,difficultyNote:document.getElementById('piano-note').value.trim()});document.getElementById('piano-note').value='';alert('Practice saved. Your note will help next time.')}
+async function uploadPianoSource(id){const f=document.getElementById('piano-file').files[0];if(!f)return;const form=new FormData();form.append('file',f);const r=await fetch(API+'/piano/weeks/'+id+'/assets?kind=assignment',{method:'POST',body:form});const body=await r.json();if(!r.ok)alert(body.error||'Upload failed');else{const s=body.suggestion||{};if(s.title||s.rangeLabel)alert(`Source saved. OCR suggests: ${s.title||'no title'}${s.rangeLabel?' · '+s.rangeLabel:''}. Please confirm it against the original before adding a task.`);else if(body.ocrWarning)alert(body.ocrWarning);pianoState.week=(await apiFetch('GET','/piano/weeks/'+id)).week;renderPiano()}}
+
 /* ===== tab ===== */
 function navigate(route){
   if(location.hash===route)applyRoute(parseRoute(route));
@@ -6947,13 +6690,42 @@ function parseRoute(hash){
   return {subject:parts[0]||'home',page:parts[1]||''};
 }
 function setSubject(id){
-  const primary={home:'today',daily:'today',learn:'learn',math:'learn',curriculum:'learn',english:'learn',engcurr:'learn',chinese:'learn',piano:'learn',reading:'reading',review:'review',wrongs:'review',progress:'progress',improve:'progress',history:'progress',diagnostic:'progress',engdiag:'progress',parent:'parent'}[id]||'learn';
+  const primary={home:'today',daily:'today',learn:'learn',math:'learn',curriculum:'learn',english:'learn',engcurr:'learn',chinese:'learn',reading:'reading',review:'learn',wrongs:'learn',progress:'parent',improve:'parent',history:'parent',diagnostic:'parent',engdiag:'parent',parent:'parent'}[id]||'learn';
   document.querySelectorAll('.subj').forEach(b=>{b.classList.remove('on');b.removeAttribute('aria-current');});
   const active=document.getElementById('nav-'+primary);active?.classList.add('on');active?.setAttribute('aria-current','page');
 }
 function showSection(id){
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
   document.getElementById('sec-'+id)?.classList.add('on');
+}
+function activityLabel(route){
+  const math={add:'Number practice',mul:'Times tables',division:'Division sense',vertical:'Long form',clock:'Clock time',weight:'Weight',table:'Table chart',wrongs:'Review mistakes',challenge:'Speed 40'};
+  if(route.subject==='math')return{subject:'Math',title:math[route.page]||'Math practice'};
+  if(route.subject==='curriculum')return{subject:'Math',title:'P4 curriculum'};
+  if(route.subject==='english')return{subject:'English',title:route.page==='diagnostic'?'English diagnostic':'Vocabulary'};
+  if(route.subject==='english-curriculum')return{subject:'English',title:'English curriculum'};
+  if(route.subject==='chinese')return{subject:'Chinese',title:{tone:'Tone Focus',writing:'Write from memory',review:'Character review',pinyin:'Pinyin',week:'Weekly words'}[route.page]||'Core characters'};
+  if(route.subject==='piano')return{subject:'Piano',title:'Teacher-led practice'};
+  if(route.subject==='daily')return{subject:'Today',title:'Mixed review'};
+  if(route.subject==='parent'&&route.page)return{subject:'Parent',title:{progress:'Progress',curriculum:'Curriculum mastery','math-diagnostic':'Math diagnostic','english-diagnostic':'English diagnostic',history:'Math history'}[route.page]||'Workspace'};
+  return null;
+}
+function setActivityShell(route){
+  const shell=document.getElementById('activity-shell'),label=activityLabel(route);
+  if(!shell)return;
+  if(!label){shell.classList.remove('on');shell.innerHTML='';return;}
+  shell.classList.add('on');
+  const parentTool=label.subject==='Parent';
+  shell.innerHTML=`<div class="activity-crumb"><button type="button" onclick="navigate('${parentTool?'#/parent':'#/learn'}')"><i class="ri-arrow-left-line" aria-hidden="true"></i>${parentTool?'Parent':'Subjects'}</button><i class="ri-arrow-right-s-line" aria-hidden="true"></i><span>${escHTML(label.subject)} · ${escHTML(label.title)}</span></div><button class="activity-today-link" type="button" onclick="navigate('#/home')"><i class="ri-calendar-check-line" aria-hidden="true"></i>Today</button>`;
+}
+async function renderSubjectHub(){
+  await loadMainLessonPreference();
+  const focus=mainLessonPreference.resolvedTopic||MAIN_LESSON_FALLBACK.resolvedTopic;
+  const button=document.getElementById('subject-math-continue');
+  if(!button)return;
+  const title=mainLessonDisplayTitle(focus);
+  button.setAttribute('onclick',`navigate('#/curriculum/${escHTML(focus.topicCode||'P4-FRACTIONS-MIXED')}')`);
+  button.innerHTML=`<span class="subject-continue-copy"><small>Continue</small><strong>${escHTML(title)}</strong></span><i class="ri-arrow-right-line" aria-hidden="true"></i>`;
 }
 function setMathTab(id){
   document.querySelectorAll('#math-tabs .tab').forEach(t=>{
@@ -6964,16 +6736,25 @@ function setMathTab(id){
 function applyRoute(route){
   const mathTabs=document.getElementById('math-tabs');
   mathTabs.style.display='none';
-  if(route.subject==='learn'){setSubject('learn');showSection('learn');return;}
+  setActivityShell(route);
+  if(route.subject==='learn'){setSubject('learn');showSection('learn');renderSubjectHub();return;}
   if(route.subject==='reading'){setSubject('reading');showSection('reading');initReadingModule();return;}
-  if(route.subject==='review'){setSubject('review');showSection('review');renderReviewHub();return;}
-  if(route.subject==='progress'){setSubject('progress');showSection('progress');return;}
-  if(route.subject==='parent'){setSubject('parent');showSection('parent');initParentModule();return;}
+  if(route.subject==='review'){setSubject('learn');showSection('learn');renderSubjectHub();return;}
+  if(route.subject==='progress'||route.subject==='improve'||route.subject==='diagnostic'){navigate('#/parent/'+(route.subject==='diagnostic'?'math-diagnostic':'progress'));return;}
+  if(route.subject==='parent'){
+    setSubject('parent');
+    if(route.page==='progress'){showSection('improve');initImproveModule();return;}
+    if(route.page==='curriculum'){showSection('curriculum');initCurriculumModule();return;}
+    if(route.page==='math-diagnostic'){showSection('diagnostic');initDiagnosticModule();return;}
+    if(route.page==='english-diagnostic'){showSection('engdiag');initEnglishDiagnosticModule();return;}
+    if(route.page==='history'){showSection('history');renderHistory();return;}
+    showSection('parent');initParentModule();return;
+  }
   if(route.subject==='math'){
     const mathIds=['add','mul','division','vertical','clock','weight','challenge','table','wrongs','history'];
     const id=mathIds.includes(route.page)?route.page:'add';
+    if(id==='history'){navigate('#/parent/history');return;}
     setSubject(id==='wrongs'?'wrongs':id==='history'?'history':'math');
-    mathTabs.style.display='';
     setMathTab(id);
     showSection(id);
   if(id==='table')renderTable();
@@ -6987,7 +6768,7 @@ function applyRoute(route){
     return;
   }
   if(route.subject==='english'&&route.page==='diagnostic'){
-    setSubject('engdiag');showSection('engdiag');initEnglishDiagnosticModule();return;
+    navigate('#/parent/english-diagnostic');return;
   }
   if(route.subject==='english'){
     setSubject('english');showSection('english');initEngTab();return;
@@ -7008,9 +6789,9 @@ function applyRoute(route){
     });return;
   }
   if(route.subject==='daily'){setSubject('daily');showSection('daily');initDailyModule();return;}
+  if(route.subject==='piano'){setSubject('learn');showSection('piano');initPianoModule();return;}
   if(route.subject==='improve'){setSubject('improve');showSection('improve');initImproveModule();return;}
   if(route.subject==='diagnostic'){setSubject('diagnostic');showSection('diagnostic');initDiagnosticModule();return;}
-  if(route.subject==='piano'){setSubject('piano');showSection('piano');initPianoModule();return;}
   setSubject('home');
   showSection('home');
   renderTodayModule();
@@ -7019,7 +6800,7 @@ function go(id,btn){
   navigate('#/math/'+id);
 }
 function goSubject(s,btn){
-  const routes={math:'#/math/add',english:'#/english/vocab',engcurr:'#/english-curriculum',engdiag:'#/english/diagnostic',chinese:'#/chinese/core',curriculum:'#/curriculum',daily:'#/daily',improve:'#/improve',diagnostic:'#/diagnostic',piano:'#/piano',reading:'#/reading'};
+  const routes={math:'#/math/add',english:'#/english/vocab',engcurr:'#/english-curriculum',engdiag:'#/english/diagnostic',chinese:'#/chinese/core',curriculum:'#/curriculum',daily:'#/daily',improve:'#/improve',diagnostic:'#/diagnostic',reading:'#/reading'};
   navigate(routes[s]||'#/home');
 }
 function showSub(id,btn){
@@ -7075,6 +6856,33 @@ function showTenseSub(id,btn){
   if(id==='learn')renderTenseLearn();
   if(id==='compare')renderTenseCompare();
 }
+
+// Keyboard policy for short-answer practice: Enter always performs the single
+// useful next action. Long-form writing keeps its own Enter/Shift+Enter rules.
+function handlePracticeEnter(event,action){
+  if(event.key!=='Enter'||event.isComposing)return;
+  event.preventDefault();
+  action();
+}
+function handleMathEnter(event,area){handlePracticeEnter(event,()=>chk(area));}
+function handleSpeed40Enter(event){
+  handlePracticeEnter(event,()=>{
+    if(addSpeedSt.locked)nextSpeed40Question();
+    else checkSpeed40();
+  });
+}
+function handleChallengeEnter(event){handlePracticeEnter(event,()=>{if(!cSt.locked)chkChallenge();});}
+function handleEnglishWordEnter(event,mode){
+  handlePracticeEnter(event,()=>{
+    if(mode==='study'){
+      if(document.getElementById('study-next-btn')?.style.display!=='none')nextStudyWord();
+      else checkStudy();
+      return;
+    }
+    if(document.getElementById('spell-next-btn')?.style.display!=='none')nextSpellWord();
+    else checkSpelling();
+  });
+}
 function setLv(area,v,btn){
   lv[area]=v;btn.closest('.lv-row').querySelectorAll('.lbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
   document.getElementById(area+'-start-wrap').style.display='block';
@@ -7087,7 +6895,7 @@ function setLv(area,v,btn){
 let addSubReady=false;
 let addSpeedSt={deck:[],idx:0,correct:0,wrong:0,slow:0,startTime:0,qStart:0,timer:null,wrongInRound:[],locked:false};
 const ADD_SPEED_TIME=15;
-const ADD_SPEED_TOTAL=20;
+const ADD_SPEED_TOTAL=40;
 
 function initAddSubModule(){
   if(!addSubReady){
@@ -7230,6 +7038,7 @@ function loadSpeed40Question(){
   document.getElementById('add-speed-check-btn').disabled=false;
   document.getElementById('add-speed-check-btn').style.display='block';
   document.getElementById('add-speed-next-btn').style.display='none';
+  document.getElementById('add-speed-enter-hint').innerHTML='<i class="ri-corner-down-left-line" aria-hidden="true"></i>Press Enter to check';
   document.getElementById('add-speed-prog-txt').textContent=`Question ${s.idx+1} / ${s.deck.length}`;
   document.getElementById('add-speed-prog-cor').textContent=`${s.correct} Correct`;
   document.getElementById('add-speed-prog-fill').style.width=(s.idx/s.deck.length*100)+'%';
@@ -7284,6 +7093,7 @@ function finishSpeed40Question(val,reason){
   tip.innerHTML=explainSpeed40(q,ok,reason);
   tip.style.display='block';
   document.getElementById('add-speed-next-btn').style.display='inline-block';
+  document.getElementById('add-speed-enter-hint').innerHTML='<i class="ri-corner-down-left-line" aria-hidden="true"></i>Press Enter for next question';
 }
 
 function nextSpeed40Question(){
@@ -9151,7 +8961,9 @@ function launchFireworks(){
 /* ===== Speed Challenge ===== */
 // challengeWeakMap syncs via /api/v1/math/challenge/weak
 let challengeWeakMap={};
-let cSt={deck:[],idx:0,correct:0,slow:0,wrong:0,startTime:0,qStart:0,timer:null,sessionWeak:[]};
+let cSt={deck:[],idx:0,correct:0,slow:0,wrong:0,startTime:0,qStart:0,timer:null,sessionWeak:[],locked:false};
+const CHALLENGE_DAILY_TOTAL=20;
+const CHALLENGE_PRIORITY_LIMIT=10;
 
 
 function initChallenge(){
@@ -9161,27 +8973,37 @@ function initChallenge(){
   const ws=document.getElementById('ch-weak-stats');
   if(cnt>0){
     const top=Object.values(challengeWeakMap).sort((a,b)=>b.count-a.count).slice(0,5);
-    ws.innerHTML='Saved weak spots: <b>'+cnt+'</b> | Weakest: '+top.map(w=>`<b>${w.q.a}×${w.q.b}</b>`).join(' ');
+    ws.innerHTML='Saved weak spots: <b>'+cnt+'</b> | Today starts with the most frequent: '+top.map(w=>`<b>${w.q.a}×${w.q.b}</b>`).join(' ');
     ws.style.display='block';
   }else ws.style.display='none';
 }
 
+function allChallengeFacts(){
+  const facts=[];
+  for(let a=2;a<=9;a++)for(let b=2;b<=9;b++)facts.push({a,op:'×',b,ans:a*b,key:`ch:${a}×${b}`});
+  return facts;
+}
+
 function buildChallengeDeck(weakOnly){
+  const weakFacts=Object.values(challengeWeakMap).sort((a,b)=>b.count-a.count);
   if(weakOnly){
-    const ks=Object.keys(challengeWeakMap);if(!ks.length)return[];
-    const pool=[];
-    while(pool.length<Math.min(ks.length*4,100))ks.forEach(k=>{if(pool.length<100)pool.push(JSON.parse(JSON.stringify(challengeWeakMap[k].q)));});
-    return shuffle(pool);
+    if(!weakFacts.length)return[];
+    const weighted=[];
+    weakFacts.forEach(({q,count})=>{
+      for(let i=0;i<Math.max(1,count);i++)weighted.push(q);
+    });
+    return Array.from({length:CHALLENGE_DAILY_TOTAL},()=>JSON.parse(JSON.stringify(weighted[Math.floor(Math.random()*weighted.length)])));
   }
-  const deck=[];
-  for(let a=2;a<=9;a++)for(let b=2;b<=9;b++)deck.push({a,op:'×',b,ans:a*b,key:`ch:${a}×${b}`});
-  return shuffle(deck);
+  const priority=weakFacts.slice(0,CHALLENGE_PRIORITY_LIMIT).map(({q})=>JSON.parse(JSON.stringify(q)));
+  const priorityKeys=new Set(priority.map(q=>q.key));
+  const fresh=allChallengeFacts().filter(q=>!priorityKeys.has(q.key));
+  return [...priority, ...shuffle(fresh).slice(0,CHALLENGE_DAILY_TOTAL-priority.length)];
 }
 
 function startChallenge(weakOnly){
   const deck=buildChallengeDeck(weakOnly);
-  if(!deck.length){alert('No weak spots yet! Complete a full challenge round first.');return;}
-  cSt={deck,idx:0,correct:0,slow:0,wrong:0,startTime:Date.now(),qStart:0,timer:null,sessionWeak:[]};
+  if(!deck.length){alert('No weak spots saved yet. Finish a daily challenge first.');return;}
+  cSt={deck,idx:0,correct:0,slow:0,wrong:0,startTime:Date.now(),qStart:0,timer:null,sessionWeak:[],locked:false};
   document.getElementById('ch-start-wrap').style.display='none';
   document.getElementById('ch-result').style.display='none';document.getElementById('ch-result').innerHTML='';
   document.getElementById('ch-quiz').style.display='block';
@@ -9192,6 +9014,7 @@ const CH_TIME=15;
 function loadChallengeQ(){
   if(cSt.timer)clearInterval(cSt.timer);
   if(cSt.idx>=cSt.deck.length){showChallengeResult();return;}
+  cSt.locked=false;
   const q=cSt.deck[cSt.idx];
   document.getElementById('ch-q').textContent=`${q.a} × ${q.b} = ?`;
   document.getElementById('ch-ans').value='';
@@ -9212,10 +9035,11 @@ function loadChallengeQ(){
 }
 
 function chkChallenge(){
-  if(cSt.idx>=cSt.deck.length)return;
+  if(cSt.idx>=cSt.deck.length||cSt.locked)return;
   const val=parseInt(document.getElementById('ch-ans').value);if(isNaN(val))return;
   if(cSt.timer){clearInterval(cSt.timer);cSt.timer=null;}
   const q=cSt.deck[cSt.idx];
+  cSt.locked=true;
   const elapsed=(Date.now()-cSt.qStart)/1000;
   if(val===q.ans&&elapsed<CH_TIME){
     cSt.correct++;
@@ -9229,6 +9053,7 @@ function chkChallenge(){
 }
 
 function chkChallengeFail(q,reason){
+  cSt.locked=true;
   if(cSt.timer){clearInterval(cSt.timer);cSt.timer=null;}
   if(reason==='wrong'){cSt.wrong++;document.getElementById('ch-fb').textContent=`Not quite! The answer is ${q.ans}`;document.getElementById('ch-fb').className='fb no';}
   else{cSt.slow++;document.getElementById('ch-fb').textContent=`⏱ Too slow! The answer is ${q.ans}`;document.getElementById('ch-fb').className='fb no';}
@@ -9268,7 +9093,7 @@ function showChallengeResult(){
     ${weakHtml}
     <div style="margin-top:.75rem;font-size:12px;color:#888;">Total saved weak spots: <b style="color:#E24B4A">${totalWeak}</b></div>
     <div style="margin-top:1.25rem;">
-      <button class="again-btn" onclick="startChallenge(false)">Full Challenge →</button>
+      <button class="again-btn" onclick="startChallenge(false)">Another Daily Challenge →</button>
       ${totalWeak>0?`<button class="retry-wrong-btn" onclick="startChallenge(true)">Practice Weak Spots (${totalWeak}) →</button>`:''}
     </div>
   </div>`;
@@ -9932,6 +9757,8 @@ function buildWeekCard(week){
   const cor=scores.reduce((s,v)=>s+v.correct,0);
   const scoreTxt=tot>0?'Spell: '+Math.round(cor/tot*100)+'%':'Not tested yet';
   const wordList=week.words||[];
+	const fridayMistakes=week.fridayMistakes||[];
+  const fridayMistakeSet=new Set(fridayMistakes.map(word=>String(word).toLowerCase()));
   const chipsHTML=wordList.map(w=>{
     const sc=spellMap[w];
     if(!sc||sc.correct+sc.wrong===0)return`<span class="ww-chip untested">${w}</span>`;
@@ -9942,22 +9769,76 @@ function buildWeekCard(week){
   div.innerHTML=
     '<div class="week-feed-hdr">'+
       '<div class="week-label">'+week.label+'</div>'+
-      '<div class="week-meta">'+(week.wordCount||0)+' words · '+scoreTxt+'</div>'+
+      '<div class="week-meta">'+(week.wordCount||0)+' words · '+scoreTxt+(fridayMistakes.length?' · Friday review: '+fridayMistakes.length:'')+'</div>'+
     '</div>'+
     (chipsHTML?'<div class="week-words" style="margin-bottom:8px;">'+chipsHTML+'</div>':'')+
+		(fridayMistakes.length?'<div class="friday-review-note"><i class="ri-pencil-line" aria-hidden="true"></i>'+fridayMistakes.length+' Friday spelling '+(fridayMistakes.length===1?'mistake needs review':'mistakes need review')+'</div>':'')+
     '<div class="week-feed-actions">'+
       '<button class="week-review-btn" data-action="words">Word Cards</button>'+
       '<button class="week-review-btn" data-action="spell">Spell Test →</button>'+
+		(fridayMistakes.length?'<button class="week-review-btn" style="border-color:#A32D2D;background:#fcebeb;color:#A32D2D;" data-action="friday-review">Review Friday mistakes ('+fridayMistakes.length+') →</button>':'')+
+		'<button class="week-review-btn" style="border-color:#BA7517;background:#faeeda;color:#633806;" data-action="friday-check">Friday paper check</button>'+
       '<button class="week-review-btn" style="border-color:#3b6d11;background:#eaf3de;color:#3b6d11;" data-action="story">Story →</button>'+
 	  '<button class="week-review-btn" style="border-color:#aaa;background:#fff;color:#555;" data-action="edit">Edit words</button>'+
 	  '<button class="week-review-btn" style="border-color:#aaa;background:#fff;color:#555;" data-action="rename">Rename</button>'+
     '</div>';
   div.querySelector('[data-action=words]').onclick=()=>openEngView('word',week.weekId);
   div.querySelector('[data-action=spell]').onclick=()=>openEngView('spell',week.weekId);
+	if(fridayMistakes.length)div.querySelector('[data-action=friday-review]').onclick=()=>startFridayMistakePractice(week);
+	div.querySelector('[data-action=friday-check]').onclick=()=>showFridayPaperCheck(div,week);
   div.querySelector('[data-action=story]').onclick=()=>openEngView('story',week.weekId);
 	div.querySelector('[data-action=edit]').onclick=()=>showEnglishWeekEditor(div,week);
 	div.querySelector('[data-action=rename]').onclick=()=>showEnglishWeekRename(div,week);
   return div;
+}
+
+async function startFridayMistakePractice(week){
+	try{
+		const full=await apiFetch('GET','/english/weeks/'+encodeURIComponent(week.weekId));
+		const missed=new Set((full.fridayMistakes||[]).map(word=>String(word).toLowerCase()));
+		const words=(full.words||[]).filter(item=>missed.has(String(item.word||'').toLowerCase()));
+		if(!words.length){await renderEngFeed();return;}
+		engCurrentWeek=full;
+		showEngView('spell');
+		document.getElementById('spell-start-wrap').style.display='none';
+		document.getElementById('study-panel').style.display='none';
+		document.getElementById('spell-result').style.display='none';
+		spellSt={words:shuffle(words),idx:0,correct:0,wrongWords:[]};
+		document.getElementById('spell-quiz').style.display='block';
+		loadSpellWord();
+	}catch(error){alert(error.message||'Could not open Friday mistakes.');}
+}
+
+async function showFridayPaperCheck(card,week){
+	if(card.querySelector('.friday-check'))return;
+	const panel=document.createElement('section');
+	panel.className='friday-check';
+	panel.innerHTML='<div class="friday-check-head"><div><div class="friday-check-title">Friday paper spelling check</div><p class="friday-check-copy">Use the paper test. Tick only the words that need more practice.</p></div></div><div class="friday-check-list"></div><div class="friday-check-actions"><button class="friday-check-save" type="button">Save Friday mistakes</button><button class="friday-check-clear" type="button">Mark all correct</button><button class="friday-check-cancel" type="button">Cancel</button></div><div class="friday-check-status" aria-live="polite"></div>';
+	card.appendChild(panel);
+	const list=panel.querySelector('.friday-check-list'),save=panel.querySelector('.friday-check-save'),clear=panel.querySelector('.friday-check-clear'),cancel=panel.querySelector('.friday-check-cancel'),status=panel.querySelector('.friday-check-status');
+	try{
+		const full=await apiFetch('GET','/english/weeks/'+encodeURIComponent(week.weekId));
+		const selected=new Set((full.fridayMistakes||[]).map(word=>String(word).toLowerCase()));
+		(full.words||[]).forEach(item=>{
+			const word=String(item.word||'');
+			const row=document.createElement('label');row.className='friday-check-row';
+			row.innerHTML='<input type="checkbox" value="'+escHTML(word)+'" '+(selected.has(word.toLowerCase())?'checked':'')+'><span class="friday-check-word">'+escHTML(word)+'</span><span class="friday-check-state">'+(selected.has(word.toLowerCase())?'Needs review':'Correct')+'</span>';
+			const input=row.querySelector('input'),state=row.querySelector('.friday-check-state');
+			input.onchange=()=>{state.textContent=input.checked?'Needs review':'Correct';};
+			list.appendChild(row);
+		});
+	}catch(error){panel.remove();alert(error.message||'Could not load this vocabulary list.');return;}
+	cancel.onclick=()=>panel.remove();
+	clear.onclick=()=>list.querySelectorAll('input').forEach(input=>{input.checked=false;input.dispatchEvent(new Event('change'));});
+	save.onclick=async()=>{
+		const mistakes=[...list.querySelectorAll('input:checked')].map(input=>input.value);
+		save.disabled=true;clear.disabled=true;cancel.disabled=true;status.className='friday-check-status';status.textContent='Saving paper-test results…';
+		try{
+			await apiFetch('PUT','/english/weeks/'+encodeURIComponent(week.weekId)+'/friday-spelling',{mistakes});
+			status.className='friday-check-status ok';status.textContent=mistakes.length?mistakes.length+' words saved for Friday review.':'All words marked correct.';
+			await renderEngFeed();
+		}catch(error){status.textContent=error.message||'Could not save the paper-test results. Try again.';save.disabled=false;clear.disabled=false;cancel.disabled=false;}
+	};
 }
 
 async function showEnglishWeekEditor(card,week){

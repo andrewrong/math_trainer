@@ -23,9 +23,6 @@ var chineseSQL string
 //go:embed migrations/005_chinese_review_v2.sql
 var chineseReviewV2SQL string
 
-//go:embed migrations/006_piano.sql
-var pianoSQL string
-
 //go:embed migrations/007_english_curriculum.sql
 var englishCurriculumSQL string
 
@@ -43,6 +40,18 @@ var englishPronunciationsSQL string
 
 //go:embed migrations/012_english_pronunciation_sources.sql
 var englishPronunciationSourcesSQL string
+
+//go:embed migrations/013_english_friday_spelling.sql
+var englishFridaySpellingSQL string
+
+//go:embed migrations/014_remove_piano.sql
+var removePianoSQL string
+
+//go:embed migrations/015_piano_homework.sql
+var pianoHomeworkSQL string
+
+//go:embed migrations/016_backfill_chinese_audio_metadata.sql
+var chineseAudioBackfillSQL string
 
 // Open opens (or creates) the SQLite database, runs migrations, and returns
 // a *sql.DB ready to use. WAL mode is enabled for better concurrent reads.
@@ -80,9 +89,6 @@ func migrate(db *sql.DB) error {
 	if _, err := db.Exec(chineseReviewV2SQL); err != nil {
 		return fmt.Errorf("executing chinese review v2 migration: %w", err)
 	}
-	if _, err := db.Exec(pianoSQL); err != nil {
-		return fmt.Errorf("executing piano migration: %w", err)
-	}
 	if _, err := db.Exec(englishCurriculumSQL); err != nil {
 		return fmt.Errorf("executing english curriculum migration: %w", err)
 	}
@@ -100,6 +106,18 @@ func migrate(db *sql.DB) error {
 	}
 	if _, err := db.Exec(englishPronunciationSourcesSQL); err != nil {
 		return fmt.Errorf("executing English pronunciation sources migration: %w", err)
+	}
+	if _, err := db.Exec(englishFridaySpellingSQL); err != nil {
+		return fmt.Errorf("executing English Friday spelling migration: %w", err)
+	}
+	if _, err := db.Exec(removePianoSQL); err != nil {
+		return fmt.Errorf("removing retired piano data: %w", err)
+	}
+	if _, err := db.Exec(pianoHomeworkSQL); err != nil {
+		return fmt.Errorf("executing piano homework migration: %w", err)
+	}
+	if _, err := db.Exec(chineseAudioBackfillSQL); err != nil {
+		return fmt.Errorf("backfilling Chinese audio metadata: %w", err)
 	}
 	return nil
 }

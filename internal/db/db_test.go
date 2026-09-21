@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	"path/filepath"
 	"testing"
 )
@@ -31,5 +32,43 @@ func TestOpenRunsLearningPlanMigration(t *testing.T) {
 	}
 	if mode != "manual" || topicCode != "P4-FRACTIONS-MIXED" {
 		t.Fatalf("default learning plan=(%q,%q), want manual fractions", mode, topicCode)
+	}
+}
+
+func TestOpenRemovesRetiredPianoTables(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "legacy-piano.db")
+	legacy, err := sql.Open("sqlite3", path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, statement := range []string{
+		`CREATE TABLE piano_assignments (id INTEGER PRIMARY KEY, title TEXT)`,
+		`CREATE TABLE piano_practice_sessions (id INTEGER PRIMARY KEY, content TEXT)`,
+		`CREATE TABLE piano_skill_stats (skill TEXT PRIMARY KEY, correct_count INTEGER)`,
+		`INSERT INTO piano_assignments(title) VALUES ('Old practice')`,
+	} {
+		if _, err := legacy.Exec(statement); err != nil {
+			legacy.Close()
+			t.Fatal(err)
+		}
+	}
+	if err := legacy.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	database, err := Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer database.Close()
+
+	for _, table := range []string{"piano_assignments", "piano_practice_sessions", "piano_skill_stats"} {
+		var count int
+		if err := database.QueryRow(`SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?`, table).Scan(&count); err != nil {
+			t.Fatal(err)
+		}
+		if count != 0 {
+			t.Fatalf("retired table %q still exists", table)
+		}
 	}
 }

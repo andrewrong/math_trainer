@@ -9,7 +9,7 @@ The system should have one product loop:
 
 > **Plan → Learn → Practise → Check → Diagnose → Review → Re-check**
 
-Math, English, Chinese, piano, speed drills, diagnostics, and OCR should be entry points into that loop—not separate mini-products with separate ideas of progress.
+Math, English, Chinese, speed drills, diagnostics, and OCR should be entry points into that loop—not separate mini-products with separate ideas of progress.
 
 The key architectural move is to create a shared learning core around five concepts:
 
@@ -46,7 +46,7 @@ The current code has good components, but progress is stored by feature:
 - math sessions, wrong answers, and mastered multiplication facts are separate tables in [`001_init.sql`](../../internal/db/migrations/001_init.sql);
 - curriculum status and four rubric scores live in [`003_curriculum.sql`](../../internal/db/migrations/003_curriculum.sql);
 - Chinese review statistics and rounds have their own model in [`004_chinese.sql`](../../internal/db/migrations/004_chinese.sql) and [`005_chinese_review_v2.sql`](../../internal/db/migrations/005_chinese_review_v2.sql);
-- piano and English curriculum use further independent progress stores in [`006_piano.sql`](../../internal/db/migrations/006_piano.sql) and [`007_english_curriculum.sql`](../../internal/db/migrations/007_english_curriculum.sql).
+- English curriculum uses its own progress store in [`007_english_curriculum.sql`](../../internal/db/migrations/007_english_curriculum.sql).
 
 That is reasonable historically, but it means there is no single answer to: “What is she learning this week, what evidence do we have, and what should she do next?”
 

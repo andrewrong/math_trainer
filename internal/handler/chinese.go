@@ -80,6 +80,10 @@ func (h *ChineseHandler) createWeek(c *gin.Context) {
 			items = mergeChineseItems(items, enriched)
 		}
 	}
+	if missing := chineseItemsMissingPinyin(items); len(missing) > 0 {
+		c.JSON(http.StatusUnprocessableEntity, model.APIError{Error: "could not prepare pronunciation for " + strings.Join(missing, "、") + "; this weekly set was not saved. Add pinyin with tone marks or retry after checking the AI service."})
+		return
+	}
 	weekID := fmt.Sprintf("zh-%d", time.Now().UnixNano())
 	tx, err := h.db.BeginTx(c, nil)
 	if err != nil {
@@ -106,6 +110,16 @@ func (h *ChineseHandler) createWeek(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, model.ChineseWeek{WeekID: weekID, Label: req.Label, CreatedAt: time.Now(), Items: items})
+}
+
+func chineseItemsMissingPinyin(items []model.ChineseItem) []string {
+	missing := make([]string, 0)
+	for _, item := range items {
+		if strings.TrimSpace(item.Pinyin) == "" {
+			missing = append(missing, item.Character)
+		}
+	}
+	return missing
 }
 
 func (h *ChineseHandler) reviewDue(c *gin.Context) {

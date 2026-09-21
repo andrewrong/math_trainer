@@ -13,7 +13,11 @@ assert(script.includes('function applyRoute('));
 assert(script.includes('function parseRoute('));
 assert(script.includes("window.addEventListener('hashchange'"));
 assert(html.includes('#/chinese/core'));
-assert(html.includes('#/math/division'));
+assert(html.includes("onclick=\"go('division',this)\""));
+assert(script.includes("const mathIds=['add','mul','division'"));
 assert(script.includes('showChineseModule(page'));
+assert(html.includes('<h2>Piano</h2>'));
+assert(script.includes('function initPianoModule'));
+assert(script.includes("showSection('piano')"));
 
 console.log('navigation ui checks ok');

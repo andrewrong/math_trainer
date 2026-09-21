@@ -5,6 +5,12 @@ server:
 db:
   path: "./math_trainer.db"
 
+# Optional external AI-control interface. Leave empty to keep /api/agent/v1
+# disabled. Prefer the MATHTRAINER_AUTOMATION_API_TOKEN environment variable
+# instead of committing a token to config.yaml.
+automation:
+  api_token: ""
+
 reading:
   content_dir: "./resources/reading"
   # Optional directories scanned for PDF/EPUB evidence sources.

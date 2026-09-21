@@ -7,9 +7,10 @@ const script = html.match(/<script>([\s\S]*)<\/script>/)[1];
 new Function(script);
 
 assert(html.includes('English Curriculum'));
-assert(html.includes('subj-engcurr'));
 assert(html.includes('sec-engcurr'));
-assert(script.includes("#/english-curriculum"));
+assert(html.includes("navigate('#/english-curriculum')"));
+assert(script.includes("if(route.subject==='english-curriculum')"));
+assert(script.includes("setSubject('engcurr');showSection('engcurr');initEnglishCurriculumModule();return;"));
 assert(script.includes('initEnglishCurriculumModule'));
 assert(script.includes('/english-curriculum/units?grade='));
 assert(script.includes('/english-curriculum/units/'));

@@ -1,0 +1,29 @@
+/* Learning Compass shell — discovery and task orientation only. */
+.nav-shell{gap:18px}
+.brand-lockup{display:flex;align-items:center;gap:10px;min-width:0}
+.brand-mark{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#e6f1fb;color:#185fa5;font-size:19px}
+.subject-bar{gap:4px}
+.subj{display:inline-flex;align-items:center;gap:8px;min-height:44px}
+.subj i{font-size:18px;font-weight:400}
+.subj.parent-entry{margin-left:10px;border-left:1px solid #d7e0e5;border-radius:0;padding-left:18px}
+.learner-shell{display:flex;flex-direction:column;gap:28px;padding:4px 36px 32px}
+.learner-shell-head{max-width:720px}
+.learner-shell-head h1{margin:0 0 8px;font-size:38px;letter-spacing:-.03em;line-height:1.1}
+.learner-shell-head p{max-width:62ch;margin:0;color:#53606a;font-size:18px;line-height:1.6}
+.subject-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.subject-card{display:flex;flex-direction:column;min-width:0;padding:22px;border:1px solid #d4dcdf;border-radius:14px;background:#fff}
+.subject-card-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px}
+.subject-icon{display:grid;place-items:center;flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:#edf6fc;color:#185fa5;font-size:24px}
+.subject-card h2{margin:0 0 4px;font-size:22px;letter-spacing:-.015em}
+.subject-card p{margin:0;color:#66727a;font-size:15px;line-height:1.5}
+.subject-continue{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;min-height:58px;margin-top:auto;padding:12px 14px;border:1px solid #185fa5;border-radius:10px;background:#185fa5;color:#fff;font:inherit;text-align:left;cursor:pointer}
+.subject-continue:hover{background:#124d88}
+.subject-continue-copy{display:grid;gap:3px}.subject-continue-copy small{font-size:13px;font-weight:700;opacity:.82}.subject-continue-copy strong{font-size:16px;line-height:1.25}
+.subject-continue i{font-size:21px}
+.subject-more{margin-top:14px;border-top:1px solid #e0e6e8}
+.subject-more summary{display:flex;align-items:center;justify-content:space-between;min-height:46px;color:#3f4850;font-size:14px;font-weight:800;cursor:pointer;list-style:none}
+.subject-more summary::-webkit-details-marker{display:none}.subject-more summary i{color:#185fa5;font-size:18px}.subject-more[open] summary i{transform:rotate(180deg)}
+.subject-links{display:grid;gap:2px;padding:0 0 6px}.subject-links button{display:flex;align-items:center;gap:9px;width:100%;min-height:40px;padding:8px 2px;border:0;background:transparent;color:#46515a;font:inherit;font-size:14px;text-align:left;cursor:pointer}.subject-links button:hover{color:#185fa5}.subject-links i{color:#185fa5;font-size:17px}
+.activity-shell{display:none;max-width:1180px;margin:0 auto 18px;padding:0 2px}.activity-shell.on{display:flex;align-items:center;justify-content:space-between;gap:16px}.activity-crumb{display:flex;align-items:center;gap:8px;min-width:0;color:#53606a;font-size:14px;font-weight:750}.activity-crumb button{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:#185fa5;font:inherit;font-size:14px;font-weight:800;cursor:pointer}.activity-crumb span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.activity-today-link{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:8px 11px;border:1px solid #b9d4e8;border-radius:8px;background:#fff;color:#185fa5;font:inherit;font-size:14px;font-weight:800;cursor:pointer}
+.enter-hint{min-height:20px;margin:8px 0 0;color:#65727b;font-size:13px;font-weight:700}.enter-hint i{margin-right:4px;color:#185fa5}
+@media(max-width:760px){.nav-shell{gap:6px}.brand-lockup{padding:0 8px 8px}.brand-mark{width:28px;height:28px;border-radius:9px;font-size:17px}.subject-bar{gap:2px}.subj{gap:6px;padding:9px 11px}.subj .nav-label{font-size:14px}.subj.parent-entry{margin-left:2px;padding-left:11px}.learner-shell{gap:20px;padding:0 2px 24px}.learner-shell-head h1{font-size:32px}.learner-shell-head p{font-size:17px}.subject-grid{grid-template-columns:1fr}.subject-card{padding:19px}.activity-shell.on{align-items:flex-start}.activity-today-link{flex:0 0 auto}.activity-crumb span{max-width:40vw}}

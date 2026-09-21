@@ -28,11 +28,12 @@ Learning Compass connects multiple subjects to one evidence-driven learning path
 - The learner primarily works in English because that is the language she can comfortably understand in the interface.
 - The parent may use bilingual English and Chinese guidance where it improves clarity.
 - Learning materials may come from the application's exercises, school curriculum, printed worksheets, and eventually photographed homework.
-- The current learning scope includes Mathematics, English, Chinese, and Piano, with Primary 4 schoolwork as the immediate focus.
+- The current learning scope includes Mathematics, English, Chinese, and teacher-led Piano home practice, with Primary 4 schoolwork as the immediate focus.
 
 ## Capabilities and Constraints
 
-- Existing capabilities include curriculum views, daily practice, diagnostics, arithmetic and topic exercises, mistake review, progress history, English and Chinese learning, and piano practice.
+- Existing capabilities include curriculum views, daily practice, diagnostics, arithmetic and topic exercises, mistake review, progress history, English and Chinese learning, and Piano assignment tracking.
+- Piano is a teacher-material-led practice companion: it keeps the original photo or PDF, a parent-confirmed weekly plan, brief practice reflections, and lesson feedback. It must never invent, redraw, interpret, or score staff notation.
 - These capabilities should converge on a shared learning model and daily workflow rather than remain independent destinations.
 - Learning data and photographed schoolwork should remain local by default.
 - A future local OCR service will propose recognised questions and answers. Uncertain recognition must be confirmed by the parent before it affects mastery or labels an answer wrong.
@@ -49,7 +50,7 @@ Learning Compass connects multiple subjects to one evidence-driven learning path
 ## Evidence on Hand
 
 - The existing application and its working learning modules are the primary product evidence.
-- Existing curriculum, practice, diagnostic, mistake, English, Chinese, and piano data and workflows should be preserved while the information architecture is improved.
+- Existing curriculum, practice, diagnostic, mistake, English, Chinese, and Piano tracking data and workflows should be preserved while the information architecture is improved.
 - Product and OCR architecture research is available at `docs/research/learning-system-ocr-architecture.md`.
 - There are no confirmed public testimonials, commercial claims, benchmark claims, or third-party brand assets; future design work must not invent them.
 

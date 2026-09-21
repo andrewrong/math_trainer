@@ -125,6 +125,40 @@ func TestUpdateWeekWordsKeepsIdentityAndDropsRemovedScores(t *testing.T) {
 	}
 }
 
+func TestParentFridaySpellingMistakesStaySeparateAndCanBeCleared(t *testing.T) {
+	database, err := appdb.Open(filepath.Join(t.TempDir(), "english.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer database.Close()
+
+	gin.SetMode(gin.TestMode)
+	h := NewEnglish(database, nil)
+	week := &model.WeekData{WeekID: "2026-W37", Label: "September vocabulary", CreatedAt: time.Now().UTC(), Words: []model.WordEntry{{Word: "procedure"}, {Word: "calendar"}}}
+	if err := h.saveWeek(week); err != nil {
+		t.Fatal(err)
+	}
+	router := gin.New()
+	h.Register(router.Group("/api/v1"))
+
+	saved := readingJSONRequest(t, router, http.MethodPut, "/api/v1/english/weeks/2026-W37/friday-spelling", `{"mistakes":["procedure"]}`)
+	if saved.Code != http.StatusOK || !containsAll(saved.Body.String(), `"mistakes":["procedure"]`) {
+		t.Fatalf("save Friday mistakes status=%d body=%s", saved.Code, saved.Body.String())
+	}
+	loaded := readingJSONRequest(t, router, http.MethodGet, "/api/v1/english/weeks/2026-W37", "")
+	if loaded.Code != http.StatusOK || !containsAll(loaded.Body.String(), `"fridayMistakes":["procedure"]`) {
+		t.Fatalf("Friday mistakes were not loaded: status=%d body=%s", loaded.Code, loaded.Body.String())
+	}
+	cleared := readingJSONRequest(t, router, http.MethodPut, "/api/v1/english/weeks/2026-W37/friday-spelling", `{"mistakes":[]}`)
+	if cleared.Code != http.StatusOK || !containsAll(cleared.Body.String(), `"mistakes":[]`) {
+		t.Fatalf("clear Friday mistakes status=%d body=%s", cleared.Code, cleared.Body.String())
+	}
+	loaded = readingJSONRequest(t, router, http.MethodGet, "/api/v1/english/weeks/2026-W37", "")
+	if loaded.Code != http.StatusOK || !containsAll(loaded.Body.String(), `"fridayMistakes":[]`) {
+		t.Fatalf("Friday mistakes were not cleared: status=%d body=%s", loaded.Code, loaded.Body.String())
+	}
+}
+
 func TestParentCanConfirmBritishIPAWithoutChangingTheWord(t *testing.T) {
 	database, err := appdb.Open(filepath.Join(t.TempDir(), "english.db"))
 	if err != nil {

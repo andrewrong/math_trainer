@@ -37,7 +37,11 @@ func TestSynthesizeBritishSpeechUsesGoogleEnGB(t *testing.T) {
 		} `json:"input"`
 		Voice struct {
 			LanguageCode string `json:"languageCode"`
+			Name         string `json:"name"`
 		} `json:"voice"`
+		AudioConfig struct {
+			AudioEncoding string `json:"audioEncoding"`
+		} `json:"audioConfig"`
 	}
 	s, dir := fakeSpeechService(t, func(w http.ResponseWriter, r *http.Request) {
 		atomic.AddInt32(&requests, 1)
@@ -52,10 +56,14 @@ func TestSynthesizeBritishSpeechUsesGoogleEnGB(t *testing.T) {
 	if cached {
 		t.Fatal("first request must not be cached")
 	}
-	if requests != 1 || got.Voice.LanguageCode != "en-GB" || got.Input.Text != "colour" {
+	if requests != 1 || got.Voice.LanguageCode != "en-GB" || got.Input.Text != "colour" ||
+		got.Voice.Name != "en-GB-Chirp3-HD-Aoede" || got.AudioConfig.AudioEncoding != "MP3" {
 		t.Fatalf("requests=%d body=%+v", requests, got)
 	}
 	if !strings.HasPrefix(url, "/audio/tts/english/") {
+		t.Fatalf("url = %q", url)
+	}
+	if !strings.HasSuffix(url, ".mp3") {
 		t.Fatalf("url = %q", url)
 	}
 	data, err := os.ReadFile(filepath.Join(dir, strings.TrimPrefix(url, "/audio/tts/english/")))

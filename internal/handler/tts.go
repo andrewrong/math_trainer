@@ -16,9 +16,14 @@ import (
 	"mathtrainer/internal/model"
 )
 
-type TTSHandler struct{}
+type TTSHandler struct {
+	client   *googletts.Client
+	cacheDir string
+}
 
-func NewTTS() *TTSHandler { return &TTSHandler{} }
+func NewTTS() *TTSHandler {
+	return &TTSHandler{client: googletts.Default(), cacheDir: filepath.Join("web", "audio", "tts", "chinese")}
+}
 
 func (h *TTSHandler) Register(r gin.IRouter) {
 	r.POST("/tts/chinese", h.chinese)
@@ -41,12 +46,12 @@ func (h *TTSHandler) chinese(c *gin.Context) {
 	}
 	name := hashText(text) + ".mp3"
 	rel := "/audio/tts/chinese/" + name
-	path := filepath.Join("web", "audio", "tts", "chinese", name)
+	path := filepath.Join(h.cacheDir, name)
 	if _, err := os.Stat(path); err == nil {
 		c.JSON(http.StatusOK, gin.H{"url": rel, "cached": true})
 		return
 	}
-	audio, err := googleChineseTTS(c, text)
+	audio, err := h.googleChineseTTS(c, text)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
 		return
@@ -67,6 +72,6 @@ func hashText(text string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-func googleChineseTTS(ctx context.Context, text string) ([]byte, error) {
-	return googletts.Default().Synthesize(ctx, text, googletts.Voice{LanguageCode: "cmn-CN", Name: "cmn-CN-Chirp3-HD-Aoede"})
+func (h *TTSHandler) googleChineseTTS(ctx context.Context, text string) ([]byte, error) {
+	return h.client.Synthesize(ctx, text, googletts.Voice{LanguageCode: "cmn-CN", Name: "cmn-CN-Chirp3-HD-Aoede"})
 }

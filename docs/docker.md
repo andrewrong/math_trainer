@@ -52,7 +52,7 @@ Pick a few tables from that list and count their rows:
 sqlite3 <service dir>/data/math_trainer.db "select count(*) from <table>;"
 cd <checkout>
 MATH_TRAINER_HOME=<service dir> docker compose up -d --build
-curl -fsS http://127.0.0.1:8080/api/health
+curl -fsS http://127.0.0.1:8080/api/v1/health
 sqlite3 <service dir>/data/math_trainer.db "select count(*) from <table>;"
 ```
 
@@ -66,5 +66,13 @@ Only after the owner has used the page, remove the old database copy from the ch
 rm -f <checkout>/math_trainer.db <checkout>/math_trainer.db-wal <checkout>/math_trainer.db-shm
 ```
 
-Rollback: `docker compose down`, then start the old binary as before. The old files were
-not changed.
+Rollback: `docker compose down`. If the old database was already removed from the checkout,
+restore it from the dated backup of step 2 before starting the old binary, otherwise the old
+binary creates a fresh, empty database:
+
+```sh
+cp <backup dir>/math_trainer.db.<date> <checkout>/math_trainer.db
+```
+
+Then start the old binary as before. Keep the backup of step 2 until you are sure you will not
+roll back. The other old files were not changed.

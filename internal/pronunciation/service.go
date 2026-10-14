@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -18,18 +17,19 @@ import (
 	"time"
 	"unicode"
 
+	"mathtrainer/internal/googletts"
 	"mathtrainer/internal/model"
 )
 
 const britishEnglish = "en-GB"
 
-// Service owns local UK-IPA records and local macOS speech audio. Keeping the
+// Service owns local UK-IPA records and Google speech audio. Keeping the
 // two capabilities together makes their provenance explicit without tying the
 // learning UI to a third-party dictionary or audio host.
 type Service struct {
 	db         *sql.DB
 	voice      string
-	sayCommand string
+	tts        *googletts.Client
 	httpClient *http.Client
 	cacheDir   string
 	mu         sync.Mutex
@@ -38,8 +38,8 @@ type Service struct {
 func New(db *sql.DB) *Service {
 	return &Service{
 		db:         db,
-		voice:      "Eddy (English (UK))",
-		sayCommand: "/usr/bin/say",
+		voice:      "en-GB-Chirp3-HD-Aoede",
+		tts:        googletts.Default(),
 		httpClient: &http.Client{Timeout: 6 * time.Second},
 		cacheDir:   filepath.Join("web", "audio", "tts", "english"),
 	}
@@ -171,8 +171,8 @@ func (s *Service) fetchYoudaoBritishIPA(ctx context.Context, word string) (strin
 	return strings.TrimSpace(match[1]), nil
 }
 
-// SynthesizeBritishSpeech generates a WAV file locally with an installed
-// en-GB macOS voice. WAV is intentionally used for broad browser support.
+// SynthesizeBritishSpeech returns an en-GB MP3 made by Google Text-to-Speech,
+// from the cache when the same text was synthesized before.
 func (s *Service) SynthesizeBritishSpeech(ctx context.Context, text string) (url string, cached bool, err error) {
 	text = strings.TrimSpace(text)
 	if text == "" || len([]rune(text)) > 200 {
@@ -183,8 +183,8 @@ func (s *Service) SynthesizeBritishSpeech(ctx context.Context, text string) (url
 			return "", false, fmt.Errorf("text contains unsupported characters")
 		}
 	}
-	hash := sha256.Sum256([]byte("en-gb|" + s.voice + "|" + strings.ToLower(text)))
-	name := hex.EncodeToString(hash[:]) + ".wav"
+	hash := sha256.Sum256([]byte("google|" + britishEnglish + "|" + s.voice + "|" + strings.ToLower(text)))
+	name := hex.EncodeToString(hash[:]) + ".mp3"
 	path := filepath.Join(s.cacheDir, name)
 	url = "/audio/tts/english/" + name
 	if _, statErr := os.Stat(path); statErr == nil {
@@ -196,25 +196,26 @@ func (s *Service) SynthesizeBritishSpeech(ctx context.Context, text string) (url
 	if _, statErr := os.Stat(path); statErr == nil {
 		return url, true, nil
 	}
-	if err := os.MkdirAll(s.cacheDir, 0755); err != nil {
-		return "", false, err
-	}
-	aiff, err := os.CreateTemp(s.cacheDir, ".english-*.aiff")
+	audio, err := s.tts.Synthesize(ctx, text, googletts.Voice{LanguageCode: britishEnglish, Name: s.voice})
 	if err != nil {
 		return "", false, err
 	}
-	aiffPath := aiff.Name()
-	aiff.Close()
-	defer os.Remove(aiffPath)
-	wavPath := aiffPath + ".wav"
-	defer os.Remove(wavPath)
-	if output, err := exec.CommandContext(ctx, s.sayCommand, "-v", s.voice, "-r", "155", "-o", aiffPath, text).CombinedOutput(); err != nil {
-		return "", false, fmt.Errorf("macOS British voice: %s", strings.TrimSpace(string(output)))
+	if err := os.MkdirAll(s.cacheDir, 0755); err != nil {
+		return "", false, err
 	}
-	if output, err := exec.CommandContext(ctx, "afconvert", "-f", "WAVE", "-d", "LEI16", aiffPath, wavPath).CombinedOutput(); err != nil {
-		return "", false, fmt.Errorf("convert local speech: %s", strings.TrimSpace(string(output)))
+	tmp, err := os.CreateTemp(s.cacheDir, ".english-*.tmp")
+	if err != nil {
+		return "", false, err
 	}
-	if err := os.Rename(wavPath, path); err != nil {
+	defer os.Remove(tmp.Name())
+	if _, err := tmp.Write(audio); err != nil {
+		tmp.Close()
+		return "", false, err
+	}
+	if err := tmp.Close(); err != nil {
+		return "", false, err
+	}
+	if err := os.Rename(tmp.Name(), path); err != nil {
 		return "", false, err
 	}
 	return url, false, nil

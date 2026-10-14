@@ -35,6 +35,21 @@ func TestOpenRunsLearningPlanMigration(t *testing.T) {
 	}
 }
 
+func TestOpenRunsMathFoundationsMigration(t *testing.T) {
+	database, err := Open(filepath.Join(t.TempDir(), "test.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer database.Close()
+
+	for _, table := range []string{"math_foundation_attempts", "math_foundation_paper_checks"} {
+		var name string
+		if err := database.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name=?`, table).Scan(&name); err != nil {
+			t.Fatalf("math foundations migration did not create %q: %v", table, err)
+		}
+	}
+}
+
 func TestOpenRemovesRetiredPianoTables(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "legacy-piano.db")
 	legacy, err := sql.Open("sqlite3", path)

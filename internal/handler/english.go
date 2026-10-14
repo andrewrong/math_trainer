@@ -34,6 +34,7 @@ func (h *EnglishHandler) Register(r gin.IRouter) {
 	r.GET("/english/weeks/:weekId", h.getWeek)
 	r.PATCH("/english/weeks/:weekId", h.renameWeek)
 	r.PATCH("/english/weeks/:weekId/words", h.updateWeekWords)
+	r.POST("/english/weeks/:weekId/story/regenerate", h.regenerateWeekStory)
 	r.POST("/english/pronunciations/lookup", h.lookupPronunciations)
 	r.PUT("/english/pronunciations/:word", h.savePronunciation)
 	r.POST("/english/pronunciations/audio", h.speakEnglish)
@@ -204,6 +205,46 @@ func (h *EnglishHandler) updateWeekWords(c *gin.Context) {
 		return
 	}
 	week, err := h.loadWeek(c, weekID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, week)
+}
+
+// regenerateWeekStory repairs a story without changing the week's word cards,
+// spelling scores, or parent-entered Friday spelling results.
+func (h *EnglishHandler) regenerateWeekStory(c *gin.Context) {
+	weekID := c.Param("weekId")
+	week, err := h.loadWeek(c, weekID)
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, model.APIError{Error: "week not found"})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	words := make([]string, 0, len(week.Words))
+	for _, word := range week.Words {
+		words = append(words, word.Word)
+	}
+	story, blanks, err := h.generateCheckedStory(c.Request.Context(), words)
+	if err != nil {
+		log.Printf("[english] regenerate story for %s failed: %v", weekID, err)
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	blanksJSON, err := json.Marshal(blanks)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	if _, err := h.db.ExecContext(c, `UPDATE english_weeks SET story=?, blanks_json=? WHERE week_id=?`, story, string(blanksJSON), weekID); err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	week, err = h.loadWeek(c, weekID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
 		return
@@ -716,6 +757,10 @@ type generatedEnglishWeekContent struct {
 }
 
 func (h *EnglishHandler) generateWeekContent(ctx context.Context, words []string) (*generatedEnglishWeekContent, error) {
+	words = cleanWordList(words)
+	if len(words) == 0 {
+		return nil, fmt.Errorf("empty word list")
+	}
 	prompt := fmt.Sprintf(`You are helping a Grade 3-4 student (age 8-10) learn their weekly vocabulary words.
 
 Given these %d words: %s
@@ -737,13 +782,7 @@ Return a JSON object with this EXACT structure (no extra text, just valid JSON):
       ]
     }
   ],
-  "story": "A complete engaging story of about 150 words using ALL the vocabulary words naturally. Use a character named Lily or Max.",
-  "blanks": [
-    {
-      "word": "adventure",
-      "sentence": "One sunny morning, Lily went on an ____ in the forest."
-    }
-  ]
+	  "story": "A complete engaging story of about 150 words. Use a character named Lily or Max."
 }
 
 Rules:
@@ -752,39 +791,159 @@ Rules:
 - Avoid vague dictionary language like "something" or "in a way" unless necessary. Be concrete.
 - example: the first entry of examples (for compatibility).
 - examples: exactly 3 short, natural, relatable sentences for a child, each in a DIFFERENT context (home, school, friends, feelings, outdoors, etc.).
-- story: use ALL %d words naturally. About 150 words. Make the story understandable without needing the original word list.
-- blanks: one entry per word. Show the sentence from the story with that word replaced by ____.
-- Each blank sentence should give enough context that a child can reason from meaning, not only from letter shape.
+- story: use ALL %d words naturally, EACH WORD EXACTLY ONCE. About 150 words. Make the story understandable without needing the original word list.
+- story: use at most ONE weekly vocabulary word in each sentence. This is essential because each sentence becomes one fill-in-the-blank question.
+- story: write 8-16 complete sentences. Give each weekly word enough context that a child can reason from meaning, not only from letter shape.
 - Return ONLY valid JSON.`,
 		len(words), strings.Join(words, ", "), len(words))
 
-	result, err := h.ai.GenerateText(ctx, ai.TextRequest{
-		UserPrompt:       prompt,
-		MaxTokens:        65536,
-		ResponseMIMEType: "application/json",
-	})
-	if err != nil {
-		return nil, err
+	var lastErr error
+	for attempt := 1; attempt <= 2; attempt++ {
+		result, err := h.ai.GenerateText(ctx, ai.TextRequest{
+			UserPrompt:       prompt,
+			MaxTokens:        65536,
+			ResponseMIMEType: "application/json",
+		})
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		generated, err := parseGeneratedEnglishWeekContent(result)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		validatedWords, err := validateGeneratedWordEntries(generated.Words, words)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		blanks, err := buildStoryBlanks(generated.Story, words)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		return &generatedEnglishWeekContent{Words: validatedWords, Story: strings.TrimSpace(generated.Story), Blanks: blanks}, nil
 	}
+	return nil, fmt.Errorf("could not generate a checked story after two attempts: %w", lastErr)
+}
 
-	// Extract JSON object from response
+// generateCheckedStory uses the same structural guard as a newly created week,
+// while deliberately leaving its word cards and learning records untouched.
+func (h *EnglishHandler) generateCheckedStory(ctx context.Context, words []string) (string, []model.BlankEntry, error) {
+	content, err := h.generateWeekContent(ctx, words)
+	if err != nil {
+		return "", nil, err
+	}
+	return content.Story, content.Blanks, nil
+}
+
+type parsedEnglishWeekContent struct {
+	Words []model.WordEntry `json:"words"`
+	Story string            `json:"story"`
+}
+
+func parseGeneratedEnglishWeekContent(result string) (*parsedEnglishWeekContent, error) {
 	result = strings.TrimSpace(result)
 	start := strings.Index(result, "{")
 	end := strings.LastIndex(result, "}")
-	if start == -1 || end == -1 {
+	if start == -1 || end == -1 || end < start {
 		return nil, fmt.Errorf("no JSON object in AI response")
 	}
-	jsonStr := result[start : end+1]
-
-	var generated struct {
-		Words  []model.WordEntry  `json:"words"`
-		Story  string             `json:"story"`
-		Blanks []model.BlankEntry `json:"blanks"`
-	}
-	if err := json.Unmarshal([]byte(jsonStr), &generated); err != nil {
+	var generated parsedEnglishWeekContent
+	if err := json.Unmarshal([]byte(result[start:end+1]), &generated); err != nil {
 		return nil, fmt.Errorf("parse AI response: %w", err)
 	}
-	return &generatedEnglishWeekContent{Words: generated.Words, Story: generated.Story, Blanks: generated.Blanks}, nil
+	return &generated, nil
+}
+
+// validateGeneratedWordEntries makes the generated cards agree exactly with the
+// parent's word list. It also preserves the parent's original order.
+func validateGeneratedWordEntries(generated []model.WordEntry, expected []string) ([]model.WordEntry, error) {
+	byWord := make(map[string]model.WordEntry, len(generated))
+	for _, entry := range generated {
+		word := cleanWordList([]string{entry.Word})
+		if len(word) != 1 {
+			return nil, fmt.Errorf("generated a word card with no word")
+		}
+		if _, duplicate := byWord[word[0]]; duplicate {
+			return nil, fmt.Errorf("generated duplicate word card for %q", word[0])
+		}
+		entry.Word = word[0]
+		byWord[word[0]] = entry
+	}
+	if len(byWord) != len(expected) {
+		return nil, fmt.Errorf("generated %d word cards for %d requested words", len(byWord), len(expected))
+	}
+	ordered := make([]model.WordEntry, 0, len(expected))
+	for _, word := range expected {
+		entry, ok := byWord[word]
+		if !ok {
+			return nil, fmt.Errorf("generated word cards do not include %q", word)
+		}
+		ordered = append(ordered, entry)
+	}
+	return ordered, nil
+}
+
+var storySentencePattern = regexp.MustCompile(`(?s)[^.!?]+[.!?]+|[^.!?]+$`)
+
+// buildStoryBlanks is the final safety gate for a story. The model never gets
+// to define the fill-in-the-blank rows: they are derived from the checked story.
+// This makes overlapping questions impossible to save.
+func buildStoryBlanks(story string, words []string) ([]model.BlankEntry, error) {
+	story = strings.TrimSpace(story)
+	if story == "" {
+		return nil, fmt.Errorf("generated an empty story")
+	}
+	words = cleanWordList(words)
+	sentences := storySentencePattern.FindAllString(story, -1)
+	if len(sentences) == 0 {
+		return nil, fmt.Errorf("story has no complete sentences")
+	}
+	patterns := make([]*regexp.Regexp, len(words))
+	for i, word := range words {
+		patterns[i] = regexp.MustCompile(`(?i)\b` + regexp.QuoteMeta(word) + `\b`)
+	}
+
+	blankByWord := make(map[string]model.BlankEntry, len(words))
+	for _, rawSentence := range sentences {
+		sentence := strings.TrimSpace(rawSentence)
+		if sentence == "" {
+			continue
+		}
+		matches := make([]int, 0, 1)
+		for i, pattern := range patterns {
+			count := len(pattern.FindAllStringIndex(sentence, -1))
+			if count > 1 {
+				return nil, fmt.Errorf("story repeats %q in one sentence", words[i])
+			}
+			if count == 1 {
+				matches = append(matches, i)
+			}
+		}
+		if len(matches) > 1 {
+			return nil, fmt.Errorf("story sentence contains more than one weekly word: %q", sentence)
+		}
+		if len(matches) == 1 {
+			i := matches[0]
+			word := words[i]
+			if _, duplicate := blankByWord[word]; duplicate {
+				return nil, fmt.Errorf("story uses %q more than once", word)
+			}
+			blankByWord[word] = model.BlankEntry{Word: word, Sentence: patterns[i].ReplaceAllString(sentence, "____")}
+		}
+	}
+
+	blanks := make([]model.BlankEntry, 0, len(words))
+	for _, word := range words {
+		blank, ok := blankByWord[word]
+		if !ok {
+			return nil, fmt.Errorf("story does not use requested word %q exactly once", word)
+		}
+		blanks = append(blanks, blank)
+	}
+	return blanks, nil
 }
 
 func (h *EnglishHandler) generateWeekData(ctx context.Context, words []string) (*model.WeekData, error) {

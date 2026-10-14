@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -30,6 +32,8 @@ func NewChinese(db *sql.DB, chain *ai.Chain) *ChineseHandler {
 func (h *ChineseHandler) Register(r gin.IRouter) {
 	r.GET("/chinese/weeks", h.listWeeks)
 	r.POST("/chinese/weeks", h.createWeek)
+	r.GET("/chinese/context-stories/:setKey", h.getContextStory)
+	r.POST("/chinese/context-stories/:setKey", h.regenerateContextStory)
 	r.GET("/chinese/review/due", h.reviewDue)
 	r.PUT("/chinese/review", h.updateReview)
 	r.GET("/chinese/weeks/:weekId/review-rounds", h.reviewRounds)
@@ -110,6 +114,280 @@ func (h *ChineseHandler) createWeek(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, model.ChineseWeek{WeekID: weekID, Label: req.Label, CreatedAt: time.Now(), Items: items})
+}
+
+func (h *ChineseHandler) getContextStory(c *gin.Context) {
+	story, err := h.loadContextStory(c, c.Param("setKey"))
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, model.APIError{Error: "no context story yet"})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, story)
+}
+
+// regenerateContextStory creates one short, child-readable cloze story for a
+// weekly set. It does not change any parent-entered word data or review marks.
+func (h *ChineseHandler) regenerateContextStory(c *gin.Context) {
+	setKey := c.Param("setKey")
+	items := h.loadSetItems(c, setKey)
+	if len(items) == 0 {
+		c.JSON(http.StatusNotFound, model.APIError{Error: "weekly Chinese set not found"})
+		return
+	}
+	story, err := h.generateContextStory(c, setKey, selectChineseContextItems(items, 8))
+	if err != nil {
+		c.JSON(http.StatusServiceUnavailable, model.APIError{Error: err.Error()})
+		return
+	}
+	storyJSON, err := json.Marshal(story.Sentences)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	blanksJSON, err := json.Marshal(story.Blanks)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	if _, err := h.db.ExecContext(c, `
+		INSERT INTO chinese_context_stories(set_key,story_json,blanks_json,created_at)
+		VALUES(?,?,?,?)
+		ON CONFLICT(set_key) DO UPDATE SET story_json=excluded.story_json, blanks_json=excluded.blanks_json, created_at=excluded.created_at`,
+		setKey, string(storyJSON), string(blanksJSON), story.CreatedAt); err != nil {
+		c.JSON(http.StatusInternalServerError, model.APIError{Error: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, story)
+}
+
+// A short story is more useful than an exhausting paragraph. Large imported
+// weekly sets are therefore sampled into calm, focused groups, with known weak
+// characters first. A later New story can provide a fresh narrative context.
+func selectChineseContextItems(items []model.ChineseItem, limit int) []model.ChineseItem {
+	if len(items) <= limit {
+		return items
+	}
+	picked := append([]model.ChineseItem(nil), items...)
+	sort.SliceStable(picked, func(i, j int) bool {
+		if picked[i].WrongCount != picked[j].WrongCount {
+			return picked[i].WrongCount > picked[j].WrongCount
+		}
+		return picked[i].ReviewCount < picked[j].ReviewCount
+	})
+	return picked[:limit]
+}
+
+func (h *ChineseHandler) loadContextStory(ctx context.Context, setKey string) (*model.ChineseContextStory, error) {
+	var story model.ChineseContextStory
+	var sentencesJSON, blanksJSON string
+	if err := h.db.QueryRowContext(ctx, `SELECT story_json,blanks_json,created_at FROM chinese_context_stories WHERE set_key=?`, setKey).
+		Scan(&sentencesJSON, &blanksJSON, &story.CreatedAt); err != nil {
+		return nil, err
+	}
+	if err := json.Unmarshal([]byte(sentencesJSON), &story.Sentences); err != nil {
+		return nil, fmt.Errorf("read saved context story: %w", err)
+	}
+	if err := json.Unmarshal([]byte(blanksJSON), &story.Blanks); err != nil {
+		return nil, fmt.Errorf("read saved context blanks: %w", err)
+	}
+	story.SetKey = setKey
+	return &story, nil
+}
+
+type generatedChineseContextStory struct {
+	Sentences []model.ChineseContextSentence `json:"sentences"`
+}
+
+func (h *ChineseHandler) generateContextStory(ctx context.Context, setKey string, items []model.ChineseItem) (*model.ChineseContextStory, error) {
+	if h.ai == nil {
+		return nil, fmt.Errorf("AI story generation is not configured")
+	}
+	targets := make([]model.ChineseItem, 0, len(items))
+	for _, item := range items {
+		targets = append(targets, model.ChineseItem{Character: item.Character, Pinyin: item.Pinyin, Meaning: item.Meaning, Words: item.Words})
+	}
+	rawTargets, _ := json.Marshal(targets)
+	prompt := fmt.Sprintf(`You write very simple, natural Chinese context stories for a child learning a weekly word list.
+
+Target items (use the exact character or word in each "character" field): %s
+
+Return ONLY one valid JSON object:
+{"sentences":[{"text":"...","annotations":[{"word":"...","pinyin":"..."}]}]}
+
+Rules:
+- Make one connected, everyday story (school, home, playground, or family).
+- Use EVERY target item exactly once, and use NO target item more than once.
+- Put at most ONE target item in each sentence. There should be one short sentence for each target item; extra linking sentences are optional.
+- Each sentence must be short, concrete, and easy for an early primary-school reader (usually 8–20 Chinese characters before punctuation). Do not use abstract language or a complicated plot.
+- Add annotations only for genuinely less-common supporting words that a child may not know. Each annotation has the exact word in text and its pinyin with tone marks, e.g. {"word":"操场","pinyin":"cāo chǎng"}. Do not annotate the target items or very basic words.
+- End every sentence with Chinese punctuation (。！？).
+- Do not include blanks in text; the application creates them after checking the story.`, string(rawTargets))
+
+	var lastErr error
+	for attempt := 0; attempt < 2; attempt++ {
+		text, err := h.ai.GenerateText(ctx, ai.TextRequest{UserPrompt: prompt, MaxTokens: 8192, ResponseMIMEType: "application/json"})
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		generated, err := parseGeneratedChineseContextStory(text)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		blanks, err := validateChineseContextStory(generated.Sentences, items)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		if err := h.reviewChineseContextStory(ctx, generated.Sentences, targets); err != nil {
+			lastErr = err
+			continue
+		}
+		return &model.ChineseContextStory{SetKey: setKey, Sentences: generated.Sentences, Blanks: blanks, CreatedAt: time.Now().UTC()}, nil
+	}
+	return nil, fmt.Errorf("could not generate a checked Chinese context story after two attempts: %w", lastErr)
+}
+
+// reviewChineseContextStory is a semantic quality gate. The deterministic
+// validator protects the exercise mechanics; this pass protects reading level,
+// naturalness, and whether pinyin was used as a helpful scaffold rather than
+// noise. It never edits learner-facing content — a rejected story is rewritten.
+func (h *ChineseHandler) reviewChineseContextStory(ctx context.Context, sentences []model.ChineseContextSentence, targets []model.ChineseItem) error {
+	storyJSON, _ := json.Marshal(sentences)
+	targetJSON, _ := json.Marshal(targets)
+	prompt := fmt.Sprintf(`You are an independent quality checker for a Chinese context story for a 7–9-year-old child.
+
+Weekly target items: %s
+Proposed story: %s
+
+Return ONLY valid JSON: {"approved":true,"reason":"..."}
+
+Approve ONLY if every condition is true:
+- It is one coherent, everyday mini-story a child can follow without adult explanation.
+- Sentences use concrete, age-appropriate language. No abstract ideas, frightening events, sarcasm, or complicated plot twists.
+- Every target item appears exactly once, with at most one target item in each sentence.
+- The supporting words are mostly common early-primary Chinese. Any clearly less-common supporting word is annotated with accurate tone-marked pinyin; basic words and target items are not annotated.
+- The story is pleasant, emotionally safe, and useful for understanding each target in context.
+
+If any condition fails, set approved to false and name the single most important reason.`, string(targetJSON), string(storyJSON))
+	text, err := h.ai.GenerateText(ctx, ai.TextRequest{UserPrompt: prompt, MaxTokens: 2048, ResponseMIMEType: "application/json"})
+	if err != nil {
+		return fmt.Errorf("review Chinese context story: %w", err)
+	}
+	text = strings.TrimSpace(text)
+	start, end := strings.Index(text, "{"), strings.LastIndex(text, "}")
+	if start < 0 || end < start {
+		return fmt.Errorf("context story review returned no JSON")
+	}
+	var review struct {
+		Approved bool   `json:"approved"`
+		Reason   string `json:"reason"`
+	}
+	if err := json.Unmarshal([]byte(text[start:end+1]), &review); err != nil {
+		return fmt.Errorf("parse context story review: %w", err)
+	}
+	if !review.Approved {
+		reason := strings.TrimSpace(review.Reason)
+		if reason == "" {
+			reason = "the story was not suitable for the intended reading level"
+		}
+		return fmt.Errorf("context story review rejected it: %s", reason)
+	}
+	return nil
+}
+
+func parseGeneratedChineseContextStory(text string) (*generatedChineseContextStory, error) {
+	text = strings.TrimSpace(text)
+	start, end := strings.Index(text, "{"), strings.LastIndex(text, "}")
+	if start < 0 || end < start {
+		return nil, fmt.Errorf("no JSON object in AI context story")
+	}
+	var generated generatedChineseContextStory
+	if err := json.Unmarshal([]byte(text[start:end+1]), &generated); err != nil {
+		return nil, fmt.Errorf("parse AI context story: %w", err)
+	}
+	return &generated, nil
+}
+
+var chineseContextSentencePattern = regexp.MustCompile(`[。！？]$`)
+
+// validateChineseContextStory is the safety gate between the generative model
+// and the learner. Its derived blanks prevent duplicate or overlapping prompts.
+func validateChineseContextStory(sentences []model.ChineseContextSentence, items []model.ChineseItem) ([]model.ChineseContextBlank, error) {
+	if len(sentences) < len(items) || len(sentences) > len(items)+3 {
+		return nil, fmt.Errorf("story needs one short sentence per weekly item")
+	}
+	seenSentences := map[string]bool{}
+	for i := range sentences {
+		sentences[i].Text = strings.TrimSpace(sentences[i].Text)
+		if sentences[i].Text == "" || !chineseContextSentencePattern.MatchString(sentences[i].Text) {
+			return nil, fmt.Errorf("story sentence %d is incomplete", i+1)
+		}
+		if chineseContextReadingLength(sentences[i].Text) > 26 {
+			return nil, fmt.Errorf("story sentence %d is too long for this reader", i+1)
+		}
+		if seenSentences[sentences[i].Text] {
+			return nil, fmt.Errorf("story repeats sentence %d", i+1)
+		}
+		seenSentences[sentences[i].Text] = true
+		for _, annotation := range sentences[i].Annotations {
+			if strings.TrimSpace(annotation.Word) == "" || strings.TrimSpace(annotation.Pinyin) == "" || strings.Count(sentences[i].Text, annotation.Word) != 1 {
+				return nil, fmt.Errorf("story sentence %d has an invalid pinyin annotation", i+1)
+			}
+			for _, item := range items {
+				if strings.Contains(annotation.Word, item.Character) {
+					return nil, fmt.Errorf("story sentence %d annotates a weekly target", i+1)
+				}
+			}
+		}
+	}
+
+	blanks := make([]model.ChineseContextBlank, 0, len(items))
+	for _, item := range items {
+		target := strings.TrimSpace(item.Character)
+		if target == "" {
+			return nil, fmt.Errorf("weekly set has an empty target")
+		}
+		count, sentenceIndex := 0, -1
+		for i, sentence := range sentences {
+			occurrences := strings.Count(sentence.Text, target)
+			if occurrences > 0 {
+				count += occurrences
+				sentenceIndex = i
+			}
+		}
+		if count != 1 {
+			return nil, fmt.Errorf("story must use %q exactly once", target)
+		}
+		blanks = append(blanks, model.ChineseContextBlank{Character: target, SentenceIndex: sentenceIndex, Sentence: strings.Replace(sentences[sentenceIndex].Text, target, "____", 1)})
+	}
+	for i, sentence := range sentences {
+		targetsInSentence := 0
+		for _, item := range items {
+			if strings.Contains(sentence.Text, item.Character) {
+				targetsInSentence++
+			}
+		}
+		if targetsInSentence > 1 {
+			return nil, fmt.Errorf("story sentence %d contains more than one weekly item", i+1)
+		}
+	}
+	return blanks, nil
+}
+
+func chineseContextReadingLength(text string) int {
+	count := 0
+	for _, r := range text {
+		if unicode.Is(unicode.Han, r) {
+			count++
+		}
+	}
+	return count
 }
 
 func chineseItemsMissingPinyin(items []model.ChineseItem) []string {

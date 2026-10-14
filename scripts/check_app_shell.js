@@ -15,12 +15,14 @@ assert(html.includes('function setActivityShell'), 'activity shell controller mu
 assert(html.includes("navigate('#/parent/"), 'parent tools must use Parent workspace routes');
 assert(html.includes('function handleSpeed40Enter'), 'Speed 40 must own a state-aware Enter action');
 assert(html.includes('if(addSpeedSt.locked)nextSpeed40Question()'), 'Speed 40 Enter must advance after feedback');
-assert(html.includes('const ADD_SPEED_TOTAL=40'), 'Speed 40 must use forty questions per set');
-assert(html.includes('Start Speed 40 · 40 Questions'), 'Speed 40 label must match its set size');
-assert(html.includes('const CHALLENGE_DAILY_TOTAL=20'), 'Times Tables Challenge must use a daily twenty-question set');
+assert(html.includes('const ADD_SPEED_TOTAL=30'), 'Speed 40 must use thirty questions per set');
+assert(html.includes('Start Speed 40 · 30 Questions'), 'Speed 40 label must match its set size');
+assert(html.includes('const CHALLENGE_DAILY_TOTAL=30'), 'Times Tables Challenge must use a daily thirty-question set');
 assert(html.includes('const CHALLENGE_PRIORITY_LIMIT=10'), 'the daily Times Tables Challenge must cap priority weak facts');
-assert(html.includes('Start Daily Challenge (20 Questions)'), 'Times Tables Challenge label must match its daily set size');
+assert(html.includes('Start Daily Challenge (30 Questions)'), 'Times Tables Challenge label must match its daily set size');
 assert(html.includes("Object.values(challengeWeakMap).sort((a,b)=>b.count-a.count)"), 'frequently missed Times Tables facts must be prioritised');
+assert(html.includes('function makeChallengeQuestion'), 'Times Tables Challenge must generate both multiplication and division prompts');
+assert(html.includes("q.op==='÷'"), 'Times Tables Challenge must explain division through its related multiplication fact');
 assert(!html.includes('Start Full Challenge (64 Questions)'), 'the old sixty-four-question challenge must be removed');
 assert(html.includes('function handlePracticeEnter'), 'short-answer interactions must share a keyboard helper');
 assert(css.includes('.subject-grid') && css.includes('.activity-shell'), 'shell styling must live outside the monolithic page');

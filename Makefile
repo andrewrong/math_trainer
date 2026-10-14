@@ -2,6 +2,8 @@ APP     := math_trainer
 BINARY  := ./bin/$(APP)
 MAIN    := ./cmd/server/main.go
 PORT    := 8080
+MISE    ?= mise
+GO      := $(MISE) exec -- go
 
 .PHONY: all build run dev clean setup config lan-url tidy help
 
@@ -10,7 +12,7 @@ all: build
 ## Build the server binary
 build:
 	@mkdir -p bin
-	CGO_ENABLED=1 go build -o $(BINARY) $(MAIN)
+	CGO_ENABLED=1 $(GO) build -o $(BINARY) $(MAIN)
 
 ## Build and run
 run: build
@@ -18,11 +20,11 @@ run: build
 
 ## Run with go run (no binary, slower start)
 go-run:
-	CGO_ENABLED=1 go run $(MAIN)
+	CGO_ENABLED=1 $(GO) run $(MAIN)
 
 ## Run tests
 test:
-	CGO_ENABLED=1 go test ./...
+	CGO_ENABLED=1 $(GO) test ./...
 
 ## Delete database (data will be recreated on next start)
 db-reset:
@@ -63,12 +65,12 @@ clean:
 
 ## Tidy go.mod
 tidy:
-	go mod tidy
+	$(GO) mod tidy
 
 ## Build release binary (stripped)
 release:
 	@mkdir -p bin
-	CGO_ENABLED=1 go build -ldflags="-s -w" -o $(BINARY) $(MAIN)
+	CGO_ENABLED=1 $(GO) build -ldflags="-s -w" -o $(BINARY) $(MAIN)
 
 help:
 	@grep -E '^##' Makefile | sed 's/## /  /'

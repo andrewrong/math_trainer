@@ -29,6 +29,38 @@ export interface CapabilityIndex {
   capabilities: Capability[];
 }
 
+export interface ChinesePinyinAnnotation {
+  word: string;
+  pinyin: string;
+}
+
+export interface ChineseContextSentence {
+  text: string;
+  annotations: ChinesePinyinAnnotation[];
+}
+
+export interface ChineseContextBlank {
+  character: string;
+  sentenceIndex: number;
+  sentence: string;
+}
+
+/** A checked, short cloze story for up to eight current Chinese weekly words. */
+export interface ChineseContextStory {
+  setKey: string;
+  sentences: ChineseContextSentence[];
+  blanks: ChineseContextBlank[];
+  createdAt: string;
+}
+
+/** Build the stable grouped-week key accepted by Chinese context-story routes. */
+export function chineseSetKeyFromLabel(label: string): string {
+  const bytes = new TextEncoder().encode(label);
+  let binary = "";
+  bytes.forEach((value) => { binary += String.fromCharCode(value); });
+  return `label:${btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "")}`;
+}
+
 export class LearningCompassAPIError extends Error {
   constructor(
     message: string,
@@ -109,14 +141,18 @@ export class LearningCompassClient {
     wrongs: (category = "practice") => this.get<JsonRecord>(`/math/wrongs?category=${encodeURIComponent(category)}`),
     updateWrong: (wrong: JsonRecord) => this.put<JsonRecord>("/math/wrongs", wrong),
     weakChallengeFacts: () => this.get<JsonRecord>("/math/challenge/weak"),
+    foundationsOverview: () => this.get<JsonRecord>("/math/foundations/overview"),
+    recordFoundationAttempt: (attempt: JsonRecord) => this.post<JsonRecord>("/math/foundations/attempts", attempt),
+    recordFoundationPaperCheck: (check: JsonRecord) => this.post<JsonRecord>("/math/foundations/paper-checks", check),
   };
 
   english = {
     weeks: () => this.get<JsonRecord>("/english/weeks"),
     week: (weekId: string) => this.get<JsonRecord>(`/english/weeks/${encodeURIComponent(weekId)}`),
     updateSpelling: (weekId: string, update: JsonRecord) => this.put<JsonRecord>(`/english/weeks/${encodeURIComponent(weekId)}/spell`, update),
-    setFridayMistakes: (weekId: string, words: string[]) => this.put<JsonRecord>(`/english/weeks/${encodeURIComponent(weekId)}/friday-spelling`, { words }),
+    setFridayMistakes: (weekId: string, mistakes: string[]) => this.put<JsonRecord>(`/english/weeks/${encodeURIComponent(weekId)}/friday-spelling`, { mistakes }),
     generateWeek: (input: JsonRecord) => this.post<JsonRecord>("/english/weeks/generate/text", input),
+    regenerateStory: (weekId: string) => this.post<JsonRecord>(`/english/weeks/${encodeURIComponent(weekId)}/story/regenerate`),
   };
 
   chinese = {
@@ -124,6 +160,10 @@ export class LearningCompassClient {
     createWeek: (week: JsonRecord) => this.post<JsonRecord>("/chinese/weeks", week),
     dueReview: () => this.get<JsonRecord>("/chinese/review/due"),
     recordReview: (review: JsonRecord) => this.put<JsonRecord>("/chinese/review", review),
+    contextStory: (setKey: string) => this.get<ChineseContextStory>(`/chinese/context-stories/${encodeURIComponent(setKey)}`),
+    regenerateContextStory: (setKey: string) => this.post<ChineseContextStory>(`/chinese/context-stories/${encodeURIComponent(setKey)}`),
+    contextStoryForLabel: (label: string) => this.get<ChineseContextStory>(`/chinese/context-stories/${encodeURIComponent(chineseSetKeyFromLabel(label))}`),
+    regenerateContextStoryForLabel: (label: string) => this.post<ChineseContextStory>(`/chinese/context-stories/${encodeURIComponent(chineseSetKeyFromLabel(label))}`),
   };
 
   curriculum = {

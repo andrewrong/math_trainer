@@ -7,3 +7,7 @@ config.yaml
 web/audio/tts/
 *.db-shm
 *.db-wal
+# Local only: design screenshots and mocks, the sandbox settings of this machine, books
+.impeccable/
+.safehouse
+resources/reading/ebook/

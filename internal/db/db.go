@@ -53,6 +53,12 @@ var pianoHomeworkSQL string
 //go:embed migrations/016_backfill_chinese_audio_metadata.sql
 var chineseAudioBackfillSQL string
 
+//go:embed migrations/017_math_foundations.sql
+var mathFoundationsSQL string
+
+//go:embed migrations/018_chinese_context_stories.sql
+var chineseContextStoriesSQL string
+
 // Open opens (or creates) the SQLite database, runs migrations, and returns
 // a *sql.DB ready to use. WAL mode is enabled for better concurrent reads.
 func Open(path string) (*sql.DB, error) {
@@ -118,6 +124,12 @@ func migrate(db *sql.DB) error {
 	}
 	if _, err := db.Exec(chineseAudioBackfillSQL); err != nil {
 		return fmt.Errorf("backfilling Chinese audio metadata: %w", err)
+	}
+	if _, err := db.Exec(mathFoundationsSQL); err != nil {
+		return fmt.Errorf("executing math foundations migration: %w", err)
+	}
+	if _, err := db.Exec(chineseContextStoriesSQL); err != nil {
+		return fmt.Errorf("executing Chinese context stories migration: %w", err)
 	}
 	return nil
 }

@@ -22,6 +22,71 @@ func (englishTestProvider) SupportsVision() bool { return false }
 func (englishTestProvider) GenerateWithVision(context.Context, ai.VisionRequest) (string, error) {
 	return "", nil
 }
+
+type overlappingStoryProvider struct{}
+
+func (overlappingStoryProvider) Name() string         { return "overlapping-story-test" }
+func (overlappingStoryProvider) SupportsVision() bool { return false }
+func (overlappingStoryProvider) GenerateWithVision(context.Context, ai.VisionRequest) (string, error) {
+	return "", nil
+}
+func (overlappingStoryProvider) GenerateText(context.Context, ai.TextRequest) (string, error) {
+	return `{"words":[{"word":"horrible"},{"word":"continue"}],"story":"The explorer wrote about a horrible storm. The crew decided to continue their voyage.","blanks":[{"word":"horrible","sentence":"The explorer wrote about a ____ storm. The crew decided to continue their voyage."},{"word":"continue","sentence":"The explorer wrote about a horrible storm. The crew decided to ____ their voyage."}]}`, nil
+}
+
+func TestGenerateWeekContentDerivesDistinctBlanksFromTheStory(t *testing.T) {
+	h := NewEnglish(nil, ai.NewChain([]ai.Provider{overlappingStoryProvider{}}))
+
+	content, err := h.generateWeekContent(context.Background(), []string{"horrible", "continue"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(content.Blanks) != 2 {
+		t.Fatalf("blanks = %#v, want one blank for each word", content.Blanks)
+	}
+	if content.Blanks[0].Sentence != "The explorer wrote about a ____ storm." {
+		t.Fatalf("first blank must be derived from its own source sentence, got %q", content.Blanks[0].Sentence)
+	}
+	if content.Blanks[1].Sentence != "The crew decided to ____ their voyage." {
+		t.Fatalf("second blank must be derived from its own source sentence, got %q", content.Blanks[1].Sentence)
+	}
+}
+
+func TestBuildStoryBlanksRejectsTwoWeeklyWordsInOneSentence(t *testing.T) {
+	_, err := buildStoryBlanks(
+		"The explorer wrote about a horrible storm and decided to continue the voyage.",
+		[]string{"horrible", "continue"},
+	)
+	if err == nil || !strings.Contains(err.Error(), "more than one weekly word") {
+		t.Fatalf("expected an overlapping-story validation error, got %v", err)
+	}
+}
+
+func TestRegenerateWeekStoryKeepsExistingWordCards(t *testing.T) {
+	database, err := appdb.Open(filepath.Join(t.TempDir(), "english.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer database.Close()
+
+	gin.SetMode(gin.TestMode)
+	h := NewEnglish(database, ai.NewChain([]ai.Provider{overlappingStoryProvider{}}))
+	week := &model.WeekData{
+		WeekID: "2026-W39", Label: "Current vocabulary", CreatedAt: time.Now().UTC(),
+		Words: []model.WordEntry{{Word: "horrible", Definition: "Very unpleasant."}, {Word: "continue", Definition: "Keep going."}},
+		Story: "Old story", Blanks: []model.BlankEntry{{Word: "horrible", Sentence: "Old ____ story."}},
+	}
+	if err := h.saveWeek(week); err != nil {
+		t.Fatal(err)
+	}
+	router := gin.New()
+	h.Register(router.Group("/api/v1"))
+
+	refreshed := readingJSONRequest(t, router, http.MethodPost, "/api/v1/english/weeks/2026-W39/story/regenerate", "")
+	if refreshed.Code != http.StatusOK || !containsAll(refreshed.Body.String(), `"word":"horrible"`, `"definition":"Very unpleasant."`, `"sentence":"The explorer wrote about a ____ storm."`) {
+		t.Fatalf("story refresh must preserve word cards and replace only the checked story: status=%d body=%s", refreshed.Code, refreshed.Body.String())
+	}
+}
 func (englishTestProvider) GenerateText(context.Context, ai.TextRequest) (string, error) {
 	return `{"words":[{"word":"elite","syllables":"e·lite","pos":"noun","phonicsTip":"Remember the long i sound.","definition":"An elite group is a small group with special skill.","example":"The elite team practiced.","examples":["The elite team practiced.","An elite runner trained.","They joined an elite group."]}],"story":"The elite team practiced after school.","blanks":[{"word":"elite","sentence":"The ____ team practiced after school."}]}`, nil
 }

@@ -79,7 +79,7 @@ func main() {
 	agentAPI.GET("/health", healthHandler(aiChain, true))
 	agentAPI.GET("/capabilities", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"version":        "2026-09-20",
+			"version":        "2026-09-29",
 			"authentication": "Bearer token",
 			"capabilities":   automation.Capabilities(),
 		})
@@ -149,6 +149,7 @@ func main() {
 
 func registerLearningRoutes(r gin.IRouter, database *sql.DB, aiChain *ai.Chain, reading config.ReadingConfig) {
 	handler.NewMath(database).Register(r)
+	handler.NewMathFoundations(database).Register(r)
 	handler.NewEnglish(database, aiChain).Register(r)
 	handler.NewEnglishCurriculum(database).Register(r)
 	handler.NewCurriculum(database, aiChain).Register(r)

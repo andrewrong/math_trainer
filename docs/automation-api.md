@@ -33,8 +33,8 @@ curl http://macmini:8080/api/agent/v1/capabilities \
 ```
 
 Use `GET /capabilities` first. It returns the available modules and operations
-for this server version, including math, English, Chinese, curriculum, reading,
-piano, and speech. Piano source files are evidence only: do not ask an agent to
+for this server version, including math foundations, English, Chinese context
+stories, curriculum, reading, piano, and speech. Piano source files are evidence only: do not ask an agent to
 infer or generate staff notation from them.
 
 ## Interface design
@@ -54,9 +54,21 @@ The external interface has three discovery endpoints:
 
 The runtime capability index is the complete operation catalogue for this
 server. [`openapi/agent-api.yaml`](openapi/agent-api.yaml) gives structured
-schemas and examples for the most common integration workflows. For complete
-bodies, use the response from the relevant `GET` operation as the source of
-truth before a `PUT` or `PATCH`.
+schemas and examples for the most common integration workflows. The SDK's
+generic `request()` method can call every capability route, even where a
+convenience helper has not been added yet. For complete bodies, use the response
+from the relevant `GET` operation as the source of truth before a `PUT` or
+`PATCH`.
+
+## Current high-value workflows
+
+- `POST /english/weeks/{weekId}/story/regenerate` replaces only a malformed or
+  stale English context story; its word cards and spelling evidence remain intact.
+- `GET` / `POST /chinese/context-stories/{setKey}` reads or generates a short,
+  checked Chinese cloze story. A story uses at most eight current weekly words;
+  it is rejected and rewritten if it fails mechanical or child-reading checks.
+- Friday paper spelling uses `{ "mistakes": ["word"] }`, not `words`. This is
+  parent-confirmed evidence and must not be changed from automatic practice.
 
 ## Safety and error behaviour
 
@@ -79,7 +91,7 @@ provides typed helpers for frequent workflows and a generic `request()` method
 for every operation advertised by the capability index.
 
 ```ts
-import { LearningCompassClient } from "@learning-compass/agent-sdk";
+import { LearningCompassClient, chineseSetKeyFromLabel } from "@learning-compass/agent-sdk";
 
 const compass = new LearningCompassClient({
   baseUrl: "http://macmini:8080",
@@ -89,6 +101,8 @@ const compass = new LearningCompassClient({
 const { capabilities } = await compass.capabilities();
 const weeks = await compass.english.weeks();
 await compass.english.setFridayMistakes("2026-W38", ["because", "beautiful"]);
+
+const story = await compass.chinese.regenerateContextStory(chineseSetKeyFromLabel("2026-09-24"));
 ```
 
 The SDK does not hide destructive actions behind broad convenience methods:

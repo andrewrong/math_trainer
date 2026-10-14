@@ -249,6 +249,32 @@ type ChineseWeek struct {
 	Items     []ChineseItem `json:"items"`
 }
 
+// ChineseContextStory is one deliberately short, checked context exercise for
+// a weekly Chinese set. The learner sees a continuous story with each target
+// item blanked once; supporting unfamiliar words can carry pinyin annotations.
+type ChineseContextStory struct {
+	SetKey    string                   `json:"setKey"`
+	Sentences []ChineseContextSentence `json:"sentences"`
+	Blanks    []ChineseContextBlank    `json:"blanks"`
+	CreatedAt time.Time                `json:"createdAt"`
+}
+
+type ChineseContextSentence struct {
+	Text        string                    `json:"text"`
+	Annotations []ChinesePinyinAnnotation `json:"annotations"`
+}
+
+type ChinesePinyinAnnotation struct {
+	Word   string `json:"word"`
+	Pinyin string `json:"pinyin"`
+}
+
+type ChineseContextBlank struct {
+	Character     string `json:"character"`
+	SentenceIndex int    `json:"sentenceIndex"`
+	Sentence      string `json:"sentence"`
+}
+
 type CreateChineseWeekReq struct {
 	Label string        `json:"label" binding:"required"`
 	Items []ChineseItem `json:"items" binding:"required,min=1,max=200"`

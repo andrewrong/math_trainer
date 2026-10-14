@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Learning Compass Agent API
-  version: 1.0.0
+  version: 1.1.0
   description: Token-protected interface for a trusted AI control plane.
 servers:
   - url: http://macmini:8080/api/agent/v1
@@ -36,6 +36,13 @@ paths:
       summary: Increment or decrement a maths mistake record.
       requestBody: { $ref: '#/components/requestBodies/JsonRecord' }
       responses: { '200': { description: Updated } }
+  /math/foundations/overview:
+    get: { summary: Read prerequisite-repair status for even/odd and fractions, responses: { '200': { description: Foundation overview } } }
+  /math/foundations/attempts:
+    post:
+      summary: Record one checked Math Foundations attempt.
+      requestBody: { $ref: '#/components/requestBodies/JsonRecord' }
+      responses: { '200': { description: Attempt saved } }
   /english/weeks:
     get: { summary: List English vocabulary weeks, responses: { '200': { description: Weeks } } }
   /english/weeks/{weekId}:
@@ -53,16 +60,30 @@ paths:
           application/json:
             schema:
               type: object
-              required: [words]
+              required: [mistakes]
               properties:
-                words: { type: array, items: { type: string } }
+                mistakes: { type: array, items: { type: string }, description: "Parent-confirmed paper-test mistakes; use [] to clear." }
       responses: { '200': { description: Updated Friday mistakes } }
+  /english/weeks/{weekId}/story/regenerate:
+    post:
+      summary: Regenerate the checked context story without changing the week's word cards or spelling evidence.
+      parameters: [{ $ref: '#/components/parameters/WeekId' }]
+      responses: { '200': { description: Refreshed week } }
   /chinese/weeks:
     get: { summary: List Chinese learning weeks, responses: { '200': { description: Weeks } } }
     post:
       summary: Create a Chinese learning week.
       requestBody: { $ref: '#/components/requestBodies/JsonRecord' }
       responses: { '200': { description: Created week } }
+  /chinese/context-stories/{setKey}:
+    get:
+      summary: Read the saved checked context-story cloze exercise for a Chinese weekly set key.
+      parameters: [{ $ref: '#/components/parameters/SetKey' }]
+      responses: { '200': { description: Context story }, '404': { description: No story generated yet } }
+    post:
+      summary: Generate and save a new child-checked context story for up to eight current weekly Chinese words.
+      parameters: [{ $ref: '#/components/parameters/SetKey' }]
+      responses: { '200': { description: Generated context story }, '503': { description: AI generation or quality review unavailable } }
   /curriculum/topics:
     get: { summary: List maths curriculum topics, responses: { '200': { description: Topics } } }
   /learning-plan/main-lesson:
@@ -128,6 +149,7 @@ components:
     bearerAuth: { type: http, scheme: bearer }
   parameters:
     WeekId: { name: weekId, in: path, required: true, schema: { type: string } }
+    SetKey: { name: setKey, in: path, required: true, description: "Stable grouped-week key; use chineseSetKeyFromLabel(label) from the TypeScript SDK.", schema: { type: string } }
   requestBodies:
     JsonRecord:
       required: true

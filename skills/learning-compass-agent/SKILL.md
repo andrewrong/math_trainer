@@ -6,13 +6,14 @@ description: Use the token-protected Learning Compass Agent API to inspect or up
 # Learning Compass Agent
 
 Use this skill when the task concerns Learning Compass data rather than a
-learner-facing browser workflow.
+learner-facing browser workflow. It is for trusted local automation only.
 
 ## Start with discovery
 
 The agent endpoint is `/api/agent/v1`. Send `Authorization: Bearer <token>` on
 every request. First call `GET /health`, then `GET /capabilities`; do not assume
-an operation exists only because it exists in another deployment.
+an operation exists only because it exists in another deployment. Treat the
+returned capability index as the authoritative route catalogue.
 
 ## Preserve the meaning of learning evidence
 
@@ -29,7 +30,11 @@ before generating AI-backed content that may incur cost.
 
 - English weekly words and Friday mistakes: `/english/weeks`
 - Chinese review queue: `/chinese/review/due`
+- Chinese checked context stories: `/chinese/context-stories/{setKey}`. A POST
+  generates a new story and may incur an AI call; only do so when requested.
 - Main maths lesson: `/learning-plan/main-lesson`
+- Maths Foundations repair: `/math/foundations/overview`
+- English checked story refresh: `/english/weeks/{weekId}/story/regenerate`
 - Reading books and sessions: `/reading/books`, `/reading/sessions`
 - Piano teacher assignments and practice evidence: `/piano/weeks`, `/piano/today`
 

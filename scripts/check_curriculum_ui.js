@@ -57,6 +57,7 @@ assert(html.includes('overflow-x:auto;overflow-y:hidden'));
 assert(html.includes('.curr-diagram-img{display:block;width:980px;max-width:none;height:auto;flex:0 0 auto;}'));
 assert(html.includes('.curr-grid,.curr-grid.focus{grid-template-columns:minmax(0,1fr)}'));
 assert(script.includes('My Pals 3rd Edition calibrated'));
+assert(script.includes('Review foundations before this lesson'));
 assert(script.includes('artifactVersion:pack.artifactVersion'));
 assert(script.includes('function currDiagram'));
 assert(script.includes('diagram-20260806-60'));

@@ -22,7 +22,15 @@ while lsof -ti tcp:8080 -sTCP:LISTEN >/dev/null; do sleep 1; done
 ls -l <checkout>/math_trainer.db-wal   # must not exist, or be empty
 ```
 
-SIGTERM lets SQLite write the WAL back into the database.
+The old process exits on SIGTERM without closing the database, so the WAL may
+not be empty. When it is not, write it back into the database:
+
+```sh
+sqlite3 <checkout>/math_trainer.db "PRAGMA wal_checkpoint(TRUNCATE);"
+ls -l <checkout>/math_trainer.db-wal   # must not exist, or be empty
+```
+
+The first number printed must be `0`.
 
 ## 2. Back up the database
 
@@ -35,6 +43,7 @@ cp <checkout>/math_trainer.db <backup dir>/math_trainer.db.$(date +%Y%m%d)
 ## 3. Create the directories and copy the files
 
 ```sh
+git clone https://github.com/andrewrong/math_trainer.git <service dir>/app
 mkdir -p <service dir>/data/{db,tts,reading,logs} <service dir>/config
 cp <checkout>/math_trainer.db <service dir>/data/db/
 cp -R <checkout>/web/audio/tts/. <service dir>/data/tts/
@@ -72,16 +81,16 @@ grep -nE 'api_key|api_token' <service dir>/config/config.yaml
 ## 5. Count, deploy, check, count again
 
 ```sh
-sqlite3 <service dir>/data/db/math_trainer.db ".tables"
+sqlite3 "file:<service dir>/data/db/math_trainer.db?immutable=1" ".tables"
 ```
 
 Pick a few tables from that list and count their rows:
 
 ```sh
-sqlite3 <service dir>/data/db/math_trainer.db "select count(*) from <table>;"
+sqlite3 "file:<service dir>/data/db/math_trainer.db?immutable=1" "select count(*) from <table>;"
 crew cap --apply math_trainer deploy
 curl -fsS http://127.0.0.1:8080/api/v1/health
-sqlite3 <service dir>/data/db/math_trainer.db "select count(*) from <table>;"
+sqlite3 "file:<service dir>/data/db/math_trainer.db?immutable=1" "select count(*) from <table>;"
 ```
 
 The counts before and after the deploy must be equal.

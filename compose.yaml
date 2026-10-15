@@ -1,17 +1,20 @@
+name: math_trainer
+
 services:
   math_trainer:
     build: .
+    image: ${CREW_IMAGE:?set CREW_IMAGE to the image of the release}
     restart: unless-stopped
     ports:
       - "8080:8080"
     env_file:
-      - ${MATH_TRAINER_ENV_FILE:?set MATH_TRAINER_ENV_FILE to the env file with the secrets}
+      - ${CREW_SECRETS:?set CREW_SECRETS to the directory of service secrets}/math_trainer.env
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - ${MATH_TRAINER_HOME:?set MATH_TRAINER_HOME to the service directory}/config.yaml:/app/config.yaml:ro
-      - ${MATH_TRAINER_GOOGLE_ADC:?set MATH_TRAINER_GOOGLE_ADC to the Google credential file}:/app/.secrets/google_adc.json:ro
-      - ${MATH_TRAINER_HOME:?set MATH_TRAINER_HOME to the service directory}/data:/app/data
-      - ${MATH_TRAINER_HOME:?set MATH_TRAINER_HOME to the service directory}/tts:/app/web/audio/tts
-      - ${MATH_TRAINER_HOME:?set MATH_TRAINER_HOME to the service directory}/reading:/app/resources/reading
-      - ${MATH_TRAINER_HOME:?set MATH_TRAINER_HOME to the service directory}/logs:/app/logs
+      - ${CREW_SERVICE_DIR:?set CREW_SERVICE_DIR to the service directory}/config/config.yaml:/app/config.yaml:ro
+      - ${CREW_SECRETS:?set CREW_SECRETS to the directory of service secrets}/math_trainer.google_adc.json:/app/.secrets/google_adc.json:ro
+      - ${CREW_SERVICE_DIR:?set CREW_SERVICE_DIR to the service directory}/data/db:/app/data
+      - ${CREW_SERVICE_DIR:?set CREW_SERVICE_DIR to the service directory}/data/tts:/app/web/audio/tts
+      - ${CREW_SERVICE_DIR:?set CREW_SERVICE_DIR to the service directory}/data/reading:/app/resources/reading
+      - ${CREW_SERVICE_DIR:?set CREW_SERVICE_DIR to the service directory}/data/logs:/app/logs

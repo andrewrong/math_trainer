@@ -1,7 +1,9 @@
 # Running the service with docker compose
 
 Placeholders: `<checkout>` is the git checkout of this repository, `<service dir>` is a new
-directory that holds everything the container writes. Type the lines in order.
+directory that holds everything the container writes, `<secrets dir>` is the existing directory
+where the secrets of all services live, outside `<service dir>`. The service directory holds no
+secret. Type the lines in order.
 
 ## 1. Stop the running process
 
@@ -24,12 +26,12 @@ cp <checkout>/math_trainer.db <backup dir>/math_trainer.db.$(date +%Y%m%d)
 ## 3. Create the service directory and copy the files
 
 ```sh
-mkdir -p <service dir>/{data,tts,reading,logs,secrets}
+mkdir -p <service dir>/{data,tts,reading,logs}
 cp <checkout>/math_trainer.db <service dir>/data/
 cp -R <checkout>/web/audio/tts/. <service dir>/tts/
 cp -R <checkout>/resources/reading/. <service dir>/reading/
 cp <checkout>/config.yaml <service dir>/config.yaml
-cp <checkout>/.secrets/google_adc.json <service dir>/secrets/google_adc.json
+cp <checkout>/.secrets/google_adc.json <secrets dir>/math_trainer.google_adc.json
 ```
 
 ## 4. Edit the copied `config.yaml`
@@ -39,6 +41,27 @@ In `<service dir>/config.yaml` change:
 - `db.path` to `/app/data/math_trainer.db`;
 - `server.host` to `0.0.0.0`;
 - every `127.0.0.1` or `localhost` base URL (OCR, ollama, lmstudio) to `host.docker.internal`.
+
+Then move every non-empty secret value of the copied `config.yaml` (API keys, tokens) to
+`<secrets dir>/math_trainer.env`, one `NAME=value` line each, and set the value to `""` in the
+copied `config.yaml`. The names:
+
+Each name is `MATHTRAINER_` plus the config path in capitals with `.` as `_` (the bare names
+such as `OPENAI_API_KEY` do not work under this prefix). For example:
+
+- `MATHTRAINER_AI_PROVIDERS_ANTHROPIC_API_KEY`, `MATHTRAINER_AI_PROVIDERS_OPENAI_API_KEY`,
+  `MATHTRAINER_AI_PROVIDERS_GEMINI_API_KEY`, `MATHTRAINER_AI_PROVIDERS_OPENROUTER_API_KEY`;
+- `MATHTRAINER_AUTOMATION_API_TOKEN`;
+- `MATHTRAINER_READING_OCR_API_KEY`.
+
+The key must stay in `config.yaml` (as `""`) for the variable to take effect.
+
+Check that no secret is left in the copied file; every value shown must be empty (or the
+placeholder `lm-studio`):
+
+```sh
+grep -nE 'api_key|api_token' <service dir>/config.yaml
+```
 
 ## 5. Count, start, check, count again
 
@@ -51,7 +74,7 @@ Pick a few tables from that list and count their rows:
 ```sh
 sqlite3 <service dir>/data/math_trainer.db "select count(*) from <table>;"
 cd <checkout>
-MATH_TRAINER_HOME=<service dir> docker compose up -d --build
+MATH_TRAINER_HOME=<service dir> MATH_TRAINER_ENV_FILE=<secrets dir>/math_trainer.env MATH_TRAINER_GOOGLE_ADC=<secrets dir>/math_trainer.google_adc.json docker compose up -d --build
 curl -fsS http://127.0.0.1:8080/api/v1/health
 sqlite3 <service dir>/data/math_trainer.db "select count(*) from <table>;"
 ```

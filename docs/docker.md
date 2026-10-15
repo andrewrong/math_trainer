@@ -46,11 +46,15 @@ Then move every non-empty secret value of the copied `config.yaml` (API keys, to
 `<secrets dir>/math_trainer.env`, one `NAME=value` line each, and set the value to `""` in the
 copied `config.yaml`. The names:
 
-- `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`;
-- `LEARNING_COMPASS_API_TOKEN`;
-- for any other key, `MATHTRAINER_` plus its config path in capitals with `.` as `_`, for
-  example `MATHTRAINER_AI_PROVIDERS_OPENROUTER_API_KEY` or `MATHTRAINER_READING_OCR_API_KEY`.
-  The key must stay in `config.yaml` (as `""`) for the variable to take effect.
+Each name is `MATHTRAINER_` plus the config path in capitals with `.` as `_` (the bare names
+such as `OPENAI_API_KEY` do not work under this prefix). For example:
+
+- `MATHTRAINER_AI_PROVIDERS_ANTHROPIC_API_KEY`, `MATHTRAINER_AI_PROVIDERS_OPENAI_API_KEY`,
+  `MATHTRAINER_AI_PROVIDERS_GEMINI_API_KEY`, `MATHTRAINER_AI_PROVIDERS_OPENROUTER_API_KEY`;
+- `MATHTRAINER_AUTOMATION_API_TOKEN`;
+- `MATHTRAINER_READING_OCR_API_KEY`.
+
+The key must stay in `config.yaml` (as `""`) for the variable to take effect.
 
 Check that no secret is left in the copied file; every value shown must be empty (or the
 placeholder `lm-studio`):

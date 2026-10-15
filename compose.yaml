@@ -6,7 +6,7 @@ services:
     image: ${CREW_IMAGE:?set CREW_IMAGE to the image of the release}
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     env_file:
       - ${CREW_SECRETS:?set CREW_SECRETS to the directory of service secrets}/math_trainer.env
     extra_hosts:

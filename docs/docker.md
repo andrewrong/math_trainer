@@ -90,8 +90,11 @@ The counts before and after the deploy must be equal.
 
 Keep the old database in `<checkout>` (and the backup of step 2) until the owner has used the
 page. Rollback before the first deploy has a previous release: stop the container, then start
-the old binary as before:
+the old binary as before. `compose.yaml` needs its three variables and the deployed checkout
+even to stop the container, so give them (`down` does not use the image, so any value of
+`CREW_IMAGE` will do):
 
 ```sh
-docker compose -p math_trainer down
+CREW_SERVICE_DIR=<service dir> CREW_SECRETS=<secrets dir> CREW_IMAGE=math_trainer:rollback \
+  docker compose -p math_trainer --project-directory <service dir>/app down
 ```

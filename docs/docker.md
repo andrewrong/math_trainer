@@ -48,7 +48,7 @@ cp <checkout>/.secrets/google_adc.json <secrets dir>/math_trainer.google_adc.jso
 In `<service dir>/config/config.yaml` change:
 
 - `db.path` to `/app/data/math_trainer.db`;
-- `server.host` to `0.0.0.0`;
+- `server.host` to `0.0.0.0`; inside the container the server listens on all interfaces, and on the host `compose.yaml` publishes it as `127.0.0.1:8080:8080`, so only the host itself (and `tailscale serve`) reaches the port;
 - every `127.0.0.1` or `localhost` base URL (OCR, ollama, lmstudio) to `host.docker.internal`;
 - every non-empty key or token: move it to `<secrets dir>/math_trainer.env`, one `NAME=value`
   line each, and set its value to `""` in `config.yaml`.

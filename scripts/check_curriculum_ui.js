@@ -74,7 +74,18 @@ assert.strictEqual(itemDiagram({ diagram: '../../secret.svg' }), '');
 assert.strictEqual(itemDiagram({ diagram: '"><script>' }), '');
 // Worked examples (both views) and assessment questions render the helper.
 assert.strictEqual(script.split('${currItemDiagram(ex)}').length - 1, 2);
-assert(script.includes('${currItemDiagram(q)}'));
+assert.strictEqual(script.split('${currItemDiagram(q)}').length - 1, 2);
+// The lesson-card view shows a practice question's named diagram inside its details.
+const cardSrc = script.match(/function renderCurriculumLessonCards[\s\S]*?\n}\n/)[0];
+const escSrc = script.match(/function escHTML[^\n]*/)[0];
+const renderCards = new Function(`${itemDiagramSrc}\n${escSrc}\n${cardSrc}; return renderCurriculumLessonCards;`)();
+const cardHtml = renderCards([{ practiceQuestions: [
+  { prompt: 'Which picture fits this story?', diagram: 'factor-story-bags.svg', correct: 'Equal bags' },
+  { prompt: 'No picture here', correct: 'x' },
+] }], []);
+const [withPic, withoutPic] = cardHtml.split('<details').slice(1);
+assert(/<img class="curr-diagram-img" src="static\/curriculum\/factor-story-bags\.svg\?/.test(withPic));
+assert(!withoutPic.includes('<img'));
 for (const [file, caption] of [['factor-story-bags', 'the number of bags must divide BOTH totals'], ['multiple-story-calendar', 'the first shared mark']]) {
   assert(fs.existsSync(`web/static/curriculum/${file}.excalidraw`));
   assert(fs.readFileSync(`web/static/curriculum/${file}.svg`, 'utf8').includes(caption), file);

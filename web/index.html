@@ -4679,6 +4679,7 @@ function renderCurriculumLessonCards(cards,mappings){
           <details class="curr-practice-details">
             <summary>${escHTML(q.prompt||('Practice '+(i+1)))}</summary>
             <div>${escHTML(q.sub||'')}</div>
+            ${currItemDiagram(q)}
             <div style="margin-top:5px;"><b>Answer:</b> ${escHTML(q.correct||'')}</div>
             <div>${escHTML(q.explain||'')}</div>
           </details>`).join('')}

@@ -1106,8 +1106,8 @@ func TestP4FactorsMultiplesStoryProblemsNameTheirPicture(t *testing.T) {
 	}
 
 	examples, f, m := withDiagram(pack["workedExamples"].([]gin.H))
-	if f < 2 || m < 2 {
-		t.Fatalf("story worked examples: %d factor, %d multiple, want at least 2 each", f, m)
+	if f != 2 || m != 2 {
+		t.Fatalf("story worked examples: %d factor, %d multiple, want 2 each", f, m)
 	}
 	for _, ex := range examples {
 		body, _ := ex["body"].(string)
@@ -1127,8 +1127,8 @@ func TestP4FactorsMultiplesStoryProblemsNameTheirPicture(t *testing.T) {
 	}
 
 	guided, f, m := withDiagram(pack["guidedPractice"].([]gin.H))
-	if len(guided) < 6 || f == 0 || m == 0 {
-		t.Fatalf("guided story questions=%d factor=%d multiple=%d, want at least 6 using both pictures", len(guided), f, m)
+	if len(guided) != 6 || f != 4 || m != 2 {
+		t.Fatalf("guided story questions=%d factor=%d multiple=%d, want 6 (4 bags, 2 calendar)", len(guided), f, m)
 	}
 	pairs := 0
 	for i, q := range guided {
@@ -1148,13 +1148,13 @@ func TestP4FactorsMultiplesStoryProblemsNameTheirPicture(t *testing.T) {
 		}
 		pairs++
 	}
-	if pairs < 3 {
-		t.Fatalf("picture/numeric pairs=%d, want at least 3", pairs)
+	if pairs != 3 {
+		t.Fatalf("picture/numeric pairs=%d, want 3", pairs)
 	}
 
 	mini, _, _ := withDiagram(pack["miniTest"].([]gin.H))
-	if len(mini) < 4 {
-		t.Fatalf("mini story questions=%d, want at least 4", len(mini))
+	if len(mini) != 5 {
+		t.Fatalf("mini story questions=%d, want 5", len(mini))
 	}
 	guidedPrompts := map[any]bool{}
 	for _, q := range guided {

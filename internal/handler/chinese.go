@@ -15,11 +15,13 @@ import (
 	"strings"
 	"time"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/gin-gonic/gin"
 
 	"mathtrainer/internal/ai"
 	"mathtrainer/internal/model"
+	"mathtrainer/internal/pinyin"
 )
 
 type ChineseHandler struct {
@@ -81,6 +83,23 @@ func (h *ChineseHandler) createWeek(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, model.APIError{Error: "no valid Chinese items; use 1-8 Chinese characters in the first column"})
 		return
 	}
+	// Pinyin comes from the local data. For a word of several characters the
+	// AI may know a better reading, so its local reading is only a fallback.
+	fallback := map[int][2]string{}
+	for i := range items {
+		if items[i].Pinyin != "" {
+			continue
+		}
+		text, tone, ok := pinyin.Read(items[i].Character)
+		if !ok {
+			continue
+		}
+		items[i].Pinyin, items[i].Tone = text, tone
+		if utf8.RuneCountInString(items[i].Character) > 1 {
+			fallback[i] = [2]string{text, tone}
+			items[i].Pinyin, items[i].Tone = "", ""
+		}
+	}
 	var enrichErr *enrichError
 	if h.ai != nil {
 		enriched, err := h.enrichItems(c, items)
@@ -91,6 +110,11 @@ func (h *ChineseHandler) createWeek(c *gin.Context) {
 			log.Printf("[chinese] enrichment failed: provider=%s kind=%s%s", enrichErr.providerName(), enrichErr.kind, enrichErr.detail())
 		} else if len(enriched) > 0 {
 			items = mergeChineseItems(items, enriched)
+		}
+	}
+	for i, fb := range fallback {
+		if items[i].Pinyin == "" {
+			items[i].Pinyin, items[i].Tone = fb[0], fb[1]
 		}
 	}
 	if missing := chineseItemsMissingPinyin(items); len(missing) > 0 {
@@ -829,7 +853,6 @@ const (
 	enrichProviderError = "provider_error"
 	enrichNoJSON        = "no_json"
 	enrichParseError    = "parse_error"
-	enrichNoPinyin      = "no_pinyin"
 )
 
 // enrichError says which step of enrichment failed. It never holds item or
@@ -861,8 +884,6 @@ func (e *enrichError) userStep() string {
 	switch e.kind {
 	case enrichProviderError:
 		return "The AI service did not answer"
-	case enrichNoPinyin:
-		return "The AI reply had no pinyin"
 	default:
 		return "The AI reply could not be read"
 	}
@@ -903,7 +924,7 @@ func describeJSONError(err error) string {
 
 func (h *ChineseHandler) enrichItems(ctx context.Context, items []model.ChineseItem) ([]model.ChineseItem, error) {
 	raw, _ := json.Marshal(items)
-	prompt := `Return ONLY a JSON array. For each simplified Chinese item, fill missing pinyin, tone, meaning, words, exampleSentence, pinyinHint, shapeHint. Keep child-friendly wording. Input: ` + string(raw)
+	prompt := `Return ONLY a JSON array. For each simplified Chinese item, fill missing meaning, words, exampleSentence, pinyinHint, shapeHint. For an item of two or more characters with empty pinyin, also give its pinyin with tone marks, separated by spaces (use the reading of the word, not of each character alone); never invent pinyin for a single character. Keep child-friendly wording. Input: ` + string(raw)
 	res, err := h.ai.GenerateTextDetailed(ctx, ai.TextRequest{
 		SystemPrompt:     "You enrich simplified Chinese learning items for a 9-year-old heritage speaker. Return only JSON.",
 		UserPrompt:       prompt,
@@ -933,15 +954,6 @@ func (h *ChineseHandler) enrichItems(ctx context.Context, items []model.ChineseI
 		out[i] = d.item()
 	}
 	out = normalizeChineseItems(out)
-	filled := false
-	for _, it := range out {
-		if it.Pinyin != "" {
-			filled = true
-		}
-	}
-	if !filled {
-		return nil, &enrichError{kind: enrichNoPinyin, provider: res.Provider}
-	}
 	return out, nil
 }
 

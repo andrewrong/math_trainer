@@ -80,7 +80,7 @@ func TestChineseWeekRejectsItemsWithoutPronunciationMetadata(t *testing.T) {
 	router := gin.New()
 	NewChinese(database, nil).Register(router.Group("/api/v1"))
 
-	created := readingJSONRequest(t, router, http.MethodPost, "/api/v1/chinese/weeks", `{"label":"Week 1","items":[{"character":"给"}]}`)
+	created := readingJSONRequest(t, router, http.MethodPost, "/api/v1/chinese/weeks", `{"label":"Week 1","items":[{"character":"𠀀"}]}`)
 	if created.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("week with missing pinyin status=%d body=%s", created.Code, created.Body.String())
 	}
@@ -190,11 +190,8 @@ const oneItemWeek = `{"label":"Week 1","items":[{"character":"给"}]}`
 
 func TestChineseWeekEmptyAIReplyIsLoggedWithoutContent(t *testing.T) {
 	code, logged, weeks := postChineseWeek(t, "", oneItemWeek)
-	if code != http.StatusUnprocessableEntity {
-		t.Fatalf("status=%d", code)
-	}
-	if strings.Contains(weeks, "Week 1") {
-		t.Fatalf("week saved: %s", weeks)
+	if code != http.StatusOK || !strings.Contains(weeks, "gěi") {
+		t.Fatalf("status=%d weeks=%s", code, weeks)
 	}
 	if strings.Count(strings.TrimSpace(logged), "\n") != 0 || !strings.Contains(logged, "no_json") || !strings.Contains(logged, "enrich-test") {
 		t.Fatalf("log=%q", logged)
@@ -228,7 +225,7 @@ func TestChineseWeekAcceptsAFencedReply(t *testing.T) {
 func TestChineseWeekParseFailureLogsErrorAndLengthNotReply(t *testing.T) {
 	reply := `[{"character":"给","pinyin":["gěi"]}]`
 	code, logged, _ := postChineseWeek(t, reply, oneItemWeek)
-	if code != http.StatusUnprocessableEntity {
+	if code != http.StatusOK {
 		t.Fatalf("status=%d", code)
 	}
 	if !strings.Contains(logged, "parse_error") || !strings.Contains(logged, "cannot unmarshal") || !strings.Contains(logged, "reply_len=39") {
@@ -251,7 +248,7 @@ func TestChineseWeekParseFailureDoesNotLogNumericContent(t *testing.T) {
 	reply := `[{"character":"给","pinyin":"gěi","id":` + value + `}]`
 
 	code, logged, _ := postChineseWeek(t, reply, oneItemWeek)
-	if code != http.StatusUnprocessableEntity {
+	if code != http.StatusOK {
 		t.Fatalf("status=%d", code)
 	}
 	if strings.Contains(logged, value) {
@@ -272,10 +269,107 @@ func TestChineseWeekProviderErrorLogNamesTheProvider(t *testing.T) {
 	log.SetOutput(&buf)
 	defer log.SetOutput(os.Stderr)
 	created := readingJSONRequest(t, router, http.MethodPost, "/api/v1/chinese/weeks", oneItemWeek)
-	if created.Code != http.StatusUnprocessableEntity {
+	if created.Code != http.StatusOK {
 		t.Fatalf("status=%d", created.Code)
 	}
 	if !strings.Contains(buf.String(), "provider=enrich-test kind=provider_error") {
 		t.Fatalf("log=%q", buf.String())
+	}
+}
+
+// saveWeekWith posts body with a provider that answers reply (or fails), and
+// returns the response code and the items saved in the database.
+func saveWeekWith(t *testing.T, fail bool, reply, body string) (int, []model.ChineseItem) {
+	t.Helper()
+	gin.SetMode(gin.TestMode)
+	database, err := appdb.Open(filepath.Join(t.TempDir(), "chinese-local.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer database.Close()
+	router := gin.New()
+	h := NewChinese(database, ai.NewChain([]ai.Provider{enrichReplyProvider{reply: reply, fail: fail}}))
+	h.Register(router.Group("/api/v1"))
+	log.SetOutput(&bytes.Buffer{})
+	defer log.SetOutput(os.Stderr)
+	created := readingJSONRequest(t, router, http.MethodPost, "/api/v1/chinese/weeks", body)
+	var weeks int
+	if err := database.QueryRow(`SELECT COUNT(*) FROM chinese_weeks`).Scan(&weeks); err != nil {
+		t.Fatal(err)
+	}
+	if created.Code != http.StatusOK {
+		if weeks != 0 {
+			t.Fatalf("status=%d but a week was saved", created.Code)
+		}
+		return created.Code, nil
+	}
+	var weekID string
+	if err := database.QueryRow(`SELECT week_id FROM chinese_weeks`).Scan(&weekID); err != nil {
+		t.Fatalf("week row missing: %v", err)
+	}
+	return created.Code, h.loadItems(context.Background(), weekID)
+}
+
+func pinyinOf(items []model.ChineseItem) []string {
+	out := []string{}
+	for _, it := range items {
+		out = append(out, it.Pinyin)
+	}
+	return out
+}
+
+const sixCharWeek = `{"label":"Week 1","items":[{"character":"黄"},{"character":"蓝"},{"character":"彩"},{"character":"虹"},{"character":"金"},{"character":"蛋"}]}`
+
+func TestChineseWeekSavesLocalPinyinWhenTheAIFails(t *testing.T) {
+	code, items := saveWeekWith(t, true, "", sixCharWeek)
+	if code != http.StatusOK {
+		t.Fatalf("status=%d", code)
+	}
+	want := []string{"huáng", "lán", "cǎi", "hóng", "jīn", "dàn"}
+	got := pinyinOf(items)
+	if strings.Join(got, ",") != strings.Join(want, ",") {
+		t.Fatalf("pinyin=%v want %v", got, want)
+	}
+	for _, it := range items {
+		if it.Meaning != "" || len(it.Words) != 0 {
+			t.Fatalf("extras not empty: %#v", it)
+		}
+	}
+	if items[0].Tone != "2" {
+		t.Fatalf("tone=%q", items[0].Tone)
+	}
+}
+
+func TestChineseWeekKeepsTypedPinyin(t *testing.T) {
+	_, items := saveWeekWith(t, false, `[{"character":"黄","pinyin":"wáng"}]`, `{"label":"W","items":[{"character":"黄","pinyin":"huang2"}]}`)
+	if len(items) != 1 || items[0].Pinyin != "huang2" {
+		t.Fatalf("items=%#v", items)
+	}
+}
+
+func TestChineseWeekAIPinyinReplacesLocalForAWord(t *testing.T) {
+	body := `{"label":"W","items":[{"character":"银行"}]}`
+	_, items := saveWeekWith(t, false, `[{"character":"银行","pinyin":"yín háng","meaning":"bank"}]`, body)
+	if len(items) != 1 || items[0].Pinyin != "yín háng" || items[0].Meaning != "bank" {
+		t.Fatalf("items=%#v", items)
+	}
+	_, items = saveWeekWith(t, true, "", body)
+	if len(items) != 1 || items[0].Pinyin != "yín xíng" {
+		t.Fatalf("items=%#v", items)
+	}
+}
+
+func TestChineseWeekSingleCharacterKeepsLocalPinyin(t *testing.T) {
+	_, items := saveWeekWith(t, false, `[{"character":"行","pinyin":"háng","meaning":"row"}]`, `{"label":"W","items":[{"character":"行"}]}`)
+	if len(items) != 1 || items[0].Pinyin != "xíng" || items[0].Meaning != "row" {
+		t.Fatalf("items=%#v", items)
+	}
+}
+
+func TestChineseWeekFullAIItemsAreSaved(t *testing.T) {
+	reply := `[{"character":"黄","meaning":"yellow","words":["黄色"],"exampleSentence":"香蕉是黄色的。","pinyinHint":"h","shapeHint":"s"}]`
+	_, items := saveWeekWith(t, false, reply, `{"label":"W","items":[{"character":"黄"}]}`)
+	if len(items) != 1 || items[0].Pinyin != "huáng" || items[0].Meaning != "yellow" || len(items[0].Words) != 1 || items[0].PinyinHint != "h" || items[0].ShapeHint != "s" || items[0].ExampleSentence == "" {
+		t.Fatalf("items=%#v", items)
 	}
 }

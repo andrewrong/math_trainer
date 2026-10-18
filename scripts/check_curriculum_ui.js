@@ -61,6 +61,24 @@ assert(script.includes('Review foundations before this lesson'));
 assert(script.includes('artifactVersion:pack.artifactVersion'));
 assert(script.includes('function currDiagram'));
 assert(script.includes('diagram-20260806-60'));
+assert(script.includes('function currItemDiagram'));
+assert(html.includes('.curr-item-diagram{overflow-x:auto'));
+// An item that names a diagram renders it; one without the field renders as before.
+const itemDiagramSrc = script.match(/function currDiagram[\s\S]*?\nfunction currItemDiagram[\s\S]*?\n}\n/)[0];
+const itemDiagram = new Function(`${itemDiagramSrc}; return currItemDiagram;`)();
+const withPicture = itemDiagram({ diagram: 'factor-story-bags.svg' });
+assert(withPicture.includes('src="static/curriculum/factor-story-bags.svg?v=diagram-20260806-60"'));
+assert(itemDiagram({ diagram: 'multiple-story-calendar.svg' }).includes('multiple-story-calendar.svg'));
+assert.strictEqual(itemDiagram({ title: 'No picture' }), '');
+assert.strictEqual(itemDiagram({ diagram: '../../secret.svg' }), '');
+assert.strictEqual(itemDiagram({ diagram: '"><script>' }), '');
+// Worked examples (both views) and assessment questions render the helper.
+assert.strictEqual(script.split('${currItemDiagram(ex)}').length - 1, 2);
+assert(script.includes('${currItemDiagram(q)}'));
+for (const [file, caption] of [['factor-story-bags', 'the number of bags must divide BOTH totals'], ['multiple-story-calendar', 'the first shared mark']]) {
+  assert(fs.existsSync(`web/static/curriculum/${file}.excalidraw`));
+  assert(fs.readFileSync(`web/static/curriculum/${file}.svg`, 'utf8').includes(caption), file);
+}
 assert(script.includes("addSub:['add-sub-regrouping.svg'"));
 assert(script.includes("p5OrderOps:['p5-order-operations.svg'"));
 assert(script.includes("p5PercentRate:['p5-percent-rate.svg'"));

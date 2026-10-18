@@ -788,6 +788,7 @@ body{font-size:18px;}
 .curr-plain{font-size:16px;color:#444;line-height:1.75;}
 .curr-visual{background:#fff;border:0.5px solid #d7e8f7;border-radius:12px;min-height:120px;padding:12px;margin:10px 0;display:flex;align-items:center;justify-content:flex-start;overflow-x:auto;overflow-y:hidden;}
 .curr-diagram-img{display:block;width:980px;max-width:none;height:auto;flex:0 0 auto;}
+.curr-item-diagram{overflow-x:auto;margin:8px 0;}
 .curr-method{display:grid;gap:7px;margin:9px 0 12px;}
 .curr-method-step{display:grid;grid-template-columns:32px 1fr;gap:9px;align-items:start;background:#f9f9f7;border:0.5px solid #e0e0da;border-radius:10px;padding:9px 11px;font-size:15px;line-height:1.6;color:#444;}
 .curr-step-num{width:26px;height:26px;border-radius:50%;background:#185fa5;color:#fff;font-weight:900;text-align:center;line-height:26px;}
@@ -4198,6 +4199,12 @@ function currDiagram(file,alt){
   return `<img class="curr-diagram-img" src="static/curriculum/${file}?v=diagram-20260806-60" alt="${alt}">`;
 }
 
+function currItemDiagram(item){
+  const file=item&&item.diagram;
+  if(typeof file!=='string'||!/^[a-z0-9-]+\.svg$/.test(file))return '';
+  return `<div class="curr-item-diagram">${currDiagram(file,'Picture for this story')}</div>`;
+}
+
 function curriculumVisual(kind){
   const diagrams={
     addSub:['add-sub-regrouping.svg','Addition and subtraction regrouping by place value'],
@@ -4566,7 +4573,7 @@ function renderCurriculumTabContent(tab,ctx){
   }
   if(tab==='workedExamples'){
     return `<div class="card-title">Worked Examples</div>
-      <div class="curr-example-grid">${tabs.workedExamples.map(ex=>`<div class="curr-example"><b>${escHTML(ex.title||'Example')}</b><br>${escHTML(ex.body||'')}</div>`).join('')}</div>
+      <div class="curr-example-grid">${tabs.workedExamples.map(ex=>`<div class="curr-example"><b>${escHTML(ex.title||'Example')}</b><br>${escHTML(ex.body||'')}${currItemDiagram(ex)}</div>`).join('')}</div>
       ${lesson.commonMisconceptions?.length?`<div class="card-title">Common mistakes</div><div class="curr-note-grid">${lesson.commonMisconceptions.map(m=>`<div class="curr-note"><b>${escHTML(m.mistake||'Mistake')}</b>${escHTML(m.fix||'')}</div>`).join('')}</div>`:''}`;
   }
   if(tab==='practice'){
@@ -4667,7 +4674,7 @@ function renderCurriculumLessonCards(cards,mappings){
       <div class="curr-lesson-card">
         <div class="curr-lesson-head">${escHTML(card.book||'My Pals')} · ${escHTML(card.chapterTitle||'Lesson')}</div>
         <div class="curr-lesson-obj">${escHTML(card.lessonObjective||'Understand the lesson idea and explain the method.')}</div>
-        <div class="curr-example-grid">${(card.workedExamples||[]).map(ex=>`<div class="curr-example"><b>${escHTML(ex.title||'Example')}</b><br>${escHTML(ex.body||'')}</div>`).join('')}</div>
+        <div class="curr-example-grid">${(card.workedExamples||[]).map(ex=>`<div class="curr-example"><b>${escHTML(ex.title||'Example')}</b><br>${escHTML(ex.body||'')}${currItemDiagram(ex)}</div>`).join('')}</div>
         ${(card.practiceQuestions||[]).map((q,i)=>`
           <details class="curr-practice-details">
             <summary>${escHTML(q.prompt||('Practice '+(i+1)))}</summary>
@@ -4697,6 +4704,7 @@ function renderCurriculumAssessment(mode,questions){
     <div class="curr-question" data-mode="${mode}" data-q="${qi}">
       <div class="curr-q-title">${escHTML(q.prompt)}</div>
       <div class="curr-q-sub">${escHTML(q.sub||'')}</div>
+      ${currItemDiagram(q)}
       <div class="curr-choice-grid">
         ${q.options.map((opt,oi)=>`<button class="curr-choice" onclick="answerCurriculumQuestion('${mode}',${qi},${oi},this)">${escHTML(opt)}</button>`).join('')}
       </div>

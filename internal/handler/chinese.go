@@ -5,7 +5,9 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"regexp"
 	"sort"
@@ -79,13 +81,24 @@ func (h *ChineseHandler) createWeek(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, model.APIError{Error: "no valid Chinese items; use 1-8 Chinese characters in the first column"})
 		return
 	}
+	var enrichErr *enrichError
 	if h.ai != nil {
-		if enriched, err := h.enrichItems(c, items); err == nil && len(enriched) > 0 {
+		enriched, err := h.enrichItems(c, items)
+		if err != nil {
+			if !errors.As(err, &enrichErr) {
+				enrichErr = &enrichError{kind: enrichProviderError}
+			}
+			log.Printf("[chinese] enrichment failed: provider=%s kind=%s%s", enrichErr.providerName(), enrichErr.kind, enrichErr.detail())
+		} else if len(enriched) > 0 {
 			items = mergeChineseItems(items, enriched)
 		}
 	}
 	if missing := chineseItemsMissingPinyin(items); len(missing) > 0 {
-		c.JSON(http.StatusUnprocessableEntity, model.APIError{Error: "could not prepare pronunciation for " + strings.Join(missing, "、") + "; this weekly set was not saved. Add pinyin with tone marks or retry after checking the AI service."})
+		msg := "could not prepare pronunciation for " + strings.Join(missing, "、") + "; this weekly set was not saved."
+		if enrichErr != nil {
+			msg += " " + enrichErr.userStep() + "."
+		}
+		c.JSON(http.StatusUnprocessableEntity, model.APIError{Error: msg + " Add pinyin with tone marks or retry after checking the AI service."})
 		return
 	}
 	weekID := fmt.Sprintf("zh-%d", time.Now().UnixNano())
@@ -812,23 +825,107 @@ func weakestChineseKind(st chineseStat) string {
 	return name
 }
 
+const (
+	enrichProviderError = "provider_error"
+	enrichNoJSON        = "no_json"
+	enrichParseError    = "parse_error"
+	enrichNoPinyin      = "no_pinyin"
+)
+
+// enrichError says which step of enrichment failed. It never holds item or
+// reply content, so it is safe to log.
+type enrichError struct {
+	kind     string
+	provider string
+	parseErr error
+	replyLen int
+}
+
+func (e *enrichError) Error() string { return "chinese enrichment failed: " + e.kind }
+
+func (e *enrichError) providerName() string {
+	if e.provider == "" {
+		return "unknown"
+	}
+	return e.provider
+}
+
+func (e *enrichError) detail() string {
+	if e.kind != enrichParseError {
+		return ""
+	}
+	return fmt.Sprintf(" error=%q reply_len=%d", e.parseErr.Error(), e.replyLen)
+}
+
+func (e *enrichError) userStep() string {
+	switch e.kind {
+	case enrichProviderError:
+		return "The AI service did not answer"
+	case enrichNoPinyin:
+		return "The AI reply had no pinyin"
+	default:
+		return "The AI reply could not be read"
+	}
+}
+
+// enrichedChineseItem mirrors model.ChineseItem but takes tone as a number or a string.
+type enrichedChineseItem struct {
+	model.ChineseItem
+	Tone json.RawMessage `json:"tone"`
+}
+
+func (it enrichedChineseItem) item() model.ChineseItem {
+	out := it.ChineseItem
+	var s string
+	if json.Unmarshal(it.Tone, &s) == nil {
+		out.Tone = s
+	} else if string(it.Tone) != "null" && len(it.Tone) > 0 {
+		out.Tone = string(it.Tone)
+	}
+	return out
+}
+
 func (h *ChineseHandler) enrichItems(ctx context.Context, items []model.ChineseItem) ([]model.ChineseItem, error) {
 	raw, _ := json.Marshal(items)
 	prompt := `Return ONLY a JSON array. For each simplified Chinese item, fill missing pinyin, tone, meaning, words, exampleSentence, pinyinHint, shapeHint. Keep child-friendly wording. Input: ` + string(raw)
-	text, err := h.ai.GenerateText(ctx, ai.TextRequest{
+	res, err := h.ai.GenerateTextDetailed(ctx, ai.TextRequest{
 		SystemPrompt:     "You enrich simplified Chinese learning items for a 9-year-old heritage speaker. Return only JSON.",
 		UserPrompt:       prompt,
 		MaxTokens:        8192,
 		ResponseMIMEType: "application/json",
 	})
 	if err != nil {
-		return nil, err
+		return nil, &enrichError{kind: enrichProviderError, provider: res.Provider}
 	}
-	var out []model.ChineseItem
-	if err := json.Unmarshal([]byte(extractJSONArray(text)), &out); err != nil {
-		return nil, err
+	body := extractJSONValue(res.Text)
+	if body == "" {
+		return nil, &enrichError{kind: enrichNoJSON, provider: res.Provider}
 	}
-	return normalizeChineseItems(out), nil
+	var decoded []enrichedChineseItem
+	if body[0] == '{' {
+		var one enrichedChineseItem
+		if err := json.Unmarshal([]byte(body), &one); err != nil {
+			return nil, &enrichError{kind: enrichParseError, provider: res.Provider, parseErr: err, replyLen: len(res.Text)}
+		}
+		decoded = []enrichedChineseItem{one}
+	} else if err := json.Unmarshal([]byte(body), &decoded); err != nil {
+		return nil, &enrichError{kind: enrichParseError, provider: res.Provider, parseErr: err, replyLen: len(res.Text)}
+	}
+	out := make([]model.ChineseItem, len(decoded))
+	for i, d := range decoded {
+		out[i] = d.item()
+	}
+	out = normalizeChineseItems(out)
+	filled := false
+	for _, it := range out {
+		if it.Pinyin != "" {
+			filled = true
+		}
+	}
+	if !filled {
+		return nil, &enrichError{kind: enrichNoPinyin, provider: res.Provider}
+	}
+	return out, nil
 }
 
 func normalizeChineseItems(items []model.ChineseItem) []model.ChineseItem {
@@ -900,11 +997,20 @@ func mergeChineseItems(base, enriched []model.ChineseItem) []model.ChineseItem {
 	return base
 }
 
-func extractJSONArray(s string) string {
-	start := strings.Index(s, "[")
-	end := strings.LastIndex(s, "]")
-	if start < 0 || end < start {
-		return "[]"
+// extractJSONValue returns the outermost JSON array or object in s, which may
+// be wrapped in a Markdown code fence or other text; "" when there is none.
+func extractJSONValue(s string) string {
+	start := strings.IndexAny(s, "[{")
+	if start < 0 {
+		return ""
+	}
+	closer := "]"
+	if s[start] == '{' {
+		closer = "}"
+	}
+	end := strings.LastIndex(s, closer)
+	if end < start {
+		return ""
 	}
 	return s[start : end+1]
 }

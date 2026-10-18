@@ -837,7 +837,7 @@ const (
 type enrichError struct {
 	kind     string
 	provider string
-	parseErr error
+	parseErr string
 	replyLen int
 }
 
@@ -854,7 +854,7 @@ func (e *enrichError) detail() string {
 	if e.kind != enrichParseError {
 		return ""
 	}
-	return fmt.Sprintf(" error=%q reply_len=%d", e.parseErr.Error(), e.replyLen)
+	return fmt.Sprintf(" error=%q reply_len=%d", e.parseErr, e.replyLen)
 }
 
 func (e *enrichError) userStep() string {
@@ -885,6 +885,22 @@ func (it enrichedChineseItem) item() model.ChineseItem {
 	return out
 }
 
+// describeJSONError names a decode failure without the input values that
+// json's own error text can carry (for example an overflowing number).
+func describeJSONError(err error) string {
+	var typeErr *json.UnmarshalTypeError
+	var syntaxErr *json.SyntaxError
+	switch {
+	case errors.As(err, &typeErr):
+		kind, _, _ := strings.Cut(typeErr.Value, " ")
+		return fmt.Sprintf("cannot unmarshal %s into field %s of type %s", kind, typeErr.Field, typeErr.Type)
+	case errors.As(err, &syntaxErr):
+		return fmt.Sprintf("invalid JSON syntax at offset %d", syntaxErr.Offset)
+	default:
+		return "unreadable JSON"
+	}
+}
+
 func (h *ChineseHandler) enrichItems(ctx context.Context, items []model.ChineseItem) ([]model.ChineseItem, error) {
 	raw, _ := json.Marshal(items)
 	prompt := `Return ONLY a JSON array. For each simplified Chinese item, fill missing pinyin, tone, meaning, words, exampleSentence, pinyinHint, shapeHint. Keep child-friendly wording. Input: ` + string(raw)
@@ -895,7 +911,8 @@ func (h *ChineseHandler) enrichItems(ctx context.Context, items []model.ChineseI
 		ResponseMIMEType: "application/json",
 	})
 	if err != nil {
-		return nil, &enrichError{kind: enrichProviderError, provider: res.Provider}
+		// A failed chain returns no provider name; name the ones it tried.
+		return nil, &enrichError{kind: enrichProviderError, provider: strings.Join(h.ai.Available(), ",")}
 	}
 	body := extractJSONValue(res.Text)
 	if body == "" {
@@ -905,11 +922,11 @@ func (h *ChineseHandler) enrichItems(ctx context.Context, items []model.ChineseI
 	if body[0] == '{' {
 		var one enrichedChineseItem
 		if err := json.Unmarshal([]byte(body), &one); err != nil {
-			return nil, &enrichError{kind: enrichParseError, provider: res.Provider, parseErr: err, replyLen: len(res.Text)}
+			return nil, &enrichError{kind: enrichParseError, provider: res.Provider, parseErr: describeJSONError(err), replyLen: len(res.Text)}
 		}
 		decoded = []enrichedChineseItem{one}
 	} else if err := json.Unmarshal([]byte(body), &decoded); err != nil {
-		return nil, &enrichError{kind: enrichParseError, provider: res.Provider, parseErr: err, replyLen: len(res.Text)}
+		return nil, &enrichError{kind: enrichParseError, provider: res.Provider, parseErr: describeJSONError(err), replyLen: len(res.Text)}
 	}
 	out := make([]model.ChineseItem, len(decoded))
 	for i, d := range decoded {

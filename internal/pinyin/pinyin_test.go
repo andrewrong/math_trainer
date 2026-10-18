@@ -28,3 +28,19 @@ func TestReadFailsForACharacterWithoutAnEntry(t *testing.T) {
 		}
 	}
 }
+
+func TestReadPreservesToneOnSyllabicConsonants(t *testing.T) {
+	for _, tt := range []struct {
+		input string
+		want  string
+	}{
+		{"嗯", "ń"},
+		{"呣", "ḿ"},
+	} {
+		text, tone, ok := Read(tt.input)
+		if !ok || text != tt.want || tone != "2" {
+			t.Errorf("Read(%q) = (%q, %q, %v); want (%q, %q, true)",
+				tt.input, text, tone, ok, tt.want, "2")
+		}
+	}
+}

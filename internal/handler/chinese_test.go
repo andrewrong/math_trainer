@@ -1,8 +1,12 @@
 package handler
 
 import (
+	"bytes"
 	"context"
+	"errors"
+	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -141,5 +145,137 @@ func TestChineseContextStoryEndpointPersistsACheckedStory(t *testing.T) {
 	loaded := readingJSONRequest(t, router, http.MethodGet, "/api/v1/chinese/context-stories/label:V2VlayAx", "")
 	if loaded.Code != http.StatusOK || !strings.Contains(loaded.Body.String(), `"word":"操场"`) {
 		t.Fatalf("saved context story status=%d body=%s", loaded.Code, loaded.Body.String())
+	}
+}
+
+type enrichReplyProvider struct {
+	reply string
+	fail  bool
+}
+
+func (enrichReplyProvider) Name() string         { return "enrich-test" }
+func (enrichReplyProvider) SupportsVision() bool { return false }
+func (enrichReplyProvider) GenerateWithVision(context.Context, ai.VisionRequest) (string, error) {
+	return "", nil
+}
+func (p enrichReplyProvider) GenerateText(context.Context, ai.TextRequest) (string, error) {
+	if p.fail {
+		return "", errors.New("down")
+	}
+	return p.reply, nil
+}
+
+// postChineseWeek posts body to a fresh router backed by a provider that
+// answers reply, and returns the response, the captured log and the week list.
+func postChineseWeek(t *testing.T, reply, body string) (code int, logged, weeks string) {
+	t.Helper()
+	gin.SetMode(gin.TestMode)
+	database, err := appdb.Open(filepath.Join(t.TempDir(), "chinese-enrich.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer database.Close()
+	router := gin.New()
+	NewChinese(database, ai.NewChain([]ai.Provider{enrichReplyProvider{reply: reply}})).Register(router.Group("/api/v1"))
+
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	defer log.SetOutput(os.Stderr)
+	created := readingJSONRequest(t, router, http.MethodPost, "/api/v1/chinese/weeks", body)
+	list := readingJSONRequest(t, router, http.MethodGet, "/api/v1/chinese/weeks", "")
+	return created.Code, buf.String(), list.Body.String()
+}
+
+const oneItemWeek = `{"label":"Week 1","items":[{"character":"给"}]}`
+
+func TestChineseWeekEmptyAIReplyIsLoggedWithoutContent(t *testing.T) {
+	code, logged, weeks := postChineseWeek(t, "", oneItemWeek)
+	if code != http.StatusUnprocessableEntity {
+		t.Fatalf("status=%d", code)
+	}
+	if strings.Contains(weeks, "Week 1") {
+		t.Fatalf("week saved: %s", weeks)
+	}
+	if strings.Count(strings.TrimSpace(logged), "\n") != 0 || !strings.Contains(logged, "no_json") || !strings.Contains(logged, "enrich-test") {
+		t.Fatalf("log=%q", logged)
+	}
+	if strings.Contains(logged, "给") {
+		t.Fatalf("log holds request content: %q", logged)
+	}
+}
+
+func TestChineseWeekAcceptsASingleObjectReply(t *testing.T) {
+	code, _, weeks := postChineseWeek(t, `{"character":"给","pinyin":"gěi"}`, oneItemWeek)
+	if code != http.StatusOK || !strings.Contains(weeks, "gěi") {
+		t.Fatalf("status=%d weeks=%s", code, weeks)
+	}
+}
+
+func TestChineseWeekAcceptsANumericTone(t *testing.T) {
+	code, _, weeks := postChineseWeek(t, `[{"character":"给","pinyin":"gěi","tone":3}]`, oneItemWeek)
+	if code != http.StatusOK || !strings.Contains(weeks, "gěi") {
+		t.Fatalf("status=%d weeks=%s", code, weeks)
+	}
+}
+
+func TestChineseWeekAcceptsAFencedReply(t *testing.T) {
+	code, _, weeks := postChineseWeek(t, "```json\n[{\"character\":\"给\",\"pinyin\":\"gěi\",\"tone\":\"3\"}]\n```", oneItemWeek)
+	if code != http.StatusOK || !strings.Contains(weeks, "gěi") {
+		t.Fatalf("status=%d weeks=%s", code, weeks)
+	}
+}
+
+func TestChineseWeekParseFailureLogsErrorAndLengthNotReply(t *testing.T) {
+	reply := `[{"character":"给","pinyin":["gěi"]}]`
+	code, logged, _ := postChineseWeek(t, reply, oneItemWeek)
+	if code != http.StatusUnprocessableEntity {
+		t.Fatalf("status=%d", code)
+	}
+	if !strings.Contains(logged, "parse_error") || !strings.Contains(logged, "cannot unmarshal") || !strings.Contains(logged, "reply_len=39") {
+		t.Fatalf("log=%q", logged)
+	}
+	if strings.Contains(logged, "给") || strings.Contains(logged, "gěi") {
+		t.Fatalf("log holds reply content: %q", logged)
+	}
+}
+
+func TestChineseWeekWithPinyinIgnoresTheProvider(t *testing.T) {
+	code, _, weeks := postChineseWeek(t, "", `{"label":"Week 1","items":[{"character":"给","pinyin":"gěi"}]}`)
+	if code != http.StatusOK || !strings.Contains(weeks, "Week 1") {
+		t.Fatalf("status=%d weeks=%s", code, weeks)
+	}
+}
+
+func TestChineseWeekParseFailureDoesNotLogNumericContent(t *testing.T) {
+	const value = "123456789012345678901234567890"
+	reply := `[{"character":"给","pinyin":"gěi","id":` + value + `}]`
+
+	code, logged, _ := postChineseWeek(t, reply, oneItemWeek)
+	if code != http.StatusUnprocessableEntity {
+		t.Fatalf("status=%d", code)
+	}
+	if strings.Contains(logged, value) {
+		t.Fatalf("log contains reply content: %q", logged)
+	}
+}
+
+func TestChineseWeekProviderErrorLogNamesTheProvider(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	database, err := appdb.Open(filepath.Join(t.TempDir(), "chinese-down.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer database.Close()
+	router := gin.New()
+	NewChinese(database, ai.NewChain([]ai.Provider{enrichReplyProvider{fail: true}})).Register(router.Group("/api/v1"))
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	defer log.SetOutput(os.Stderr)
+	created := readingJSONRequest(t, router, http.MethodPost, "/api/v1/chinese/weeks", oneItemWeek)
+	if created.Code != http.StatusUnprocessableEntity {
+		t.Fatalf("status=%d", created.Code)
+	}
+	if !strings.Contains(buf.String(), "provider=enrich-test kind=provider_error") {
+		t.Fatalf("log=%q", buf.String())
 	}
 }

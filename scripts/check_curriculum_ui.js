@@ -62,7 +62,12 @@ assert(script.includes('artifactVersion:pack.artifactVersion'));
 assert(script.includes('function currDiagram'));
 assert(script.includes('diagram-20260806-60'));
 assert(script.includes('function currItemDiagram'));
-assert(html.includes('.curr-item-diagram{overflow-x:auto'));
+const itemRule = html.match(/\.curr-item-diagram\{([^}]*)\}/)[1];
+assert(!itemRule.includes('overflow-x'));
+const imgRule = html.match(/\.curr-item-diagram \.curr-diagram-img\{([^}]*)\}/)[1];
+for (const decl of ['width:100%', 'max-width:100%', 'height:auto']) assert(imgRule.split(';').includes(decl), decl);
+const wideRule = html.match(/\.curr-example-wide\{([^}]*)\}/)[1];
+assert(wideRule.split(';').includes('grid-column:1 / -1'));
 // An item that names a diagram renders it; one without the field renders as before.
 const itemDiagramSrc = script.match(/function currDiagram[\s\S]*?\nfunction currItemDiagram[\s\S]*?\n}\n/)[0];
 const itemDiagram = new Function(`${itemDiagramSrc}; return currItemDiagram;`)();
@@ -72,6 +77,13 @@ assert(itemDiagram({ diagram: 'multiple-story-calendar.svg' }).includes('multipl
 assert.strictEqual(itemDiagram({ title: 'No picture' }), '');
 assert.strictEqual(itemDiagram({ diagram: '../../secret.svg' }), '');
 assert.strictEqual(itemDiagram({ diagram: '"><script>' }), '');
+// A worked example with a picture spans the grid; one without stays a normal card.
+const exampleClassSrc = script.match(/function currExampleClass[\s\S]*?\n}\n/)[0];
+const exampleClass = new Function(`${itemDiagramSrc}\n${exampleClassSrc}; return currExampleClass;`)();
+assert(exampleClass({ diagram: 'factor-story-bags.svg' }).split(' ').includes('curr-example-wide'));
+assert(!exampleClass({ title: 'No picture' }).includes('curr-example-wide'));
+assert(exampleClass({ title: 'No picture' }).split(' ').includes('curr-example'));
+assert.strictEqual(script.split('class="${currExampleClass(ex)}"').length - 1, 2);
 // Worked examples (both views) and assessment questions render the helper.
 assert.strictEqual(script.split('${currItemDiagram(ex)}').length - 1, 2);
 assert.strictEqual(script.split('${currItemDiagram(q)}').length - 1, 2);

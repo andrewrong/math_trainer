@@ -7,7 +7,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"strings"
+	"time"
 )
 
 type AnthropicProvider struct {
@@ -77,11 +80,26 @@ type anthropicMessage struct {
 
 type anthropicResp struct {
 	Content []struct {
+		Type string `json:"type"`
 		Text string `json:"text"`
 	} `json:"content"`
+	StopReason string `json:"stop_reason"`
+	Usage      *struct {
+		InputTokens  int `json:"input_tokens"`
+		OutputTokens int `json:"output_tokens"`
+	} `json:"usage,omitempty"`
 	Error *struct {
 		Message string `json:"message"`
 	} `json:"error,omitempty"`
+}
+
+// anthropicBadStopReasons end a reply that cannot be used as a complete answer.
+var anthropicBadStopReasons = map[string]bool{
+	"max_tokens":                    true,
+	"model_context_window_exceeded": true,
+	"pause_turn":                    true,
+	"refusal":                       true,
+	"tool_use":                      true,
 }
 
 func (p *AnthropicProvider) call(ctx context.Context, system string, content []anthropicContent, maxTokens int) (string, error) {
@@ -102,6 +120,7 @@ func (p *AnthropicProvider) call(ctx context.Context, system string, content []a
 	req.Header.Set("anthropic-version", "2023-06-01")
 	req.Header.Set("content-type", "application/json")
 
+	started := time.Now()
 	resp, err := p.client.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("anthropic: http: %w", err)
@@ -110,14 +129,41 @@ func (p *AnthropicProvider) call(ctx context.Context, system string, content []a
 	raw, _ := io.ReadAll(resp.Body)
 
 	var ar anthropicResp
-	if err := json.Unmarshal(raw, &ar); err != nil {
-		return "", fmt.Errorf("anthropic: decode: %w", err)
+	decodeErr := json.Unmarshal(raw, &ar)
+	var text strings.Builder
+	types := make([]string, 0, len(ar.Content))
+	for _, blk := range ar.Content {
+		types = append(types, blk.Type)
+		if blk.Type == "text" {
+			text.WriteString(blk.Text)
+		}
+	}
+	blockTypes := strings.Join(types, ",")
+	usage := ""
+	if ar.Usage != nil {
+		usage = fmt.Sprintf(" input_tokens=%d output_tokens=%d", ar.Usage.InputTokens, ar.Usage.OutputTokens)
+	}
+	log.Printf("[ai] anthropic call: model=%s status=%d stop_reason=%s blocks=%q text_len=%d duration=%s%s",
+		p.model, resp.StatusCode, ar.StopReason, blockTypes, text.Len(), time.Since(started).Round(time.Millisecond), usage)
+
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		msg := ""
+		if ar.Error != nil {
+			msg = ": " + ar.Error.Message
+		}
+		return "", fmt.Errorf("anthropic: http status %d%s", resp.StatusCode, msg)
+	}
+	if decodeErr != nil {
+		return "", fmt.Errorf("anthropic: decode: %w", decodeErr)
 	}
 	if ar.Error != nil {
 		return "", fmt.Errorf("anthropic: %s", ar.Error.Message)
 	}
-	if len(ar.Content) == 0 {
-		return "", fmt.Errorf("anthropic: empty response (status %d)", resp.StatusCode)
+	if anthropicBadStopReasons[ar.StopReason] {
+		return "", fmt.Errorf("anthropic: unusable reply (status %d, stop_reason %s, blocks %q)", resp.StatusCode, ar.StopReason, blockTypes)
 	}
-	return ar.Content[0].Text, nil
+	if strings.TrimSpace(text.String()) == "" {
+		return "", fmt.Errorf("anthropic: no text in reply (status %d, stop_reason %s, blocks %q)", resp.StatusCode, ar.StopReason, blockTypes)
+	}
+	return text.String(), nil
 }

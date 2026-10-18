@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 // OllamaProvider uses the Ollama /api/chat endpoint.
@@ -103,6 +104,9 @@ func (p *OllamaProvider) call(ctx context.Context, model string, msgs []ollamaMe
 	}
 	if or.Error != "" {
 		return "", fmt.Errorf("ollama: %s", or.Error)
+	}
+	if strings.TrimSpace(or.Message.Content) == "" {
+		return "", fmt.Errorf("ollama: empty content (status %d)", resp.StatusCode)
 	}
 	return or.Message.Content, nil
 }

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 // OpenAIProvider handles api.openai.com and any OpenAI-compatible endpoint
@@ -167,6 +168,9 @@ func (p *OpenAIProvider) call(ctx context.Context, msgs []oaiMessage, maxTokens 
 	}
 	if len(or.Choices) == 0 {
 		return "", fmt.Errorf("%s: empty response (status %d)", p.name, resp.StatusCode)
+	}
+	if strings.TrimSpace(or.Choices[0].Message.Content) == "" {
+		return "", fmt.Errorf("%s: empty content (status %d)", p.name, resp.StatusCode)
 	}
 	return or.Choices[0].Message.Content, nil
 }

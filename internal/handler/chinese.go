@@ -852,6 +852,7 @@ func weakestChineseKind(st chineseStat) string {
 const (
 	enrichProviderError = "provider_error"
 	enrichNoJSON        = "no_json"
+	enrichNoMatch       = "no_matching_item"
 	enrichParseError    = "parse_error"
 )
 
@@ -922,39 +923,82 @@ func describeJSONError(err error) string {
 	}
 }
 
+// enrichDeadline is the one deadline of the enrichment across all providers.
+const enrichDeadline = 90 * time.Second
+
 func (h *ChineseHandler) enrichItems(ctx context.Context, items []model.ChineseItem) ([]model.ChineseItem, error) {
 	raw, _ := json.Marshal(items)
 	prompt := `Return ONLY a JSON array. For each simplified Chinese item, fill missing meaning, words, exampleSentence, pinyinHint, shapeHint. For an item of two or more characters with empty pinyin, also give its pinyin with tone marks, separated by spaces (use the reading of the word, not of each character alone); never invent pinyin for a single character. Keep child-friendly wording. Input: ` + string(raw)
-	res, err := h.ai.GenerateTextDetailed(ctx, ai.TextRequest{
+	ctx, cancel := context.WithTimeout(ctx, enrichDeadline)
+	defer cancel()
+	var lastReject *enrichError
+	var enriched []model.ChineseItem
+	_, err := h.ai.GenerateTextValidated(ctx, ai.TextRequest{
 		SystemPrompt:     "You enrich simplified Chinese learning items for a 9-year-old heritage speaker. Return only JSON.",
 		UserPrompt:       prompt,
 		MaxTokens:        8192,
 		ResponseMIMEType: "application/json",
+	}, func(text string) error {
+		out, perr := parseEnrichedItems(text)
+		if perr == nil && !coversAnyItem(out, items) {
+			perr = &enrichError{kind: enrichNoMatch}
+		}
+		if perr != nil {
+			lastReject = perr
+			return perr
+		}
+		enriched = out
+		return nil
 	})
 	if err != nil {
 		// A failed chain returns no provider name; name the ones it tried.
-		return nil, &enrichError{kind: enrichProviderError, provider: strings.Join(h.ai.Available(), ",")}
+		names := strings.Join(h.ai.Available(), ",")
+		if lastReject != nil {
+			rejected := *lastReject
+			rejected.provider = names
+			return nil, &rejected
+		}
+		return nil, &enrichError{kind: enrichProviderError, provider: names}
 	}
-	body := extractJSONValue(res.Text)
+	return enriched, nil
+}
+
+// parseEnrichedItems reads the reply of the enrichment prompt: a JSON array,
+// or one object, possibly wrapped in a code fence or other text.
+func parseEnrichedItems(text string) ([]model.ChineseItem, *enrichError) {
+	body := extractJSONValue(text)
 	if body == "" {
-		return nil, &enrichError{kind: enrichNoJSON, provider: res.Provider}
+		return nil, &enrichError{kind: enrichNoJSON}
 	}
 	var decoded []enrichedChineseItem
 	if body[0] == '{' {
 		var one enrichedChineseItem
 		if err := json.Unmarshal([]byte(body), &one); err != nil {
-			return nil, &enrichError{kind: enrichParseError, provider: res.Provider, parseErr: describeJSONError(err), replyLen: len(res.Text)}
+			return nil, &enrichError{kind: enrichParseError, parseErr: describeJSONError(err), replyLen: len(text)}
 		}
 		decoded = []enrichedChineseItem{one}
 	} else if err := json.Unmarshal([]byte(body), &decoded); err != nil {
-		return nil, &enrichError{kind: enrichParseError, provider: res.Provider, parseErr: describeJSONError(err), replyLen: len(res.Text)}
+		return nil, &enrichError{kind: enrichParseError, parseErr: describeJSONError(err), replyLen: len(text)}
 	}
 	out := make([]model.ChineseItem, len(decoded))
 	for i, d := range decoded {
 		out[i] = d.item()
 	}
-	out = normalizeChineseItems(out)
-	return out, nil
+	return normalizeChineseItems(out), nil
+}
+
+// coversAnyItem reports whether got holds at least one of the requested items.
+func coversAnyItem(got, want []model.ChineseItem) bool {
+	asked := map[string]bool{}
+	for _, it := range want {
+		asked[it.Character] = true
+	}
+	for _, it := range got {
+		if asked[it.Character] {
+			return true
+		}
+	}
+	return false
 }
 
 func normalizeChineseItems(items []model.ChineseItem) []model.ChineseItem {

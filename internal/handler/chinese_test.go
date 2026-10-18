@@ -193,7 +193,7 @@ func TestChineseWeekEmptyAIReplyIsLoggedWithoutContent(t *testing.T) {
 	if code != http.StatusOK || !strings.Contains(weeks, "gěi") {
 		t.Fatalf("status=%d weeks=%s", code, weeks)
 	}
-	if strings.Count(strings.TrimSpace(logged), "\n") != 1 || !strings.Contains(logged, "no_json") || !strings.Contains(logged, "enrich-test") {
+	if strings.Count(strings.TrimSpace(logged), "\n") != 3 || !strings.Contains(logged, "no_json") || !strings.Contains(logged, "enrich-test") {
 		t.Fatalf("log=%q", logged)
 	}
 	if strings.Contains(logged, "给") {
@@ -411,5 +411,154 @@ func TestChineseWeekFallsBackPastRepliesThatDoNotCoverTheItems(t *testing.T) {
 	}, oneItemWeek)
 	if code != http.StatusOK || !strings.Contains(weeks, "to give") || strings.Contains(weeks, "wrong one") {
 		t.Fatalf("status=%d weeks=%s", code, weeks)
+	}
+}
+
+// scriptedProvider answers replies in order (the last one repeats) and records
+// the prompt of every call.
+type scriptedProvider struct {
+	name    string
+	replies []string
+	prompts *[]string
+}
+
+func (p scriptedProvider) Name() string       { return p.name }
+func (scriptedProvider) SupportsVision() bool { return false }
+func (scriptedProvider) GenerateWithVision(context.Context, ai.VisionRequest) (string, error) {
+	return "", nil
+}
+func (p scriptedProvider) GenerateText(_ context.Context, req ai.TextRequest) (string, error) {
+	n := len(*p.prompts)
+	*p.prompts = append(*p.prompts, req.UserPrompt)
+	if n >= len(p.replies) {
+		n = len(p.replies) - 1
+	}
+	return p.replies[n], nil
+}
+
+const threeItemWeek = `{"label":"Week 1","items":[{"character":"给"},{"character":"跑"},{"character":"放"}]}`
+
+// postScriptedWeek posts body through a chain of providers and returns the
+// status, the captured log and the items saved in the database.
+func postScriptedWeek(t *testing.T, body string, providers ...ai.Provider) (int, string, []model.ChineseItem) {
+	t.Helper()
+	gin.SetMode(gin.TestMode)
+	database, err := appdb.Open(filepath.Join(t.TempDir(), "chinese-scripted.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer database.Close()
+	router := gin.New()
+	NewChinese(database, ai.NewChain(providers)).Register(router.Group("/api/v1"))
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	defer log.SetOutput(os.Stderr)
+	created := readingJSONRequest(t, router, http.MethodPost, "/api/v1/chinese/weeks", body)
+	rows, err := database.Query(`SELECT character, meaning FROM chinese_items ORDER BY id`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rows.Close()
+	var saved []model.ChineseItem
+	for rows.Next() {
+		var it model.ChineseItem
+		if err := rows.Scan(&it.Character, &it.Meaning); err != nil {
+			t.Fatal(err)
+		}
+		saved = append(saved, it)
+	}
+	return created.Code, buf.String(), saved
+}
+
+func countMeanings(items []model.ChineseItem) int {
+	n := 0
+	for _, it := range items {
+		if it.Meaning != "" {
+			n++
+		}
+	}
+	return n
+}
+
+const (
+	replyGei  = `{"character":"给","meaning":"give"}`
+	replyPao  = `{"character":"跑","meaning":"run"}`
+	replyFang = `{"character":"放","meaning":"put"}`
+)
+
+func TestChineseWeekLogsTheProviderThatEnriched(t *testing.T) {
+	var prompts []string
+	p := scriptedProvider{name: "first-test", replies: []string{"[" + replyGei + "," + replyPao + "," + replyFang + "]"}, prompts: &prompts}
+	code, logged, saved := postScriptedWeek(t, threeItemWeek, p)
+	if code != http.StatusOK || countMeanings(saved) != 3 {
+		t.Fatalf("status=%d saved=%v", code, saved)
+	}
+	if !strings.Contains(logged, "[chinese] enrichment ok: provider=first-test filled=3/3") {
+		t.Fatalf("log=%q", logged)
+	}
+	for _, c := range []string{"给", "跑", "放"} {
+		if strings.Contains(logged, c) {
+			t.Fatalf("log holds request content: %q", logged)
+		}
+	}
+	if len(prompts) != 1 {
+		t.Fatalf("calls=%d, want 1", len(prompts))
+	}
+}
+
+func TestChineseWeekAsksAgainForItemsAPartialReplyMissed(t *testing.T) {
+	var prompts []string
+	p := scriptedProvider{name: "first-test", replies: []string{"[" + replyGei + "," + replyPao + "]", "[" + replyFang + "]"}, prompts: &prompts}
+	code, logged, saved := postScriptedWeek(t, threeItemWeek, p)
+	if code != http.StatusOK || len(saved) != 3 || countMeanings(saved) != 3 {
+		t.Fatalf("status=%d saved=%v", code, saved)
+	}
+	if len(prompts) != 2 {
+		t.Fatalf("calls=%d, want 2", len(prompts))
+	}
+	if !strings.Contains(prompts[1], "放") || strings.Contains(prompts[1], "给") || strings.Contains(prompts[1], "跑") {
+		t.Fatalf("second prompt should hold only the missing item: %q", prompts[1])
+	}
+	first := strings.Index(logged, "enrichment ok: provider=first-test filled=2/3")
+	second := strings.Index(logged, "enrichment ok: provider=first-test filled=3/3")
+	if first < 0 || second < first {
+		t.Fatalf("log=%q", logged)
+	}
+}
+
+func TestChineseWeekAsksOnlyOnceMoreAndSavesWhatItHas(t *testing.T) {
+	var prompts []string
+	p := scriptedProvider{name: "first-test", replies: []string{"[" + replyGei + "," + replyPao + "]", "[" + replyGei + "," + replyPao + "]"}, prompts: &prompts}
+	code, logged, saved := postScriptedWeek(t, threeItemWeek, p)
+	if code != http.StatusOK || len(saved) != 3 || countMeanings(saved) != 2 {
+		t.Fatalf("status=%d saved=%v", code, saved)
+	}
+	if len(prompts) != 2 {
+		t.Fatalf("calls=%d, want 2", len(prompts))
+	}
+	if !strings.Contains(logged, "enrichment failed") {
+		t.Fatalf("second call that missed the item should log a failure: %q", logged)
+	}
+}
+
+func TestChineseWeekLogsTheProviderThatAnsweredAfterAFallback(t *testing.T) {
+	var p1, p2 []string
+	first := scriptedProvider{name: "first-test", replies: []string{""}, prompts: &p1}
+	second := scriptedProvider{name: "second-test", replies: []string{"[" + replyGei + "," + replyPao + "," + replyFang + "]"}, prompts: &p2}
+	code, logged, saved := postScriptedWeek(t, threeItemWeek, first, second)
+	if code != http.StatusOK || countMeanings(saved) != 3 {
+		t.Fatalf("status=%d saved=%v", code, saved)
+	}
+	if !strings.Contains(logged, "enrichment ok: provider=second-test filled=3/3") {
+		t.Fatalf("log=%q", logged)
+	}
+}
+
+func TestChineseWeekMakesNoSecondCallWhenEveryItemHasMeaning(t *testing.T) {
+	var prompts []string
+	p := scriptedProvider{name: "first-test", replies: []string{"[" + replyGei + "," + replyPao + "," + replyFang + "]"}, prompts: &prompts}
+	postScriptedWeek(t, threeItemWeek, p)
+	if len(prompts) != 1 {
+		t.Fatalf("calls=%d, want 1", len(prompts))
 	}
 }

@@ -102,14 +102,29 @@ func (h *ChineseHandler) createWeek(c *gin.Context) {
 	}
 	var enrichErr *enrichError
 	if h.ai != nil {
-		enriched, err := h.enrichItems(c, items)
-		if err != nil {
-			if !errors.As(err, &enrichErr) {
-				enrichErr = &enrichError{kind: enrichProviderError}
+		// A partial reply is used as it is; the items it missed are asked for
+		// once more through the same chain, and there is no third call.
+		for attempt := 0; attempt < 2; attempt++ {
+			asked := items
+			if attempt == 1 {
+				asked = itemsWithoutMeaning(items)
+				if len(asked) == 0 {
+					break
+				}
 			}
-			log.Printf("[chinese] enrichment failed: provider=%s kind=%s%s", enrichErr.providerName(), enrichErr.kind, enrichErr.detail())
-		} else if len(enriched) > 0 {
-			items = mergeChineseItems(items, enriched)
+			enriched, provider, err := h.enrichItems(c, asked)
+			if err != nil {
+				if !errors.As(err, &enrichErr) {
+					enrichErr = &enrichError{kind: enrichProviderError}
+				}
+				log.Printf("[chinese] enrichment failed: provider=%s kind=%s%s", enrichErr.providerName(), enrichErr.kind, enrichErr.detail())
+				continue
+			}
+			enrichErr = nil
+			if len(enriched) > 0 {
+				items = mergeChineseItems(items, enriched)
+			}
+			log.Printf("[chinese] enrichment ok: provider=%s filled=%d/%d", provider, len(items)-len(itemsWithoutMeaning(items)), len(items))
 		}
 	}
 	for i, fb := range fallback {
@@ -926,14 +941,14 @@ func describeJSONError(err error) string {
 // enrichDeadline is the one deadline of the enrichment across all providers.
 const enrichDeadline = 90 * time.Second
 
-func (h *ChineseHandler) enrichItems(ctx context.Context, items []model.ChineseItem) ([]model.ChineseItem, error) {
+func (h *ChineseHandler) enrichItems(ctx context.Context, items []model.ChineseItem) ([]model.ChineseItem, string, error) {
 	raw, _ := json.Marshal(items)
 	prompt := `Return ONLY a JSON array. For each simplified Chinese item, fill missing meaning, words, exampleSentence, pinyinHint, shapeHint. For an item of two or more characters with empty pinyin, also give its pinyin with tone marks, separated by spaces (use the reading of the word, not of each character alone); never invent pinyin for a single character. Keep child-friendly wording. Input: ` + string(raw)
 	ctx, cancel := context.WithTimeout(ctx, enrichDeadline)
 	defer cancel()
 	var lastReject *enrichError
 	var enriched []model.ChineseItem
-	_, err := h.ai.GenerateTextValidated(ctx, ai.TextRequest{
+	result, err := h.ai.GenerateTextValidated(ctx, ai.TextRequest{
 		SystemPrompt:     "You enrich simplified Chinese learning items for a 9-year-old heritage speaker. Return only JSON.",
 		UserPrompt:       prompt,
 		MaxTokens:        8192,
@@ -956,11 +971,22 @@ func (h *ChineseHandler) enrichItems(ctx context.Context, items []model.ChineseI
 		if lastReject != nil {
 			rejected := *lastReject
 			rejected.provider = names
-			return nil, &rejected
+			return nil, "", &rejected
 		}
-		return nil, &enrichError{kind: enrichProviderError, provider: names}
+		return nil, "", &enrichError{kind: enrichProviderError, provider: names}
 	}
-	return enriched, nil
+	return enriched, result.Provider, nil
+}
+
+// itemsWithoutMeaning returns the items whose meaning is still empty.
+func itemsWithoutMeaning(items []model.ChineseItem) []model.ChineseItem {
+	var out []model.ChineseItem
+	for _, it := range items {
+		if it.Meaning == "" {
+			out = append(out, it)
+		}
+	}
+	return out
 }
 
 // parseEnrichedItems reads the reply of the enrichment prompt: a JSON array,

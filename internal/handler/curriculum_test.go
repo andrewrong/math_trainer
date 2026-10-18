@@ -2,6 +2,8 @@ package handler
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -1069,5 +1071,151 @@ func requireLen(t *testing.T, code string, pack map[string]any, key string, min 
 		}
 	default:
 		t.Fatalf("%s %s has unexpected type %T", code, key, pack[key])
+	}
+}
+
+func TestP4FactorsMultiplesStoryProblemsNameTheirPicture(t *testing.T) {
+	pack := buildTopicLessonPack(model.CurriculumTopic{TopicCode: "P4-FACTORS-MULTIPLES"})
+	const bags = "factor-story-bags.svg"
+	const calendar = "multiple-story-calendar.svg"
+
+	withDiagram := func(items []gin.H) (all []gin.H, factor, multiple int) {
+		for _, it := range items {
+			d, _ := it["diagram"].(string)
+			if d == "" {
+				continue
+			}
+			if d != bags && d != calendar {
+				t.Fatalf("unexpected diagram %q", d)
+			}
+			if _, err := os.Stat(filepath.Join("..", "..", "web", "static", "curriculum", d)); err != nil {
+				t.Fatalf("diagram %s missing on disk: %v", d, err)
+			}
+			base := strings.TrimSuffix(d, ".svg")
+			if _, err := os.Stat(filepath.Join("..", "..", "web", "static", "curriculum", base+".excalidraw")); err != nil {
+				t.Fatalf("diagram source %s.excalidraw missing: %v", base, err)
+			}
+			all = append(all, it)
+			if d == bags {
+				factor++
+			} else {
+				multiple++
+			}
+		}
+		return
+	}
+
+	examples, f, m := withDiagram(pack["workedExamples"].([]gin.H))
+	if f != 2 || m != 2 {
+		t.Fatalf("story worked examples: %d factor, %d multiple, want 2 each", f, m)
+	}
+	for _, ex := range examples {
+		body, _ := ex["body"].(string)
+		for _, step := range []string{"Which story is it", "Draw it", "List and circle", "Size check", "Say the answer back"} {
+			if !strings.Contains(body, step) {
+				t.Fatalf("story example %v lacks step %q", ex["title"], step)
+			}
+		}
+		for _, want := range []string{"share equally", "meet again"} {
+			if !strings.Contains(body, want) {
+				t.Fatalf("story example %v lacks %q", ex["title"], want)
+			}
+		}
+		if !strings.Contains(body, "never bigger than the smaller total") || !strings.Contains(body, "never smaller than the bigger number") {
+			t.Fatalf("story example %v lacks the size check rule", ex["title"])
+		}
+	}
+
+	// Values the story pictures depend on, taken from the issue.
+	for i, wants := range [][]string{
+		{"18 apples and 24 oranges", "Try 4 bags", "18 apples leave 2 over", "6 bags", "3 apples and 4 oranges each", "Circle 1, 2, 3, 6"},
+		{"16 stickers and 40 cards", "8 sets", "2 stickers and 5 cards"},
+		{"every 4 days", "every 6 days", "days 0 to 24", "multiples of 4: 4, 8, 12, 16, 20, 24", "multiples of 6: 6, 12, 18, 24", "Circle 12 and 24", "day 12"},
+		{"every 6 days", "every 9 days", "multiples of 9: 9, 18, 27", "Circle 18", "after 18 days"},
+	} {
+		body, _ := examples[i]["body"].(string)
+		for _, want := range wants {
+			if !strings.Contains(body, want) {
+				t.Fatalf("story example %v lacks %q", examples[i]["title"], want)
+			}
+		}
+	}
+	if examples[0]["diagram"] != bags || examples[1]["diagram"] != bags || examples[2]["diagram"] != calendar || examples[3]["diagram"] != calendar {
+		t.Fatalf("story examples name the wrong pictures: %v", examples)
+	}
+
+	guided, f, m := withDiagram(pack["guidedPractice"].([]gin.H))
+	if len(guided) != 6 || f != 4 || m != 2 {
+		t.Fatalf("guided story questions=%d factor=%d multiple=%d, want 6 (4 bags, 2 calendar)", len(guided), f, m)
+	}
+	pairs := 0
+	for i, q := range guided {
+		prompt, _ := q["prompt"].(string)
+		if !strings.HasPrefix(prompt, "Which picture fits this story: equal bags or jumps that meet?") {
+			continue
+		}
+		if i+1 >= len(guided) || guided[i+1]["diagram"] != q["diagram"] {
+			t.Fatalf("picture question %q is not followed by its numeric question", prompt)
+		}
+		want := "Equal bags"
+		if q["diagram"] == calendar {
+			want = "Jumps that meet"
+		}
+		if q["correct"] != want {
+			t.Fatalf("picture question %q correct=%v, want %q", prompt, q["correct"], want)
+		}
+		pairs++
+	}
+	if pairs != 3 {
+		t.Fatalf("picture/numeric pairs=%d, want 3", pairs)
+	}
+
+	mini, _, _ := withDiagram(pack["miniTest"].([]gin.H))
+	if len(mini) != 5 {
+		t.Fatalf("mini story questions=%d, want 5", len(mini))
+	}
+	guidedPrompts := map[any]bool{}
+	for _, q := range guided {
+		guidedPrompts[q["prompt"]] = true
+	}
+	var rangeQ, trapQ gin.H
+	for _, q := range mini {
+		if guidedPrompts[q["prompt"]] {
+			t.Fatalf("mini question repeats guided practice: %v", q["prompt"])
+		}
+		prompt, _ := q["prompt"].(string)
+		if strings.Contains(prompt, "multiple of 3 and of 4") && strings.Contains(prompt, "between 30 and 50") {
+			rangeQ = q
+		}
+		if strings.Contains(prompt, "shared equally among 4 children or among 6 children") {
+			trapQ = q
+		}
+	}
+	if rangeQ == nil || rangeQ["correct"] != "36 and 48" {
+		t.Fatalf("range problem missing or wrong: %v", rangeQ)
+	}
+	if trapQ == nil || trapQ["correct"] != "12" || trapQ["diagram"] != calendar {
+		t.Fatalf("keyword trap missing or wrong: %v", trapQ)
+	}
+
+	found := false
+	for _, mis := range pack["commonMisconceptions"].([]gin.H) {
+		if mis["mistake"] == "Choosing factor or multiple from one keyword" {
+			found = true
+			fix, _ := mis["fix"].(string)
+			for _, want := range []string{"share equally", "common multiple", "size check"} {
+				if !strings.Contains(strings.ToLower(fix), want) {
+					t.Fatalf("misconception fix lacks %q: %s", want, fix)
+				}
+			}
+		}
+	}
+	if !found {
+		t.Fatal("misconception about choosing from one keyword is missing")
+	}
+
+	notes, _ := json.Marshal(pack["parentCoachNotes"])
+	if !strings.Contains(string(notes), "先让她画出袋子或标记") {
+		t.Fatalf("parent coach notes lack the drawing line: %s", notes)
 	}
 }

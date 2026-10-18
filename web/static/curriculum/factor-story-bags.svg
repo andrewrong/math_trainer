@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 640" role="img" aria-label="Equal bags: 18 apples and 24 oranges, one failed try with 4 bags and the answer with 6 bags">
+  <rect width="1180" height="640" fill="#ffffff"/>
+  <text x="40" y="50" text-anchor="start" style="font:900 28px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#1e40af">Story: 18 apples and 24 oranges, equal bags, nothing left over</text>
+  <text x="40" y="80" text-anchor="start" style="font:700 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#64748b">First decide the picture: one total split exactly = bags.</text>
+  <text x="40" y="125" text-anchor="start" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#b91c1c">Try 4 bags: leftovers, so 4 fails</text>
+  <rect x="40" y="140" width="120" height="90" rx="6" fill="#fef2f2" stroke="#b91c1c" stroke-width="2"/>
+  <text x="95" y="170" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#374151">4 apples</text>
+  <text x="95" y="200" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#374151">6 oranges</text>
+  <rect x="170" y="140" width="120" height="90" rx="6" fill="#fef2f2" stroke="#b91c1c" stroke-width="2"/>
+  <text x="225" y="170" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#374151">4 apples</text>
+  <text x="225" y="200" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#374151">6 oranges</text>
+  <rect x="300" y="140" width="120" height="90" rx="6" fill="#fef2f2" stroke="#b91c1c" stroke-width="2"/>
+  <text x="355" y="170" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#374151">4 apples</text>
+  <text x="355" y="200" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#374151">6 oranges</text>
+  <rect x="430" y="140" width="120" height="90" rx="6" fill="#fef2f2" stroke="#b91c1c" stroke-width="2"/>
+  <text x="485" y="170" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#374151">4 apples</text>
+  <text x="485" y="200" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#374151">6 oranges</text>
+  <rect x="570" y="140" width="200" height="90" rx="6" fill="#fee2e2" stroke="#b91c1c" stroke-width="3"/>
+  <text x="670" y="175" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#b91c1c">left over:</text>
+  <text x="670" y="205" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#b91c1c">2 apples left</text>
+  <text x="790" y="185" text-anchor="start" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#b91c1c">18 ÷ 4 = 4 remainder 2</text>
+  <text x="40" y="290" text-anchor="start" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#047857">Try 6 bags: nothing left over, so 6 works</text>
+  <rect x="40" y="310" width="155" height="130" rx="6" fill="#ecfdf5" stroke="#047857" stroke-width="2"/>
+  <text x="117" y="338" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#047857">Bag 1</text>
+  <ellipse cx="75.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="115.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="155.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="65.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="100.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="135.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="170.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <rect x="215" y="310" width="155" height="130" rx="6" fill="#ecfdf5" stroke="#047857" stroke-width="2"/>
+  <text x="292" y="338" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#047857">Bag 2</text>
+  <ellipse cx="250.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="290.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="330.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="240.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="275.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="310.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="345.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <rect x="390" y="310" width="155" height="130" rx="6" fill="#ecfdf5" stroke="#047857" stroke-width="2"/>
+  <text x="467" y="338" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#047857">Bag 3</text>
+  <ellipse cx="425.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="465.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="505.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="415.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="450.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="485.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="520.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <rect x="565" y="310" width="155" height="130" rx="6" fill="#ecfdf5" stroke="#047857" stroke-width="2"/>
+  <text x="642" y="338" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#047857">Bag 4</text>
+  <ellipse cx="600.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="640.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="680.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="590.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="625.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="660.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="695.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <rect x="740" y="310" width="155" height="130" rx="6" fill="#ecfdf5" stroke="#047857" stroke-width="2"/>
+  <text x="817" y="338" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#047857">Bag 5</text>
+  <ellipse cx="775.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="815.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="855.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="765.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="800.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="835.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="870.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <rect x="915" y="310" width="155" height="130" rx="6" fill="#ecfdf5" stroke="#047857" stroke-width="2"/>
+  <text x="992" y="338" text-anchor="middle" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#047857">Bag 6</text>
+  <ellipse cx="950.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="990.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="1030.0" cy="372.0" rx="13.0" ry="13.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <ellipse cx="940.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="975.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="1010.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="1045.0" cy="412.0" rx="12.0" ry="12.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <ellipse cx="60.0" cy="472.0" rx="10.0" ry="10.0" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"/>
+  <text x="78" y="478" text-anchor="start" style="font:700 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#374151">= apple, 3 in each bag (3 × 6 = 18)</text>
+  <ellipse cx="620.0" cy="472.0" rx="10.0" ry="10.0" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <text x="638" y="478" text-anchor="start" style="font:700 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#374151">= orange, 4 in each bag (4 × 6 = 24)</text>
+  <text x="40" y="525" text-anchor="start" style="font:900 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#047857">Common factors of 18 and 24: 1, 2, 3, 6. The greatest is 6 bags.</text>
+  <rect x="40" y="550" width="1100" height="60" rx="6" fill="#fef3c7" stroke="#b45309" stroke-width="3"/>
+  <text x="590" y="589" text-anchor="middle" style="font:900 24px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#b45309">the number of bags must divide BOTH totals</text>
+</svg>

@@ -151,3 +151,29 @@ func TestAnthropicTransportFailureIsLogged(t *testing.T) {
 		t.Fatalf("log %q", buf.String())
 	}
 }
+
+func TestAnthropicHTTPErrorLogsRequiredMetadata(t *testing.T) {
+	p := anthropicServer(t, 500,
+		`{"content":[{"type":"text","text":"SECRETTEXT"}]}`)
+	buf := captureLog(t)
+
+	_, err := p.GenerateText(context.Background(), TextRequest{})
+	if err == nil {
+		t.Fatal("expected HTTP error")
+	}
+
+	out := strings.TrimSpace(buf.String())
+	if len(strings.Split(out, "\n")) != 1 {
+		t.Fatalf("expected one diagnostic: %q", out)
+	}
+	for _, field := range []string{
+		"status=500", "stop_reason=", "blocks=", "text_len=",
+	} {
+		if !strings.Contains(out, field) {
+			t.Errorf("diagnostic lacks %s: %q", field, out)
+		}
+	}
+	if strings.Contains(out, "SECRETTEXT") {
+		t.Fatalf("diagnostic exposes response text: %q", out)
+	}
+}

@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -102,6 +103,13 @@ var anthropicBadStopReasons = map[string]bool{
 	"tool_use":                      true,
 }
 
+// logCall writes the one line of a call. A field that is not known because no
+// reply was read ("none", "unread") is spelled out; the reply text is never logged.
+func (p *AnthropicProvider) logCall(status, stopReason, blocks, textLen string, started time.Time, usage string) {
+	log.Printf("[ai] anthropic call: model=%s status=%s stop_reason=%s blocks=%s text_len=%s duration=%s%s",
+		p.model, status, stopReason, blocks, textLen, time.Since(started).Round(time.Millisecond), usage)
+}
+
 func (p *AnthropicProvider) call(ctx context.Context, system string, content []anthropicContent, maxTokens int) (string, error) {
 	if p.apiKey == "" {
 		return "", fmt.Errorf("anthropic: api_key not configured")
@@ -123,14 +131,14 @@ func (p *AnthropicProvider) call(ctx context.Context, system string, content []a
 	started := time.Now()
 	resp, err := p.client.Do(req)
 	if err != nil {
-		log.Printf("[ai] anthropic call: model=%s status=none error=%q duration=%s", p.model, "transport failure", time.Since(started).Round(time.Millisecond))
+		p.logCall("none", "none", "none", "none", started, "")
 		return "", fmt.Errorf("anthropic: http: %w", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		// Checked before the body is read: a failing server that stalls its
 		// body must not hold up the fallback. The body is never quoted.
-		log.Printf("[ai] anthropic call: model=%s status=%d duration=%s", p.model, resp.StatusCode, time.Since(started).Round(time.Millisecond))
+		p.logCall(strconv.Itoa(resp.StatusCode), "unread", "unread", "unread", started, "")
 		return "", fmt.Errorf("anthropic: http status %d", resp.StatusCode)
 	}
 	raw, _ := io.ReadAll(resp.Body)
@@ -150,8 +158,7 @@ func (p *AnthropicProvider) call(ctx context.Context, system string, content []a
 	if ar.Usage != nil {
 		usage = fmt.Sprintf(" input_tokens=%d output_tokens=%d", ar.Usage.InputTokens, ar.Usage.OutputTokens)
 	}
-	log.Printf("[ai] anthropic call: model=%s status=%d stop_reason=%s blocks=%q text_len=%d duration=%s%s",
-		p.model, resp.StatusCode, ar.StopReason, blockTypes, text.Len(), time.Since(started).Round(time.Millisecond), usage)
+	p.logCall(strconv.Itoa(resp.StatusCode), ar.StopReason, strconv.Quote(blockTypes), strconv.Itoa(text.Len()), started, usage)
 
 	if decodeErr != nil {
 		return "", fmt.Errorf("anthropic: decode: %w", decodeErr)

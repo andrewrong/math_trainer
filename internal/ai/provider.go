@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 )
 
 // TextRequest is used for plain-text generation (word cards, story, grammar, etc.).
@@ -80,6 +81,51 @@ func (c *Chain) GenerateTextDetailed(ctx context.Context, req TextRequest) (Text
 		errs = append(errs, fmt.Errorf("%s: %w", p.Name(), err))
 	}
 	return TextResult{}, fmt.Errorf("all providers failed: %w", errors.Join(errs...))
+}
+
+// providerTimeout bounds one provider attempt of GenerateTextValidated, so a
+// provider that hangs does not use up the caller's whole deadline.
+var providerTimeout = 30 * time.Second
+
+// GenerateTextValidated is like GenerateTextDetailed, but a reply that validate
+// rejects also counts as a failure of that provider and the next one is asked.
+// It stops at once when ctx is done. validate's error must not carry the reply.
+func (c *Chain) GenerateTextValidated(ctx context.Context, req TextRequest, validate func(string) error) (TextResult, error) {
+	if len(c.providers) == 0 {
+		return TextResult{}, errors.New("no AI providers configured")
+	}
+	var errs []error
+	for _, p := range c.providers {
+		if err := ctx.Err(); err != nil {
+			errs = append(errs, err)
+			break
+		}
+		text, err := c.attempt(ctx, p, req, validate)
+		if err == nil && ctx.Err() != nil {
+			// The caller gave up while the provider answered.
+			errs = append(errs, ctx.Err())
+			break
+		}
+		if err == nil {
+			return TextResult{Text: text, Provider: p.Name()}, nil
+		}
+		log.Printf("[ai] text provider %s failed: %v", p.Name(), err)
+		errs = append(errs, fmt.Errorf("%s: %w", p.Name(), err))
+	}
+	return TextResult{}, fmt.Errorf("all providers failed: %w", errors.Join(errs...))
+}
+
+func (c *Chain) attempt(ctx context.Context, p Provider, req TextRequest, validate func(string) error) (string, error) {
+	pctx, cancel := context.WithTimeout(ctx, providerTimeout)
+	defer cancel()
+	text, err := p.GenerateText(pctx, req)
+	if err != nil {
+		return "", err
+	}
+	if err := validate(text); err != nil {
+		return "", err
+	}
+	return text, nil
 }
 
 func (c *Chain) GenerateWithVision(ctx context.Context, req VisionRequest) (string, error) {

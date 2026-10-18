@@ -193,7 +193,7 @@ func TestChineseWeekEmptyAIReplyIsLoggedWithoutContent(t *testing.T) {
 	if code != http.StatusOK || !strings.Contains(weeks, "gěi") {
 		t.Fatalf("status=%d weeks=%s", code, weeks)
 	}
-	if strings.Count(strings.TrimSpace(logged), "\n") != 0 || !strings.Contains(logged, "no_json") || !strings.Contains(logged, "enrich-test") {
+	if strings.Count(strings.TrimSpace(logged), "\n") != 1 || !strings.Contains(logged, "no_json") || !strings.Contains(logged, "enrich-test") {
 		t.Fatalf("log=%q", logged)
 	}
 	if strings.Contains(logged, "给") {
@@ -371,5 +371,45 @@ func TestChineseWeekFullAIItemsAreSaved(t *testing.T) {
 	_, items := saveWeekWith(t, false, reply, `{"label":"W","items":[{"character":"黄"}]}`)
 	if len(items) != 1 || items[0].Pinyin != "huáng" || items[0].Meaning != "yellow" || len(items[0].Words) != 1 || items[0].PinyinHint != "h" || items[0].ShapeHint != "s" || items[0].ExampleSentence == "" {
 		t.Fatalf("items=%#v", items)
+	}
+}
+
+// postChineseWeekWith posts body to a router whose chain is providers and
+// returns the status and the list of saved weeks.
+func postChineseWeekWith(t *testing.T, providers []ai.Provider, body string) (int, string) {
+	t.Helper()
+	gin.SetMode(gin.TestMode)
+	database, err := appdb.Open(filepath.Join(t.TempDir(), "chinese-chain.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer database.Close()
+	router := gin.New()
+	NewChinese(database, ai.NewChain(providers)).Register(router.Group("/api/v1"))
+	log.SetOutput(&bytes.Buffer{})
+	defer log.SetOutput(os.Stderr)
+	created := readingJSONRequest(t, router, http.MethodPost, "/api/v1/chinese/weeks", body)
+	list := readingJSONRequest(t, router, http.MethodGet, "/api/v1/chinese/weeks", "")
+	return created.Code, list.Body.String()
+}
+
+func TestChineseWeekFallsBackWhenTheFirstProviderReturnsNothing(t *testing.T) {
+	code, weeks := postChineseWeekWith(t, []ai.Provider{
+		enrichReplyProvider{reply: ""},
+		enrichReplyProvider{reply: `[{"character":"给","meaning":"to give","words":["给你"]}]`},
+	}, oneItemWeek)
+	if code != http.StatusOK || !strings.Contains(weeks, "to give") || !strings.Contains(weeks, "给你") {
+		t.Fatalf("status=%d weeks=%s", code, weeks)
+	}
+}
+
+func TestChineseWeekFallsBackPastRepliesThatDoNotCoverTheItems(t *testing.T) {
+	code, weeks := postChineseWeekWith(t, []ai.Provider{
+		enrichReplyProvider{reply: `{}`},
+		enrichReplyProvider{reply: `[{"character":"你","meaning":"wrong one"}]`},
+		enrichReplyProvider{reply: `[{"character":"给","meaning":"to give"}]`},
+	}, oneItemWeek)
+	if code != http.StatusOK || !strings.Contains(weeks, "to give") || strings.Contains(weeks, "wrong one") {
+		t.Fatalf("status=%d weeks=%s", code, weeks)
 	}
 }

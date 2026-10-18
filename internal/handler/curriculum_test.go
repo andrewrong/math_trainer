@@ -1126,6 +1126,24 @@ func TestP4FactorsMultiplesStoryProblemsNameTheirPicture(t *testing.T) {
 		}
 	}
 
+	// Values the story pictures depend on, taken from the issue.
+	for i, wants := range [][]string{
+		{"18 apples and 24 oranges", "Try 4 bags", "18 apples leave 2 over", "6 bags", "3 apples and 4 oranges each", "Circle 1, 2, 3, 6"},
+		{"16 stickers and 40 cards", "8 sets", "2 stickers and 5 cards"},
+		{"every 4 days", "every 6 days", "days 0 to 24", "multiples of 4: 4, 8, 12, 16, 20, 24", "multiples of 6: 6, 12, 18, 24", "Circle 12 and 24", "day 12"},
+		{"every 6 days", "every 9 days", "multiples of 9: 9, 18, 27", "Circle 18", "after 18 days"},
+	} {
+		body, _ := examples[i]["body"].(string)
+		for _, want := range wants {
+			if !strings.Contains(body, want) {
+				t.Fatalf("story example %v lacks %q", examples[i]["title"], want)
+			}
+		}
+	}
+	if examples[0]["diagram"] != bags || examples[1]["diagram"] != bags || examples[2]["diagram"] != calendar || examples[3]["diagram"] != calendar {
+		t.Fatalf("story examples name the wrong pictures: %v", examples)
+	}
+
 	guided, f, m := withDiagram(pack["guidedPractice"].([]gin.H))
 	if len(guided) != 6 || f != 4 || m != 2 {
 		t.Fatalf("guided story questions=%d factor=%d multiple=%d, want 6 (4 bags, 2 calendar)", len(guided), f, m)

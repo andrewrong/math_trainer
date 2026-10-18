@@ -7,8 +7,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 func anthropicServer(t *testing.T, status int, body string) *AnthropicProvider {
@@ -42,8 +44,8 @@ func TestAnthropicUnusableRepliesAreErrors(t *testing.T) {
 		name, body, want string
 		status           int
 	}{
-		{"only thinking", `{"content":[{"type":"thinking","thinking":"SECRETTEXT"}],"stop_reason":"end_turn"}`, "thinking", 200},
-		{"whitespace", `{"content":[{"type":"text","text":" \n SECRETTEXT"}],"stop_reason":"end_turn"}`, "", 200},
+		{"only thinking", `{"content":[{"type":"thinking","thinking":"SECRETTEXT"}],"stop_reason":"end_turn"}`, "stop_reason end_turn", 200},
+		{"whitespace", `{"content":[{"type":"text","text":" \n SECRETTEXT"}],"stop_reason":"end_turn"}`, "stop_reason end_turn", 200},
 		{"max_tokens", `{"content":[{"type":"text","text":"SECRETTEXT"}],"stop_reason":"max_tokens"}`, "max_tokens", 200},
 		{"context window", `{"content":[{"type":"text","text":"SECRETTEXT"}],"stop_reason":"model_context_window_exceeded"}`, "model_context_window_exceeded", 200},
 		{"pause_turn", `{"content":[{"type":"text","text":"SECRETTEXT"}],"stop_reason":"pause_turn"}`, "pause_turn", 200},
@@ -61,7 +63,7 @@ func TestAnthropicUnusableRepliesAreErrors(t *testing.T) {
 			if err == nil {
 				t.Fatalf("no error, got %q", got)
 			}
-			if !strings.Contains(err.Error(), c.want) || strings.Contains(err.Error(), "SECRETTEXT") {
+			if !strings.Contains(err.Error(), c.want) || !strings.Contains(err.Error(), "status "+strconv.Itoa(c.status)) || strings.Contains(err.Error(), "SECRETTEXT") {
 				t.Fatalf("error %q", err)
 			}
 		})
@@ -95,5 +97,57 @@ func TestAnthropicLogsOneLinePerCallWithoutText(t *testing.T) {
 	}
 	if strings.Contains(out, "SECRETTEXT") {
 		t.Fatalf("log holds text: %q", out)
+	}
+}
+
+func TestAnthropicHTTPErrorDoesNotExposeText(t *testing.T) {
+	p := anthropicServer(t, 500,
+		`{"error":{"message":"SECRETTEXT"},"content":[{"type":"text","text":"SECRETTEXT"}],"stop_reason":"end_turn"}`)
+
+	_, err := p.GenerateText(context.Background(), TextRequest{})
+	if err == nil || !strings.Contains(err.Error(), "500") {
+		t.Fatalf("expected HTTP 500 error, got %v", err)
+	}
+	if strings.Contains(err.Error(), "SECRETTEXT") {
+		t.Fatalf("response text exposed: %v", err)
+	}
+}
+
+func TestAnthropicHTTPErrorFailsBeforeTheBodyArrives(t *testing.T) {
+	release := make(chan struct{})
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(500)
+		w.(http.Flusher).Flush()
+		<-release
+	}))
+	defer srv.Close()
+	defer close(release)
+	done := make(chan error, 1)
+	go func() {
+		_, err := NewAnthropic("k", "m", srv.URL).GenerateText(context.Background(), TextRequest{})
+		done <- err
+	}()
+	select {
+	case err := <-done:
+		if err == nil || !strings.Contains(err.Error(), "500") {
+			t.Fatalf("err %v", err)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("call waited for the body of an HTTP 500")
+	}
+}
+
+func TestAnthropicTransportFailureIsLogged(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+	url := srv.URL
+	srv.Close()
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	defer log.SetOutput(os.Stderr)
+	if _, err := NewAnthropic("k", "test-model", url).GenerateText(context.Background(), TextRequest{}); err == nil {
+		t.Fatal("expected an error")
+	}
+	if !strings.Contains(buf.String(), "anthropic call") || !strings.Contains(buf.String(), "test-model") {
+		t.Fatalf("log %q", buf.String())
 	}
 }

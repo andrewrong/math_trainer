@@ -92,3 +92,11 @@ func TestGenerateTextReturnsProseUnchanged(t *testing.T) {
 		t.Fatalf("got %q err %v", got, err)
 	}
 }
+
+func TestValidatedDoesNotAcceptAReplyAfterTheContextIsCancelled(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	c := NewChain([]Provider{&fakeProvider{name: "one", reply: "ok", hook: cancel}})
+	if res, err := c.GenerateTextValidated(ctx, TextRequest{}, func(string) error { return nil }); err == nil {
+		t.Fatalf("accepted %+v", res)
+	}
+}

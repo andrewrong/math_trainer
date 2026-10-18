@@ -101,6 +101,11 @@ func (c *Chain) GenerateTextValidated(ctx context.Context, req TextRequest, vali
 			break
 		}
 		text, err := c.attempt(ctx, p, req, validate)
+		if err == nil && ctx.Err() != nil {
+			// The caller gave up while the provider answered.
+			errs = append(errs, ctx.Err())
+			break
+		}
 		if err == nil {
 			return TextResult{Text: text, Provider: p.Name()}, nil
 		}

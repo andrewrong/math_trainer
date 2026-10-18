@@ -28,11 +28,6 @@ func TestOpenAICompatibleAndOllamaRejectEmptyContent(t *testing.T) {
 }
 
 func quote(s string) string {
-	b, _ := jsonMarshalString(s)
-	return b
-}
-
-func jsonMarshalString(s string) (string, error) {
-	b, err := json.Marshal(s)
-	return string(b), err
+	b, _ := json.Marshal(s)
+	return string(b)
 }

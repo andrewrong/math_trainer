@@ -1,0 +1,3 @@
+# Public file: holds only non-personal path segments (such as me u x test zh en
+# private runner work) and <file>:<kind> entries, never the name of a person,
+# a machine or a volume.

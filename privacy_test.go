@@ -25,7 +25,7 @@ type allowList struct {
 }
 
 var (
-	pathRE  = regexp.MustCompile(`(/Us` + `ers|/ho` + `me|/Vol` + `umes)/([^/\s"'` + "`" + `]+)/`)
+	pathRE  = regexp.MustCompile(`(/Us` + `ers|/ho` + `me|/Vol` + `umes)/([\w-]+(?:\.[\w-]+)*)`)
 	emailRE = regexp.MustCompile(`(?i)[a-z0-9._%+-]+@(?:gmail\.com|googlemail\.com|126\.com|163\.com|qq\.com|foxmail\.com|outlook\.com|hotmail\.com|live\.com|icloud\.com|me\.com|yahoo\.com|sina\.com|aliyun\.com)(?:$|[^a-z0-9-])`)
 	hostRE  = regexp.MustCompile(`(?i)(?:[a-z0-9-]+\.)+ts\.net\b`)
 	dataExt = map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".heic": true, ".gif": true, ".webp": true,
@@ -103,7 +103,7 @@ func TestNoPrivateDataInTrackedFiles(t *testing.T) {
 	if err != nil {
 		t.Fatalf("git ls-files: %v", err)
 	}
-	report := func(file string, line int, kind string) {
+	reportUnlessAllowed := func(file string, line int, kind string) {
 		if allow.files[file+":"+kind] {
 			return
 		}
@@ -132,7 +132,7 @@ func TestNoPrivateDataInTrackedFiles(t *testing.T) {
 		}
 		for i, line := range strings.Split(string(content), "\n") {
 			for _, kind := range scanLine(line, allow) {
-				report(file, i+1, kind)
+				reportUnlessAllowed(file, i+1, kind)
 			}
 		}
 	}
@@ -204,4 +204,18 @@ func TestPrivacyPatterns(t *testing.T) {
 			t.Fatalf("entries lost: %+v", a)
 		}
 	})
+}
+
+func TestPrivacyHomeDirWithoutTrailingSlash(t *testing.T) {
+	allow := allowList{names: map[string]bool{}, files: map[string]bool{}}
+	for _, line := range []string{
+		"/Us" + "ers/alice",
+		`HOME="/ho` + `me/bob"`,
+		"cd /Vol" + "umes/data now",
+	} {
+		got := scanLine(line, allow)
+		if len(got) != 1 || got[0] != "path" {
+			t.Errorf("case %q: kinds = %v, want [path]", line[:3], got)
+		}
+	}
 }

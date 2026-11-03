@@ -25,7 +25,7 @@ type allowList struct {
 }
 
 var (
-	pathRE  = regexp.MustCompile(`(/Us` + `ers|/ho` + `me|/Vol` + `umes)/([\w-]+(?:\.[\w-]+)*)`)
+	pathRE  = regexp.MustCompile(`(/Us` + `ers|/ho` + `me|/Vol` + `umes)/([\p{L}\p{N}_-]+(?:\.[\p{L}\p{N}_-]+)*)`)
 	emailRE = regexp.MustCompile(`(?i)[a-z0-9._%+-]+@(?:gmail\.com|googlemail\.com|126\.com|163\.com|qq\.com|foxmail\.com|outlook\.com|hotmail\.com|live\.com|icloud\.com|me\.com|yahoo\.com|sina\.com|aliyun\.com)(?:$|[^a-z0-9-])`)
 	hostRE  = regexp.MustCompile(`(?i)(?:[a-z0-9-]+\.)+ts\.net\b`)
 	dataExt = map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".heic": true, ".gif": true, ".webp": true,
@@ -212,6 +212,20 @@ func TestPrivacyHomeDirWithoutTrailingSlash(t *testing.T) {
 		"/Us" + "ers/alice",
 		`HOME="/ho` + `me/bob"`,
 		"cd /Vol" + "umes/data now",
+	} {
+		got := scanLine(line, allow)
+		if len(got) != 1 || got[0] != "path" {
+			t.Errorf("case %q: kinds = %v, want [path]", line[:3], got)
+		}
+	}
+}
+
+func TestPrivacyHomeDirNonASCIIName(t *testing.T) {
+	allow := allowList{names: map[string]bool{}, files: map[string]bool{}}
+	for _, line := range []string{
+		"/ho" + "me/Ünal/x",
+		"/Us" + "ers/张伟/proj",
+		"/ho" + "me/Ünal",
 	} {
 		got := scanLine(line, allow)
 		if len(got) != 1 || got[0] != "path" {

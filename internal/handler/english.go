@@ -406,8 +406,10 @@ func (h *EnglishHandler) checkSentence(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, model.APIError{Error: err.Error()})
 		return
 	}
+	req.Sentence = normalizeSentence(req.Sentence)
+	fixedSentence, lowerL := fixLowerL(req.Sentence)
 	wordJSON, _ := json.Marshal(req.Word)
-	sentenceJSON, _ := json.Marshal(req.Sentence)
+	sentenceJSON, _ := json.Marshal(fixedSentence)
 	system := `You are a primary-school English teacher. Return valid JSON only. Do not use markdown. Do not add text outside JSON.`
 	prompt := fmt.Sprintf(`Check a child's sentence.
 
@@ -464,7 +466,47 @@ Rules:
 			return
 		}
 	}
+	if !resp.OK && normalizeSentence(resp.Corrected) == normalizeSentence(fixedSentence) {
+		resp = model.SentenceCheckResp{OK: true, Feedback: "Well done! Your sentence is correct."}
+	}
+	if lowerL {
+		corrected := fixedSentence
+		if !resp.OK && resp.Corrected != "" {
+			corrected = resp.Corrected
+		}
+		resp = model.SentenceCheckResp{
+			OK:        false,
+			Feedback:  "The letter you typed is a lowercase l, not a capital I. Please type a capital I.",
+			Corrected: corrected,
+		}
+	}
 	c.JSON(http.StatusOK, resp)
+}
+
+var sentenceCharReplacer = strings.NewReplacer("\u2018", "'", "\u2019", "'", "\u201c", `"`, "\u201d", `"`, "\u00a0", " ")
+
+// normalizeSentence turns curly quotes into straight ones, non-breaking spaces
+// into spaces, collapses runs of whitespace and trims.
+func normalizeSentence(s string) string {
+	return strings.Join(strings.Fields(sentenceCharReplacer.Replace(s)), " ")
+}
+
+// fixLowerL replaces every standalone lowercase l (no ASCII letter or digit on
+// either side) with a capital I, and reports whether it replaced any.
+func fixLowerL(s string) (string, bool) {
+	isAlnum := func(b byte) bool {
+		return b >= 'a' && b <= 'z' || b >= 'A' && b <= 'Z' || b >= '0' && b <= '9'
+	}
+	b := []byte(s)
+	found := false
+	for i := range b {
+		if b[i] != 'l' || (i > 0 && isAlnum(b[i-1])) || (i+1 < len(b) && isAlnum(b[i+1])) {
+			continue
+		}
+		b[i] = 'I'
+		found = true
+	}
+	return string(b), found
 }
 
 func parseSentenceCheckResp(raw string) (model.SentenceCheckResp, error) {

@@ -328,7 +328,7 @@ func TestCheckSentenceAcceptsSentenceEqualToCorrection(t *testing.T) {
 		_, resp := postSentenceCheck(t,
 			`{"ok":false,"feedback":"Capitalise I.","corrected":"I like it, but I don't."}`,
 			"I like it, but I don’t.")
-		if !resp.OK || resp.Corrected != "" || resp.Feedback == "" {
+		if !resp.OK || resp.Corrected != "" || resp.Feedback != "Well done! Your sentence is correct." {
 			t.Fatalf("resp = %+v, want ok with empty corrected and praise", resp)
 		}
 	})

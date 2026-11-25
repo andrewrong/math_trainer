@@ -407,9 +407,9 @@ func (h *EnglishHandler) checkSentence(c *gin.Context) {
 		return
 	}
 	req.Sentence = normalizeSentence(req.Sentence)
-	sentence, lowerL := fixLowerL(req.Sentence)
+	fixedSentence, lowerL := fixLowerL(req.Sentence)
 	wordJSON, _ := json.Marshal(req.Word)
-	sentenceJSON, _ := json.Marshal(sentence)
+	sentenceJSON, _ := json.Marshal(fixedSentence)
 	system := `You are a primary-school English teacher. Return valid JSON only. Do not use markdown. Do not add text outside JSON.`
 	prompt := fmt.Sprintf(`Check a child's sentence.
 
@@ -466,11 +466,11 @@ Rules:
 			return
 		}
 	}
-	if !resp.OK && normalizeSentence(resp.Corrected) == normalizeSentence(sentence) {
+	if !resp.OK && normalizeSentence(resp.Corrected) == normalizeSentence(fixedSentence) {
 		resp = model.SentenceCheckResp{OK: true, Feedback: "Well done! Your sentence is correct."}
 	}
 	if lowerL {
-		corrected := sentence
+		corrected := fixedSentence
 		if !resp.OK && resp.Corrected != "" {
 			corrected = resp.Corrected
 		}
@@ -483,12 +483,12 @@ Rules:
 	c.JSON(http.StatusOK, resp)
 }
 
-var sentenceQuoteReplacer = strings.NewReplacer("\u2018", "'", "\u2019", "'", "\u201c", `"`, "\u201d", `"`, "\u00a0", " ")
+var sentenceCharReplacer = strings.NewReplacer("\u2018", "'", "\u2019", "'", "\u201c", `"`, "\u201d", `"`, "\u00a0", " ")
 
 // normalizeSentence turns curly quotes into straight ones, non-breaking spaces
 // into spaces, collapses runs of whitespace and trims.
 func normalizeSentence(s string) string {
-	return strings.Join(strings.Fields(sentenceQuoteReplacer.Replace(s)), " ")
+	return strings.Join(strings.Fields(sentenceCharReplacer.Replace(s)), " ")
 }
 
 // fixLowerL replaces every standalone lowercase l (no ASCII letter or digit on

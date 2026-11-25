@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -253,4 +254,125 @@ func containsAll(s string, parts ...string) bool {
 		}
 	}
 	return true
+}
+
+// ─── Sentence check ───────────────────────────────────────────────────────────
+
+type recordingSentenceProvider struct {
+	reply  string
+	prompt string
+}
+
+func (*recordingSentenceProvider) Name() string         { return "sentence-test" }
+func (*recordingSentenceProvider) SupportsVision() bool { return false }
+func (*recordingSentenceProvider) GenerateWithVision(context.Context, ai.VisionRequest) (string, error) {
+	return "", nil
+}
+func (p *recordingSentenceProvider) GenerateText(_ context.Context, req ai.TextRequest) (string, error) {
+	p.prompt = req.UserPrompt
+	return p.reply, nil
+}
+
+func postSentenceCheck(t *testing.T, reply, sentence string) (*recordingSentenceProvider, model.SentenceCheckResp) {
+	t.Helper()
+	gin.SetMode(gin.TestMode)
+	p := &recordingSentenceProvider{reply: reply}
+	h := NewEnglish(nil, ai.NewChain([]ai.Provider{p}))
+	router := gin.New()
+	h.Register(router.Group("/api/v1"))
+	body, err := json.Marshal(map[string]string{"word": "like", "sentence": sentence})
+	if err != nil {
+		t.Fatal(err)
+	}
+	rec := readingJSONRequest(t, router, http.MethodPost, "/api/v1/english/sentence-check", string(body))
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", rec.Code, rec.Body.String())
+	}
+	var resp model.SentenceCheckResp
+	if err := json.Unmarshal(rec.Body.Bytes(), &resp); err != nil {
+		t.Fatal(err)
+	}
+	return p, resp
+}
+
+func TestNormalizeSentence(t *testing.T) {
+	t.Parallel()
+	tests := []struct{ name, in, want string }{
+		{"curly apostrophe", "I don’t", "I don't"},
+		{"curly double quotes", "“hi”", `"hi"`},
+		{"left single quote", "‘hi’", "'hi'"},
+		{"nbsp and doubled spaces", "  I\u00a0like \u00a0 cats.  ", "I like cats."},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if got := normalizeSentence(tc.in); got != tc.want {
+				t.Fatalf("normalizeSentence(%q) = %q, want %q", tc.in, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestCheckSentenceSendsStraightQuotes(t *testing.T) {
+	t.Parallel()
+	p, _ := postSentenceCheck(t, `{"ok":true,"feedback":"Nice."}`, "I like it, but I don’t.")
+	if !strings.Contains(p.prompt, "don't") || strings.Contains(p.prompt, "’") {
+		t.Fatalf("prompt must hold the straight quote only: %s", p.prompt)
+	}
+}
+
+func TestCheckSentenceAcceptsSentenceEqualToCorrection(t *testing.T) {
+	t.Parallel()
+	t.Run("equal after normalisation", func(t *testing.T) {
+		t.Parallel()
+		_, resp := postSentenceCheck(t,
+			`{"ok":false,"feedback":"Capitalise I.","corrected":"I like it, but I don't."}`,
+			"I like it, but I don’t.")
+		if !resp.OK || resp.Corrected != "" || resp.Feedback == "" {
+			t.Fatalf("resp = %+v, want ok with empty corrected and praise", resp)
+		}
+	})
+	t.Run("differs by letter case", func(t *testing.T) {
+		t.Parallel()
+		_, resp := postSentenceCheck(t,
+			`{"ok":false,"feedback":"Capitalise I.","corrected":"I like cats."}`,
+			"i like cats.")
+		if resp.OK || resp.Corrected != "I like cats." {
+			t.Fatalf("resp = %+v, want not ok with the correction", resp)
+		}
+	})
+}
+
+func TestFixLowerL(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		in, want string
+		found    bool
+	}{
+		{"l sometimes like cats.", "I sometimes like cats.", true},
+		{"Today l and my dad l sing.", "Today I and my dad I sing.", true},
+		{"l'm happy.", "I'm happy.", true},
+		{"I like lemons and will.", "I like lemons and will.", false},
+		{"I like cats.", "I like cats.", false},
+		{"", "", false},
+	}
+	for _, tc := range tests {
+		got, found := fixLowerL(tc.in)
+		if got != tc.want || found != tc.found {
+			t.Errorf("fixLowerL(%q) = %q, %v; want %q, %v", tc.in, got, found, tc.want, tc.found)
+		}
+	}
+}
+
+func TestCheckSentenceNamesLowercaseL(t *testing.T) {
+	t.Parallel()
+	p, resp := postSentenceCheck(t, `{"ok":true,"feedback":"Nice."}`, "l sometimes like to wrestle.")
+	if !strings.Contains(p.prompt, "I sometimes like to wrestle.") {
+		t.Fatalf("prompt must hold the fixed sentence: %s", p.prompt)
+	}
+	if resp.OK ||
+		resp.Feedback != "The letter you typed is a lowercase l, not a capital I. Please type a capital I." ||
+		resp.Corrected != "I sometimes like to wrestle." {
+		t.Fatalf("resp = %+v", resp)
+	}
 }
